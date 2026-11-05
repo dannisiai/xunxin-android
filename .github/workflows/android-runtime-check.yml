@@ -6,17 +6,41 @@ on:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 45
+    env:
+      NEXT_PUBLIC_SELF_HOSTED_MODE: "true"
+      XUNXIN_ANDROID_BUILD: "1"
+      XUNXIN_ANDROID_LOCAL: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_OPTIONS: "--max-old-space-size=6144"
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - name: Build diagnostic APK
+        run: |
+          npm ci
+          npm run build
+          python3 scripts/prepare-xunxin-android.py
+          curl -fL --retry 3 -o /tmp/nodejs-mobile.zip https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip
+          echo "bd7321eaa1a7602fbe0bb87302df2d79d87835cf4363fbdd17c350dbb485c2af  /tmp/nodejs-mobile.zip" | sha256sum -c -
+          mkdir -p android-shell/app/libnode
+          unzip -q /tmp/nodejs-mobile.zip -d android-shell/app/libnode
+          gradle -p android-shell assembleDebug
       - name: Enable hardware acceleration
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
-      - name: Fetch the shipped APK
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release download android-standalone-1 --repo dannisiai/xunxin-android --pattern xunxin-android.apk --dir /tmp/xunxin
       - name: Run app on Android emulator
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -27,7 +51,7 @@ jobs:
           script: |
             mkdir -p /tmp/xunxin-diagnostics
             adb logcat -c
-            adb install -r /tmp/xunxin/xunxin-android.apk > /tmp/xunxin-diagnostics/install.txt 2>&1
+            adb install -r android-shell/app/build/outputs/apk/debug/app-debug.apk > /tmp/xunxin-diagnostics/install.txt 2>&1
             adb shell am start -n app.floatphone.shell/.MainActivity > /tmp/xunxin-diagnostics/start.txt 2>&1
             sleep 210
             adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1 || true
@@ -40,6 +64,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: xunxin-startup-diagnostics
+          name: xunxin-startup-debug-logs
           path: /tmp/xunxin-diagnostics/
           if-no-files-found: warn
