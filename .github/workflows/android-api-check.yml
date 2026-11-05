@@ -1,0 +1,50 @@
+name: Inspect Android API setup
+on:
+  push:
+    branches: [android-api-check]
+  workflow_dispatch:
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Download app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download android-standalone-2 --repo dannisiai/xunxin-android --pattern app-debug.apk --dir /tmp/xunxin
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Inspect settings in emulator
+        timeout-minutes: 12
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
+          script: |
+            mkdir -p /tmp/api-check
+            adb shell input keyevent 82
+            adb logcat -c
+            adb install -r /tmp/xunxin/app-debug.apk > /tmp/api-check/install.txt 2>&1
+            adb shell am start -n app.floatphone.shell/.MainActivity > /tmp/api-check/start.txt 2>&1
+            sleep 55
+            adb shell screencap -p /sdcard/start.png || true
+            adb pull /sdcard/start.png /tmp/api-check/start.png || true
+            adb shell input tap 160 580 || true
+            sleep 12
+            adb shell screencap -p /sdcard/desktop.png || true
+            adb pull /sdcard/desktop.png /tmp/api-check/desktop.png || true
+            adb shell uiautomator dump /sdcard/desktop.xml >/dev/null 2>&1 || true
+            adb pull /sdcard/desktop.xml /tmp/api-check/desktop.xml >/dev/null 2>&1 || true
+            adb logcat -d -v threadtime > /tmp/api-check/logcat.txt || true
+      - name: Upload screenshots and logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-api-inspection
+          path: /tmp/api-check/
+          if-no-files-found: warn
