@@ -1,0 +1,45 @@
+name: Diagnose Android local startup
+on:
+  push:
+    branches: [android-diagnostics]
+  workflow_dispatch:
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Enable hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Fetch the shipped APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download android-standalone-1 --repo dannisiai/xunxin-android --pattern xunxin-android.apk --dir /tmp/xunxin
+      - name: Run app on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: |
+            mkdir -p /tmp/xunxin-diagnostics
+            adb logcat -c
+            adb install -r /tmp/xunxin/xunxin-android.apk > /tmp/xunxin-diagnostics/install.txt 2>&1
+            adb shell am start -n app.floatphone.shell/.MainActivity > /tmp/xunxin-diagnostics/start.txt 2>&1
+            sleep 210
+            adb shell uiautomator dump /sdcard/window.xml >/dev/null 2>&1 || true
+            adb pull /sdcard/window.xml /tmp/xunxin-diagnostics/window.xml >/dev/null 2>&1 || true
+            adb shell screencap -p /sdcard/screen.png || true
+            adb pull /sdcard/screen.png /tmp/xunxin-diagnostics/screen.png >/dev/null 2>&1 || true
+            adb logcat -d -v threadtime > /tmp/xunxin-diagnostics/logcat.txt
+            adb shell pidof app.floatphone.shell > /tmp/xunxin-diagnostics/pid.txt || true
+      - name: Upload startup diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xunxin-startup-diagnostics
+          path: /tmp/xunxin-diagnostics/
+          if-no-files-found: warn
