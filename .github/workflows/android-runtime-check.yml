@@ -31,8 +31,8 @@ jobs:
           npm ci
           npm run build
           python3 scripts/prepare-xunxin-android.py
-          curl -fL --retry 3 -o /tmp/nodejs-mobile.zip https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip
-          echo "bd7321eaa1a7602fbe0bb87302df2d79d87835cf4363fbdd17c350dbb485c2af  /tmp/nodejs-mobile.zip" | sha256sum -c -
+          curl -fL --retry 3 -o /tmp/nodejs-mobile.zip https://github.com/fogtape/nodejs-mobile/releases/download/v24.22.1-0/nodejs-mobile-android-24.22.1-0.zip
+          echo "d6fd9f610fe5d81fede8f0d400c5a62723247725a19831835f15abf4f0604250  /tmp/nodejs-mobile.zip" | sha256sum -c -
           mkdir -p android-shell/app/libnode
           unzip -q /tmp/nodejs-mobile.zip -d android-shell/app/libnode
           gradle -p android-shell assembleDebug
