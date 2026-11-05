@@ -1,0 +1,74 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+// 签名：CI 里通过环境变量注入 keystore（见 android-shell/README.md）；
+// 没有配置时 release 构建产出未签名 APK，debug 构建始终可直接安装测试。
+def localBundle = System.getenv("XUNXIN_ANDROID_LOCAL") == "1"
+def ksFile = System.getenv("SHELL_KEYSTORE_FILE")
+def siteUrl = (localBundle ? "http://localhost:18471" : (System.getenv("SHELL_SITE_URL") ?: "https://example.invalid")).replaceAll('/+$', '')
+
+android {
+    namespace 'app.floatphone.shell'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "app.floatphone.shell"
+        minSdk 26
+        targetSdk 34
+        versionCode 2
+        versionName "1.1.0"
+        buildConfigField "boolean", "LOCAL_BUNDLE", localBundle.toString()
+        if (localBundle) {
+            ndk { abiFilters "arm64-v8a", "x86_64" }
+            externalNativeBuild { cmake { arguments "-DANDROID_STL=c++_shared" } }
+        }
+        buildConfigField "String", "SITE_URL", "\"${siteUrl}\""
+    }
+
+    buildFeatures { buildConfig true }
+    // Include the upstream MIT notice in the APK as well as the source tree.
+    sourceSets {
+        main {
+            assets.srcDir '../third-party'
+            if (localBundle) {
+                assets.srcDir 'build/generated/xunxin-assets'
+                jniLibs.srcDirs 'libnode/bin'
+            }
+        }
+    }
+    if (localBundle) {
+        externalNativeBuild { cmake { path 'CMakeLists.txt' } }
+    }
+
+    if (ksFile) {
+        signingConfigs {
+            release {
+                storeFile file(ksFile)
+                storePassword System.getenv("SHELL_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("SHELL_KEY_ALIAS")
+                keyPassword System.getenv("SHELL_KEY_PASSWORD")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (ksFile) signingConfig signingConfigs.release
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions { jvmTarget = '17' }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+}

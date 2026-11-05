@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.22.1)
+project(xunxin_node)
+include_directories(${CMAKE_SOURCE_DIR}/libnode/include/node)
+add_library(node SHARED IMPORTED)
+set_target_properties(node PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/libnode/bin/${ANDROID_ABI}/libnode.so)
+add_library(xunxin_node SHARED src/main/cpp/xunxin-node.cpp)
+target_link_libraries(xunxin_node node log)

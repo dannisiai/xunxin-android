@@ -1,0 +1,51 @@
+name: Build Xunxin standalone Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      NEXT_PUBLIC_SELF_HOSTED_MODE: "true"
+      XUNXIN_ANDROID_BUILD: "1"
+      XUNXIN_ANDROID_LOCAL: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
+      NODE_OPTIONS: "--max-old-space-size=6144"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.7"
+      - name: Install application dependencies
+        run: npm ci
+      - name: Build the bundled application
+        run: npm run build
+      - name: Package the application for Android
+        run: python3 scripts/prepare-xunxin-android.py
+      - name: Download Node.js Mobile
+        run: |
+          curl -fL --retry 3 -o /tmp/nodejs-mobile.zip https://github.com/nodejs-mobile/nodejs-mobile/releases/download/v18.20.4/nodejs-mobile-v18.20.4-android.zip
+          echo "bd7321eaa1a7602fbe0bb87302df2d79d87835cf4363fbdd17c350dbb485c2af  /tmp/nodejs-mobile.zip" | sha256sum -c -
+          mkdir -p android-shell/app/libnode
+          unzip -q /tmp/nodejs-mobile.zip -d android-shell/app/libnode
+      - name: Build Android APK
+        run: gradle -p android-shell assembleDebug
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: xunxin-android-standalone-debug
+          path: android-shell/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
