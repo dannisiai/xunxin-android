@@ -1,0 +1,56 @@
+name: Check released Android app
+on:
+  push:
+    branches: [android-diagnostics]
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download released APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download android-standalone-2 --repo dannisiai/xunxin-android --pattern app-debug.apk --dir /tmp/xunxin
+      - name: Enable hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Start Android and inspect the app
+        timeout-minutes: 13
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          arch: x86_64
+          target: google_apis
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 3072
+          script: |
+            mkdir -p /tmp/xunxin-check
+            adb shell input keyevent 82
+            adb shell settings put global window_animation_scale 0
+            adb shell settings put global transition_animation_scale 0
+            adb logcat -c
+            adb install -r /tmp/xunxin/app-debug.apk > /tmp/xunxin-check/install.txt 2>&1
+            adb shell am start -n app.floatphone.shell/.MainActivity > /tmp/xunxin-check/start.txt 2>&1
+            sleep 100
+            adb shell screencap -p /sdcard/before.png
+            adb pull /sdcard/before.png /tmp/xunxin-check/before.png
+            adb shell uiautomator dump /sdcard/before.xml >/dev/null 2>&1 || true
+            adb pull /sdcard/before.xml /tmp/xunxin-check/before.xml >/dev/null 2>&1 || true
+            adb shell input tap 160 570
+            sleep 25
+            adb shell screencap -p /sdcard/after.png
+            adb pull /sdcard/after.png /tmp/xunxin-check/after.png
+            adb shell uiautomator dump /sdcard/after.xml >/dev/null 2>&1 || true
+            adb pull /sdcard/after.xml /tmp/xunxin-check/after.xml >/dev/null 2>&1 || true
+            adb shell pidof app.floatphone.shell > /tmp/xunxin-check/pid.txt || true
+            adb logcat -d -v threadtime > /tmp/xunxin-check/logcat.txt
+      - name: Save diagnostic output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xunxin-released-check
+          path: /tmp/xunxin-check/
+          if-no-files-found: warn
