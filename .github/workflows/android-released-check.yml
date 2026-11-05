@@ -22,10 +22,10 @@ jobs:
         timeout-minutes: 13
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 34
           arch: x86_64
           target: google_apis
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 3072
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -memory 2048
           script: |
             mkdir -p /tmp/xunxin-check
             adb shell input keyevent 82
@@ -34,13 +34,13 @@ jobs:
             adb logcat -c
             adb install -r /tmp/xunxin/app-debug.apk > /tmp/xunxin-check/install.txt 2>&1
             adb shell am start -n app.floatphone.shell/.MainActivity > /tmp/xunxin-check/start.txt 2>&1
-            sleep 100
+            sleep 50
             adb shell screencap -p /sdcard/before.png
             adb pull /sdcard/before.png /tmp/xunxin-check/before.png
             adb shell uiautomator dump /sdcard/before.xml >/dev/null 2>&1 || true
             adb pull /sdcard/before.xml /tmp/xunxin-check/before.xml >/dev/null 2>&1 || true
             adb shell input tap 160 570
-            sleep 25
+            sleep 15
             adb shell screencap -p /sdcard/after.png
             adb pull /sdcard/after.png /tmp/xunxin-check/after.png
             adb shell uiautomator dump /sdcard/after.xml >/dev/null 2>&1 || true
