@@ -1473,3 +1473,18 @@
 .folder-dots .dot.active {
   background: color-mix(in srgb, var(--c-home-label, #ffffff) 85%, transparent);
 }
+
+/* Android WebView may report no coarse pointer even on a touch device. */
+@media (max-width: 500px) {
+  html[data-android-shell="1"] { --phone-screen-width: 100vw; --phone-screen-height: 100lvh; overflow: hidden; width: 100%; height: 100lvh; }
+  html[data-android-shell="1"] body { overflow: hidden; width: 100%; height: 100lvh; background: var(--c-page-body-bg); }
+  html[data-android-shell="1"] .app-root, html[data-android-shell="1"] .app-root.splash-root { width: 100vw; height: 100lvh; margin: 0; padding: 0; display: flex; justify-content: flex-start; align-items: flex-start; overflow: hidden; background: var(--c-page-body-bg); }
+  html[data-android-shell="1"] .phone-shell-wrap { --phone-case-padding: 0px; --phone-case-border-size: 0px; --phone-frame-size: 0px; --phone-screen-radius: 0px; --phone-frame-radius: 0px; --phone-case-radius: 0px; width: var(--phone-screen-width); margin-inline: 0; gap: 0; transform-origin: top left; margin-top: calc(-1 * var(--status-bar-drop, 0px)); transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0); }
+  html[data-android-shell="1"] .phone-shell-wrap .phone-case { width: var(--phone-screen-width); padding: 0; border: 0; background: transparent; box-shadow: none; }
+  html[data-android-shell="1"] .phone-shell-wrap .phone-frame { width: var(--phone-screen-width); padding: 0; background: transparent; box-shadow: none; }
+  html[data-android-shell="1"] .phone-shell-wrap .phone-case::before, html[data-android-shell="1"] .phone-shell-wrap .phone-case::after, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::before, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::after { display: none; }
+}
+@media (max-width: 373px) {
+  html[data-android-shell="1"] .icon-grid, html[data-android-shell="1"] .dock { --slot-size: 16.92vw; --slot-gap-x: 5.13vw; --slot-icon-width: 15.9vw; --slot-icon-height: 15.9vw; }
+  html[data-android-shell="1"] .icon-glyph-box, html[data-android-shell="1"] .dock .dock-glyph-box { width: 14.87vw; height: 14.87vw; }
+}

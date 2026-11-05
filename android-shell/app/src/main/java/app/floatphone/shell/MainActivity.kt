@@ -128,6 +128,14 @@ class MainActivity : AppCompatActivity() {
         webView.addJavascriptInterface(ShellBridge(), "AndroidShell")
 
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView, url: String?) {
+                super.onPageFinished(view, url)
+                val current = runCatching { Uri.parse(url) }.getOrNull()
+                val site = Uri.parse(SITE_URL)
+                if (current?.scheme == site.scheme && current?.host == site.host && current?.port == site.port) {
+                    view.evaluateJavascript("document.documentElement.dataset.androidShell='1'", null)
+                }
+            }
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 val url = request.url
                 val scheme = url.scheme ?: return false
