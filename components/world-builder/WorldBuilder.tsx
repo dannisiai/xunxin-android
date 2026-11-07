@@ -196,7 +196,7 @@ export default function WorldBuilder() {
   }, [selectedId, handleDelete, handleUndo, handleRedo]);
 
   return (
-    <div className={`wb-layout ${isLightTheme(settings.theme) ? "wb-light" : ""} ${showInitialBoot ? "wb-layout--booting" : ""}`}>
+    <div data-adaptive-surface="content" className={`wb-layout ${isLightTheme(settings.theme) ? "wb-light" : ""} ${showInitialBoot ? "wb-layout--booting" : ""}`}>
       <div className="wb-topbar">
           <button className="wb-topbar-btn" onClick={() => window.close()}>
             返回
@@ -261,7 +261,7 @@ export default function WorldBuilder() {
       />
 
       {showInitialBoot && (
-        <div className="wb-initial-boot" role="status" aria-live="polite">
+        <div data-adaptive-surface="content" className="wb-initial-boot" role="status" aria-live="polite">
           <div className="wb-initial-center">
             <div className="wb-initial-mark" aria-hidden="true">
               <span />
@@ -322,8 +322,8 @@ export default function WorldBuilder() {
       {avatarCardId && (() => {
         const card = characters.find((c) => c.id === avatarCardId);
         return (
-          <div className="wb-avatar-card-overlay" onClick={() => setAvatarCardId(null)}>
-            <div className="wb-avatar-card" onClick={(e) => e.stopPropagation()}>
+          <div data-adaptive-surface="overlay" className="wb-avatar-card-overlay" onClick={() => setAvatarCardId(null)}>
+            <div data-adaptive-surface="card" className="wb-avatar-card" onClick={(e) => e.stopPropagation()}>
               <div className="wb-avatar-card-photo">
                 {card?.avatar
                   ? <img src={card.avatar} alt="" />

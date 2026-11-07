@@ -1,0 +1,21 @@
+/* Shared check-phone action states retained from the retired standalone feed UI. */
+.cp-xhs-overview-icon--save {
+  background:
+    radial-gradient(circle at 50% 58%, rgba(255, 180, 64, 0.18) 0%, rgba(255, 180, 64, 0) 58%),
+    #fff3d8;
+  color: #ffb84e;
+}
+
+.cp-xhs-overview-icon--follow {
+  background:
+    radial-gradient(circle at 50% 58%, rgba(255, 36, 66, 0.12) 0%, rgba(255, 36, 66, 0) 58%),
+    #ffe8ed;
+  color: #ff2d47;
+}
+
+.cp-xhs-detail-follow.is-following,
+.cp-xhs-video-author-row button.is-following {
+  border-color: rgba(120, 125, 135, 0.18);
+  background: rgba(120, 125, 135, 0.08);
+  color: #858a93;
+}

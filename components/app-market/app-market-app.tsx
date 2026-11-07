@@ -1324,8 +1324,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       </main>
 
       {pendingApp ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={closePendingSheet}>
-          <div className="app-market-sheet app-market-check-sheet" role="dialog" aria-modal="true" aria-label="发布前检查" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={closePendingSheet}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-check-sheet" role="dialog" aria-modal="true" aria-label="发布前检查" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>{marketEditTarget ? "更新前检查" : "发布前检查"}</strong>
               <button type="button" onClick={closePendingSheet} aria-label="关闭" disabled={publishing}>
@@ -1426,8 +1426,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {selectedMarketApp ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setSelectedMarketApp(null)}>
-          <div className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="APP 详情" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setSelectedMarketApp(null)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="APP 详情" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>APP 详情</strong>
               <button type="button" onClick={() => setSelectedMarketApp(null)} aria-label="关闭">
@@ -1497,12 +1497,12 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {reportTarget ? (
-        <div
+        <div data-adaptive-surface="overlay"
           className="app-market-overlay app-market-drawer-overlay"
           role="presentation"
           onClick={() => { if (!reportSubmitting) setReportTarget(null); }}
         >
-          <div className="app-market-sheet app-market-report-sheet" role="dialog" aria-modal="true" aria-label="举报 APP" onClick={event => event.stopPropagation()}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-report-sheet" role="dialog" aria-modal="true" aria-label="举报 APP" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>举报「{reportTarget.name}」</strong>
               <button type="button" onClick={() => setReportTarget(null)} aria-label="关闭" disabled={reportSubmitting}>
@@ -1532,8 +1532,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {selectedInstalledApp ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setSelectedInstalledApp(null)}>
-          <div className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="已安装 APP 详情" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setSelectedInstalledApp(null)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="已安装 APP 详情" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>已安装 APP</strong>
               <button type="button" onClick={() => setSelectedInstalledApp(null)} aria-label="关闭">
@@ -1612,8 +1612,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {manualBuilderOpen ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={closeManualBuilder}>
-          <div className="app-market-sheet app-market-manual-sheet" role="dialog" aria-modal="true" aria-label="单文件逐项上传" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={closeManualBuilder}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-manual-sheet" role="dialog" aria-modal="true" aria-label="单文件逐项上传" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>{marketEditTarget ? `编辑「${marketEditTarget.name}」` : localEditTarget ? `编辑「${localEditTarget.name}」（本地）` : "单文件逐项上传"}</strong>
               {localEditTarget ? (
@@ -1742,8 +1742,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {confirmDelete ? (
-        <div className="app-market-overlay" role="presentation" onClick={() => setConfirmDelete(null)}>
-          <div className="app-market-sheet" role="dialog" aria-modal="true" aria-label="卸载 APP" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay" role="presentation" onClick={() => setConfirmDelete(null)}>
+          <div data-adaptive-surface="card" className="app-market-sheet" role="dialog" aria-modal="true" aria-label="卸载 APP" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>卸载「{confirmDelete.name}」？</strong>
               <button type="button" onClick={() => setConfirmDelete(null)} aria-label="关闭">
@@ -1771,8 +1771,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {iconStyleEditorOpen && selectedInstalledApp ? (
-        <div className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setIconStyleEditorOpen(false)}>
-          <div className="app-market-sheet app-market-confirm-sheet am-icon-style-sheet" role="dialog" aria-modal="true" aria-label="桌面图标样式" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setIconStyleEditorOpen(false)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-confirm-sheet am-icon-style-sheet" role="dialog" aria-modal="true" aria-label="桌面图标样式" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>桌面图标样式</strong>
               <button type="button" onClick={() => setIconStyleEditorOpen(false)} aria-label="关闭">
@@ -1807,8 +1807,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {errorDialog ? (
-        <div className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setErrorDialog(null)}>
-          <div className="app-market-sheet app-market-confirm-sheet app-market-error-dialog" role="alertdialog" aria-modal="true" aria-label={errorDialog.title} onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setErrorDialog(null)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-confirm-sheet app-market-error-dialog" role="alertdialog" aria-modal="true" aria-label={errorDialog.title} onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>{errorDialog.title}</strong>
               <button type="button" onClick={() => setErrorDialog(null)} aria-label="关闭">
@@ -1826,8 +1826,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {confirmMarketDelete ? (
-        <div className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setConfirmMarketDelete(null)}>
-          <div className="app-market-sheet app-market-confirm-sheet" role="dialog" aria-modal="true" aria-label="删除市场发布" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-center-overlay" role="presentation" onClick={() => setConfirmMarketDelete(null)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-confirm-sheet" role="dialog" aria-modal="true" aria-label="删除市场发布" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>删除「{confirmMarketDelete.name}」的市场发布？</strong>
               <button type="button" onClick={() => setConfirmMarketDelete(null)} aria-label="关闭" disabled={publishing}>
@@ -1851,8 +1851,8 @@ export function AppMarketApp({ onClose, onOpenCustomApp, onInstallToDesktop, onN
       ) : null}
 
       {creatorGuideOpen ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setCreatorGuideOpen(false)}>
-          <div className="app-market-sheet app-market-guide-sheet" role="dialog" aria-modal="true" aria-label="自定义 APP 制作说明" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setCreatorGuideOpen(false)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-guide-sheet" role="dialog" aria-modal="true" aria-label="自定义 APP 制作说明" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>自定义 APP 制作说明</strong>
               <button type="button" onClick={() => setCreatorGuideOpen(false)} aria-label="关闭">

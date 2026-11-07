@@ -1711,8 +1711,8 @@ export function ShoppingApp({ onClose, visible = true, onIdle, onBusyChange }: S
       </div>
 
       {translationPreview && (
-        <div className="cp-shopping-translation-overlay" role="presentation" onClick={() => setTranslationPreview(null)}>
-          <div className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="中文翻译" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="cp-shopping-translation-overlay" role="presentation" onClick={() => setTranslationPreview(null)}>
+          <div data-adaptive-surface="card" className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="中文翻译" onClick={event => event.stopPropagation()}>
             <div className="cp-shopping-translation-head">
               <span>中文翻译</span>
               <button type="button" onClick={() => setTranslationPreview(null)}>Close</button>
@@ -1725,8 +1725,8 @@ export function ShoppingApp({ onClose, visible = true, onIdle, onBusyChange }: S
       )}
 
       {clearConfirmOpen && (
-        <div className="cp-shopping-translation-overlay" role="presentation" onClick={() => setClearConfirmOpen(false)}>
-          <div className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="清空购物痕迹" onClick={event => event.stopPropagation()} style={{ maxWidth: "320px" }}>
+        <div data-adaptive-surface="overlay" className="cp-shopping-translation-overlay" role="presentation" onClick={() => setClearConfirmOpen(false)}>
+          <div data-adaptive-surface="card" className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="清空购物痕迹" onClick={event => event.stopPropagation()} style={{ maxWidth: "320px" }}>
             <div className="cp-shopping-translation-head">
               <span>清空购物痕迹</span>
             </div>
@@ -1746,8 +1746,8 @@ export function ShoppingApp({ onClose, visible = true, onIdle, onBusyChange }: S
       )}
 
       {promptOpen && (
-        <div className="cp-shopping-translation-overlay" role="presentation" onClick={() => setPromptOpen(false)}>
-          <div className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="购物提示词" onClick={event => event.stopPropagation()} style={{ maxHeight: "74vh" }}>
+        <div data-adaptive-surface="overlay" className="cp-shopping-translation-overlay" role="presentation" onClick={() => setPromptOpen(false)}>
+          <div data-adaptive-surface="card" className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="购物提示词" onClick={event => event.stopPropagation()} style={{ maxHeight: "74vh" }}>
             <div className="cp-shopping-translation-head">
               <span>购物设置</span>
               <button type="button" onClick={() => setPromptOpen(false)}>Close</button>
@@ -1862,11 +1862,11 @@ export function ShoppingApp({ onClose, visible = true, onIdle, onBusyChange }: S
       )}
 
       {confirmCheckoutOpen && (
-        <div className="cp-shopping-translation-overlay" role="presentation" onClick={() => {
+        <div data-adaptive-surface="overlay" className="cp-shopping-translation-overlay" role="presentation" onClick={() => {
           setConfirmCheckoutOpen(false);
           setPaymentError(null);
         }}>
-          <div className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="选择付款方式" onClick={event => event.stopPropagation()}>
+          <div data-adaptive-surface="card" className="cp-shopping-translation-sheet" role="dialog" aria-modal="true" aria-label="选择付款方式" onClick={event => event.stopPropagation()}>
             <div className="cp-shopping-translation-head">
               <span>选择付款方式</span>
               <button type="button" onClick={() => {
@@ -1959,11 +1959,11 @@ export function ShoppingApp({ onClose, visible = true, onIdle, onBusyChange }: S
       )}
 
       {paymentRequestOpen && (
-        <div className="cp-shopping-translation-overlay" role="presentation" onClick={() => {
+        <div data-adaptive-surface="overlay" className="cp-shopping-translation-overlay" role="presentation" onClick={() => {
           setPaymentRequestOpen(false);
           setPaymentRequestError(null);
         }}>
-          <div
+          <div data-adaptive-surface="card"
             className="cp-shopping-translation-sheet"
             role="dialog"
             aria-modal="true"

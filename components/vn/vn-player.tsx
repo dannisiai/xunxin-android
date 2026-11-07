@@ -1148,7 +1148,7 @@ export function VnPlayer({ characterId, chapterIndex, onClose, onChapterEnd, vnT
 
       {/* ── History Panel (message-level) ── */}
       {historyOpen && (
-        <div className="vn-history-overlay" onClick={() => { setHistoryOpen(false); setCtxMenuMsgId(null); }}>
+        <div data-adaptive-surface="overlay" className="vn-history-overlay" onClick={() => { setHistoryOpen(false); setCtxMenuMsgId(null); }}>
           <div className="vn-history-panel" onClick={(e) => { e.stopPropagation(); setCtxMenuMsgId(null); }}>
             <button className="vn-history-close" onClick={() => setHistoryOpen(false)}>
               <ArrowRight size={16} />
@@ -1204,7 +1204,7 @@ export function VnPlayer({ characterId, chapterIndex, onClose, onChapterEnd, vnT
                   )}
                   {ctxMenuMsgId === msg.id && editingMsgId !== msg.id && (() => {
                     const menu = (
-                      <div className="vn-ctx-menu" style={{ left: ctxMenuX, top: ctxMenuY, transform: "translateX(-50%)" }} onClick={(e) => e.stopPropagation()}>
+                      <div data-adaptive-surface="card" className="vn-ctx-menu" style={{ left: ctxMenuX, top: ctxMenuY, transform: "translateX(-50%)" }} onClick={(e) => e.stopPropagation()}>
                         <button className="vn-ctx-btn" onClick={() => handleMsgEditStart(msg)}>编辑</button>
                         {msg.role === "assistant" && (
                           <button className="vn-ctx-btn vn-ctx-btn-danger" onClick={() => handleMsgRetry(msg.id)}>重试</button>
@@ -1224,7 +1224,7 @@ export function VnPlayer({ characterId, chapterIndex, onClose, onChapterEnd, vnT
 
       {/* ── Scene Picker Panel ── */}
       {showScenePicker && (
-        <div className="vn-history-overlay" onClick={() => setShowScenePicker(false)}>
+        <div data-adaptive-surface="overlay" className="vn-history-overlay" onClick={() => setShowScenePicker(false)}>
           <div className="vn-scene-picker" onClick={(e) => e.stopPropagation()}>
             <button className="vn-history-close" onClick={() => setShowScenePicker(false)}>
               <ArrowRight size={16} />
@@ -1251,7 +1251,7 @@ export function VnPlayer({ characterId, chapterIndex, onClose, onChapterEnd, vnT
 
       {/* ── Beats Panel ── */}
       {showBeatsPanel && (
-        <div className="vn-history-overlay" style={{ background: "transparent", backdropFilter: "none", WebkitBackdropFilter: "none" }} onClick={() => setShowBeatsPanel(false)}>
+        <div data-adaptive-surface="overlay" className="vn-history-overlay" style={{ background: "transparent", backdropFilter: "none", WebkitBackdropFilter: "none" }} onClick={() => setShowBeatsPanel(false)}>
           <div className="vn-beats-panel" onClick={(e) => e.stopPropagation()}>
             <button className="vn-history-close" onClick={() => setShowBeatsPanel(false)}>
               <ArrowRight size={16} />

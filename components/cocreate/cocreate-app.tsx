@@ -2597,8 +2597,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {view !== "library" && pendingMutations.length > 0 && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-pending-panel" role="dialog" aria-modal="true" aria-labelledby="cocreate-pending-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-pending-panel" role="dialog" aria-modal="true" aria-labelledby="cocreate-pending-title">
             <div className="cocreate-pending-head">
               <span>PENDING PATCH</span>
               <strong id="cocreate-pending-title">{pendingMutations.length} 条待确认</strong>
@@ -2650,8 +2650,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {archiveConfirmOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-archive-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-archive-title">
             <span>SESSION MEMORY</span>
             <h2 id="cocreate-archive-title">总结最近 {sessionMessagesSinceLastSummary} 条对话？</h2>
             <p>
@@ -2668,8 +2668,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {chapterExitConfirmOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-reader-exit-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-reader-exit-title">
             <span>UNSAVED EDIT</span>
             <h2 id="cocreate-reader-exit-title">丢弃现有修改？</h2>
             <p>
@@ -2686,8 +2686,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {toolHistoryClearConfirmOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-tool-clear-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-tool-clear-title">
             <span>TOOL HISTORY</span>
             <h2 id="cocreate-tool-clear-title">清理工具调用历史？</h2>
             <p>将移除当前作品中的工具调用记录、工具结果记录，并清除助手消息里的原生工具调用元数据。普通共创内容不会删除。</p>
@@ -2702,8 +2702,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {backendLogOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-backend-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-backend-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-backend-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-backend-title">
             <div className="cocreate-backend-head">
               <div>
                 <span>BACKSTAGE LOG</span>
@@ -2812,8 +2812,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {newWorkOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-new-work-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-new-work-title">
             <span>NEW WORK</span>
             <h2 id="cocreate-new-work-title">新增作品</h2>
             <p>作品会拥有独立的章节、角色档案和共享记忆。进入作品后可在设置里修改作品名。</p>
@@ -2834,8 +2834,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {editingWork && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-edit-work-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-work-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-edit-work-title">
             <span>EDIT WORK</span>
             <h2 id="cocreate-edit-work-title">编辑作品信息</h2>
             <label className="cocreate-text-field">
@@ -2855,8 +2855,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {workDeleteTarget && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-work-delete-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-work-delete-title">
             <span>DELETE WORK</span>
             <h2 id="cocreate-work-delete-title">删除这本作品？</h2>
             <p>《{workDeleteTarget.title}》的章节、角色档案、动作记录会被删除；该作品写入的共创短期记忆和相关长期记忆也会一起清理。</p>
@@ -2871,8 +2871,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {chapterDeleteTarget && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-chapter-delete-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-chapter-delete-title">
             <span>DELETE CHAPTER</span>
             <h2 id="cocreate-chapter-delete-title">删除这一章？</h2>
             <p>第 {chapterDeleteTarget.num} 章《{chapterDeleteTarget.title}》会被删除；对应对话、修订、待确认修改和动作记录也会一起移除。删除后章节序号会自动重排。</p>
@@ -2887,8 +2887,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {settingsOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-settings-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-settings-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-settings-title">
             <div className="cocreate-settings-scroll">
               <span>SETTINGS</span>
               <h2 id="cocreate-settings-title">共创全局设置</h2>
@@ -3002,8 +3002,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {castEditorOpen && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog cocreate-cast-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-cast-editor-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog cocreate-cast-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-cast-editor-title">
             <span>CAST FILE</span>
             <h2 id="cocreate-cast-editor-title">{editingCast ? "编辑角色档案" : "新增角色档案"}</h2>
             <div className="cocreate-cast-form">
@@ -3092,8 +3092,8 @@ export function CoCreateApp({ onClose, onNotice }: CoCreateAppProps) {
       )}
 
       {castDeleteTarget && (
-        <div className="cocreate-modal-backdrop" role="presentation">
-          <section className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-cast-delete-title">
+        <div data-adaptive-surface="overlay" className="cocreate-modal-backdrop" role="presentation">
+          <section data-adaptive-surface="card" className="cocreate-archive-dialog" role="dialog" aria-modal="true" aria-labelledby="cocreate-cast-delete-title">
             <span>DELETE FILE</span>
             <h2 id="cocreate-cast-delete-title">删除角色档案？</h2>
             <p>这会从当前共创 session 中移除“{castDeleteTarget.name}”的小说角色档案，但不会删除你的角色卡。</p>

@@ -205,6 +205,13 @@ export type ChatMessage = {
         memoryRequestStatus?: "pending" | "approved" | "ignored";
         fileType?: "audio" | "image" | "video" | "file";
         fileName?: string;
+        fileSize?: number;
+        fileMime?: string;
+        documentText?: string;
+        documentTruncated?: boolean;
+        documentCharacters?: number;
+        documentPageCount?: number;
+        documentReadPages?: number;
         fileDuration?: number;
         useReferenceImage?: boolean; // AI photo tag: whether to send the character reference image to the generator
         imageGenerationMediaRef?: string;
@@ -385,6 +392,9 @@ export function getChatMessagePreview(msg: ChatMessage): string {
     if (msg.mediaType === "image") {
         const label = msg.mediaData?.label?.trim();
         return label ? `[图片] ${label}` : "[图片]";
+    }
+    if (msg.mediaType === "media_file" && msg.mediaData?.documentText !== undefined) {
+        return `[文档] ${msg.mediaData.fileName || "文件"}`;
     }
     if (msg.mediaType === "app_card") {
         const appName = msg.mediaData?.appName || "APP";

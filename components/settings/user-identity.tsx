@@ -6,17 +6,7 @@ import { SettingsContext } from "../phone-settings-app";
 import { loadUserIdentities, saveUserIdentities } from "@/lib/settings-storage";
 import { Input } from "@/components/ui/form";
 import { ConfirmDialog } from "@/components/ui/modal";
-
-export type UserIdentity = {
-    id: string;
-    name: string;
-    avatarUrl?: string;
-    bio: string;
-    gender: string;
-    age: string;
-    occupation: string;
-    customSettings: string;
-};
+import type { UserIdentity } from "@/lib/settings-types";
 
 const DEFAULT_IDENTITIES: UserIdentity[] = [
     {
@@ -242,7 +232,7 @@ export function UserIdentitySettings() {
                                                 {identity.avatarUrl ? (
                                                     <>
                                                         <img src={identity.avatarUrl} alt="" className="w-full h-full object-cover" />
-                                                        <div className="absolute bottom-0 left-0 right-0 flex justify-center ui-avatar-upload-overlay">
+                                                        <div data-adaptive-surface="content" className="absolute bottom-0 left-0 right-0 flex justify-center ui-avatar-upload-overlay">
                                                             <Camera size={14} color="#fff" />
                                                         </div>
                                                     </>

@@ -1,7 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useSyncExternalStore, useState } from "react";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useSyncExternalStore,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
+
 import {
   getMascotState,
   isMascotPanelOpen,
@@ -18,7 +26,12 @@ import {
 import { addChatContact, createOrGetSession, loadChatContacts } from "@/lib/chat-storage";
 import { CHAT_OPEN_SESSION_EVENT } from "@/lib/chat-notification-events";
 import { getMascotContext, subscribeMascotContext } from "@/lib/mascot-context";
-import { mascotNavigate, DIY_WIDGET_PREVIEW_EVENT, type DiyWidgetPreviewEventDetail, type DiyWidgetPreviewRequest } from "@/lib/mascot-events";
+import {
+  mascotNavigate,
+  DIY_WIDGET_PREVIEW_EVENT,
+  type DiyWidgetPreviewEventDetail,
+  type DiyWidgetPreviewRequest,
+} from "@/lib/mascot-events";
 import { DIY_WIDGET_GUARD_STYLE } from "@/components/widgets/diy-widget-renderer";
 import { MediaPreviewOverlay } from "@/components/chat/media-preview-overlay";
 import { CompanionChat } from "@/components/mascot/companion-chat";
@@ -34,17 +47,16 @@ import {
   stopMascotGeneration,
   subscribeMascotChat,
 } from "@/lib/mascot-chat-store";
-import {
-  getMascotSettingsSnapshot,
-  resolveMascotImageRef,
-  subscribeMascotSettings,
-} from "@/lib/mascot-settings";
+import { getMascotSettingsSnapshot, resolveMascotImageRef, subscribeMascotSettings } from "@/lib/mascot-settings";
 import { stripThinkingTags, type MascotMsg } from "@/lib/mascot-engine";
 import {
   NINE_SLICE_CALIBRATION_EVENT,
   type NineSliceCalibrationEventDetail,
   type NineSliceValues,
 } from "@/lib/css-asset-tools";
+import { copyTextToClipboard } from "@/lib/browser/clipboard";
+import { useDeviceAdaptation } from "@/components/device-adaptation-provider";
+import { getElementViewportSegments, type ViewportSegment } from "@/lib/device-adaptation";
 
 
 /**
@@ -56,6 +68,28 @@ const MASCOT_FLOAT_WIDTH = 56;
 const MASCOT_FLOAT_HEIGHT = 64;
 const MASCOT_FLOAT_RIGHT = 6;
 const MASCOT_FLOAT_BOTTOM = 112;
+
+function mascotSegment(shell: HTMLElement | null, left: number, top: number): ViewportSegment {
+  const segments = shell ? getElementViewportSegments(shell) : [];
+  const x = left + MASCOT_FLOAT_WIDTH / 2, y = top + MASCOT_FLOAT_HEIGHT / 2;
+  return segments.sort((a, b) => {
+    const distance = (r: ViewportSegment) => Math.max(r.left - x, 0, x - r.left - r.width) ** 2
+      + Math.max(r.top - y, 0, y - r.top - r.height) ** 2;
+    return distance(a) - distance(b);
+  })[0] || { left: 0, top: 0, width: shell?.clientWidth || 390, height: shell?.clientHeight || 844 };
+}
+function fitMascot(shell: HTMLElement | null, left: number, top: number, snap = false) {
+  const segment = mascotSegment(shell, left, top);
+  const minLeft = segment.left + MASCOT_FLOAT_RIGHT;
+  const maxLeft = Math.max(minLeft, segment.left + segment.width - MASCOT_FLOAT_WIDTH - MASCOT_FLOAT_RIGHT);
+  const minTop = segment.top + Math.min(50, segment.height / 8);
+  const maxTop = Math.max(minTop, segment.top + segment.height - MASCOT_FLOAT_HEIGHT - Math.min(80, segment.height / 6));
+  return {
+    left: snap ? (left + MASCOT_FLOAT_WIDTH / 2 < segment.left + segment.width / 2 ? minLeft : maxLeft) : Math.max(minLeft, Math.min(maxLeft, left)),
+    top: Math.max(minTop, Math.min(maxTop, top)),
+  };
+}
+
 
 function isLikelyImageFile(file: File): boolean {
   return file.type.startsWith("image/") || IMAGE_FILE_EXT_RE.test(file.name) || !file.type;
@@ -77,24 +111,6 @@ function isHiddenMascotPlaceholder(msg: MascotMsg): boolean {
 function getMascotMessageText(msg: MascotMsg): string {
   const raw = msg.displayText || msg.text || "";
   return stripThinkingTags(raw);
-}
-
-function copyTextToClipboard(text: string): void {
-  const fallbackCopy = () => {
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    try { document.execCommand("copy"); } catch {}
-    document.body.removeChild(ta);
-  };
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(text).catch(fallbackCopy);
-  } else {
-    fallbackCopy();
-  }
 }
 
 function clampNumber(value: number, min: number, max: number): number {
@@ -153,12 +169,12 @@ function DiyWidgetPreviewDialog({ request, onClose }: { request: DiyWidgetPrevie
   const [w, h] = DIY_PREVIEW_SIZE_PX[request.size] || [320, 258];
   const scale = Math.min(1, 300 / w, 430 / h);
   return (
-    <div
+    <div data-adaptive-surface="overlay"
       style={{ position: "fixed", inset: 0, zIndex: 4000, background: "rgba(10,10,14,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={onClose}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <div
+      <div data-adaptive-surface="card"
         style={{ background: "#1c1d24", borderRadius: 18, padding: "14px 16px 16px", maxWidth: "88vw", boxShadow: "0 18px 48px rgba(0,0,0,0.45)" }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -432,8 +448,8 @@ function NineSliceCalibrationDialog({
   );
 
   return (
-    <div className="mascot-nine-overlay" role="dialog" aria-modal="true" onContextMenu={(event) => event.preventDefault()}>
-      <div className="mascot-nine-dialog">
+    <div data-adaptive-surface="overlay" className="mascot-nine-overlay" role="dialog" aria-modal="true" onContextMenu={(event) => event.preventDefault()}>
+      <div data-adaptive-surface="card" className="mascot-nine-dialog">
         <div className="mascot-nine-head">
           <div>
             <div className="mascot-nine-title">校准九宫格气泡</div>
@@ -549,6 +565,7 @@ function getCompanionQuotes(companion: CompanionCharacter | null): string[] {
 }
 
 export function MascotFloat() {
+  const device = useDeviceAdaptation();
   const state = useSyncExternalStore(subscribeMascot, getMascotState, () => "widget" as const);
   const panelOpen = useSyncExternalStore(subscribeMascot, isMascotPanelOpen, () => false);
   const widgetRect = useSyncExternalStore(subscribeMascot, getMascotWidgetRect, () => null);
@@ -566,13 +583,34 @@ export function MascotFloat() {
     floatPosRef.current = floatPos;
   }, [floatPos]);
 
+  useLayoutEffect(() => {
+    if (state !== "floating") return;
+    const shell = floatRef.current?.closest<HTMLElement>("[data-ui='phone-screen']");
+    if (!shell) return;
+    const reflow = () => {
+      const current = floatPosRef.current || {
+        left: shell.clientWidth - MASCOT_FLOAT_RIGHT - MASCOT_FLOAT_WIDTH,
+        top: shell.clientHeight - MASCOT_FLOAT_BOTTOM - MASCOT_FLOAT_HEIGHT,
+      };
+      const next = fitMascot(shell, current.left, current.top);
+      if (Math.abs(next.left - current.left) > .5 || Math.abs(next.top - current.top) > .5) {
+        floatPosRef.current = next;
+        setFloatPos(next);
+      }
+    };
+    let frame = requestAnimationFrame(reflow);
+    const observer = new ResizeObserver(() => { cancelAnimationFrame(frame); frame = requestAnimationFrame(reflow); });
+    observer.observe(shell);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); };
+  }, [state, device]);
+
   // Animate: widget → float (in) or float → widget (out)
   useLayoutEffect(() => {
     if (state !== "animating_in" && state !== "animating_out") return;
     const shell = document.querySelector("[data-ui='phone-screen']") as HTMLElement | null;
     const shellRect = shell?.getBoundingClientRect();
-    const shellW = shellRect?.width ?? 390;
-    const shellH = shellRect?.height ?? 844;
+    const shellW = shell?.clientWidth ?? 390;
+    const shellH = shell?.clientHeight ?? 844;
     const defaultFloatLeft = shellW - MASCOT_FLOAT_RIGHT - MASCOT_FLOAT_WIDTH;
     const defaultFloatTop = shellH - MASCOT_FLOAT_BOTTOM - MASCOT_FLOAT_HEIGHT;
     const currentFloatLeft = floatPosRef.current?.left ?? defaultFloatLeft;
@@ -1148,8 +1186,8 @@ export function MascotFloat() {
     dragState.current = {
       startX: e.clientX,
       startY: e.clientY,
-      startLeft: rect.left - (shellRect?.left ?? 0),
-      startTop: rect.top - (shellRect?.top ?? 0),
+      startLeft: (rect.left - (shellRect?.left ?? 0)) / ((shellRect?.width || 390) / (shell?.offsetWidth || 390)),
+      startTop: (rect.top - (shellRect?.top ?? 0)) / ((shellRect?.height || 844) / (shell?.offsetHeight || 844)),
       moved: false,
     };
     longPressTimer.current = setTimeout(() => {
@@ -1175,7 +1213,13 @@ export function MascotFloat() {
       closeMascotPanel();
     }
     if (dragState.current.moved) {
-      setFloatPos({ left: dragState.current.startLeft + dx, top: dragState.current.startTop + dy });
+      const shell = floatRef.current?.closest<HTMLElement>("[data-ui='phone-screen']") || null;
+      const rect = shell?.getBoundingClientRect();
+      const scaleX = rect ? rect.width / (shell?.offsetWidth || rect.width) : 1;
+      const scaleY = rect ? rect.height / (shell?.offsetHeight || rect.height) : 1;
+      const next = fitMascot(shell, dragState.current.startLeft + dx / scaleX, dragState.current.startTop + dy / scaleY);
+      floatPosRef.current = next;
+      setFloatPos(next);
     }
   }, []);
 
@@ -1189,20 +1233,15 @@ export function MascotFloat() {
       const el = floatRef.current;
       const shell = el?.closest("[data-ui='phone-screen']") as HTMLElement | null;
       const shellRect = shell?.getBoundingClientRect();
-      const shellW = shellRect?.width ?? 390;
-      const shellH = shellRect?.height ?? 844;
+      const shellW = shell?.clientWidth ?? 390;
+      const shellH = shell?.clientHeight ?? 844;
       const currentLeft = floatPosRef.current?.left ?? (shellW - MASCOT_FLOAT_RIGHT - MASCOT_FLOAT_WIDTH);
       const currentTop = floatPosRef.current?.top ?? (shellH - MASCOT_FLOAT_BOTTOM - MASCOT_FLOAT_HEIGHT);
 
-      const snapLeft = (currentLeft + MASCOT_FLOAT_WIDTH / 2 < shellW / 2)
-        ? MASCOT_FLOAT_RIGHT
-        : (shellW - MASCOT_FLOAT_WIDTH - MASCOT_FLOAT_RIGHT);
-      const minTop = 50;
-      const maxTop = shellH - MASCOT_FLOAT_HEIGHT - 80;
-      const clampedTop = Math.max(minTop, Math.min(maxTop, currentTop));
+      const next = fitMascot(shell, currentLeft, currentTop, true);
 
       setIsSnapping(true);
-      setFloatPos({ left: snapLeft, top: clampedTop });
+      setFloatPos(next);
       setTimeout(() => {
         setIsSnapping(false);
         startDockTimer();
@@ -2710,15 +2749,15 @@ export function MascotFloat() {
         <>
           {/* Panel overlay */}
           {panelOpen && (
-            <div className="mascot-panel-overlay" onClick={closeMascotPanel} onPointerDown={(e) => e.stopPropagation()} />
+            <div data-adaptive-surface="decoration" className="mascot-panel-overlay" onClick={closeMascotPanel} onPointerDown={(e) => e.stopPropagation()} />
           )}
 
           {/* Floating ball */}
           {(() => {
             const shell = floatRef.current?.closest("[data-ui='phone-screen']") as HTMLElement | null;
             const shellRect = shell?.getBoundingClientRect();
-            const shellW = shellRect?.width ?? 390;
-            const shellH = shellRect?.height ?? 844;
+            const shellW = shell?.clientWidth ?? 390;
+            const shellH = shell?.clientHeight ?? 844;
             const currentLeft = floatPos?.left ?? (shellW - MASCOT_FLOAT_RIGHT - MASCOT_FLOAT_WIDTH);
             const currentTop = floatPos?.top ?? (shellH - MASCOT_FLOAT_BOTTOM - MASCOT_FLOAT_HEIGHT);
             const onRight = currentLeft > shellW / 2;
@@ -2799,16 +2838,20 @@ export function MascotFloat() {
             const shell = el?.closest("[data-ui='phone-screen']") as HTMLElement | null;
             const shellRect = shell?.getBoundingClientRect();
             const ballRect = el?.getBoundingClientRect();
-            const shellW = shellRect?.width ?? 390;
-            const shellH = shellRect?.height ?? 844;
-            const ballLeft = (ballRect?.left ?? 0) - (shellRect?.left ?? 0);
-            const ballTop = (ballRect?.top ?? 0) - (shellRect?.top ?? 0);
-            const panelW = Math.min(280, shellW * 0.75);
-            const onRight = ballLeft > shellW / 2;
-            const pLeft = onRight ? Math.max(8, ballLeft + 56 - panelW) : Math.min(ballLeft, shellW - panelW - 8);
-            const pBottom = shellH - ballTop + 8;
+            const shellW = shell?.clientWidth ?? 390;
+            const shellH = shell?.clientHeight ?? 844;
+            const scaleX = (shellRect?.width || shellW) / shellW;
+            const scaleY = (shellRect?.height || shellH) / shellH;
+            const ballLeft = ((ballRect?.left ?? 0) - (shellRect?.left ?? 0)) / scaleX;
+            const ballTop = ((ballRect?.top ?? 0) - (shellRect?.top ?? 0)) / scaleY;
+            const segment = mascotSegment(shell, ballLeft, ballTop);
+            const panelW = Math.max(1, Math.min(280, segment.width - 16));
+            const panelMaxHeight = Math.max(1, segment.height - 24);
+            const pLeft = Math.max(segment.left + 8, Math.min(ballLeft, segment.left + segment.width - panelW - 8));
+            // Pin to a safe screen edge; actual content can scroll within this segment.
+            const pBottom = shellH - segment.top - segment.height + 12;
             const moduleDrawer = (
-              <div className="mascot-module-drawer" data-open={moduleDrawerOpen ? "true" : undefined}>
+              <div data-adaptive-surface="content" className="mascot-module-drawer" data-open={moduleDrawerOpen ? "true" : undefined}>
                 <button
                   type="button"
                   className="mascot-drawer-handle"
@@ -2862,7 +2905,9 @@ export function MascotFloat() {
             return (
             <div
               className="mascot-panel"
-              style={{ left: pLeft, bottom: pBottom }}
+              role="dialog"
+              aria-label="小伴侣面板"
+              style={{ left: pLeft, bottom: pBottom, width: panelW, maxHeight: panelMaxHeight, overflowY: "auto", boxSizing: "border-box" }}
               onPointerDown={() => {
                 if (activeMascotMessageIndex !== null) closeMascotMessageMenu();
               }}

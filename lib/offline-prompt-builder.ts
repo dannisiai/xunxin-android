@@ -6,6 +6,7 @@
 
 import type { ChatSession, ChatMessage } from "./chat-storage";
 import type { ChatOfflineTurn } from "./chat-offline-storage";
+import { formatChatDocumentForPrompt } from "./chat-documents";
 
 export function formatOfflineTurnXml(turn: ChatOfflineTurn): string {
     if (turn.rawText?.trim()) return turn.rawText.trim();
@@ -37,12 +38,12 @@ export function buildOfflinePromptHistory(
         const assistantAt = turn.createdAt;
         const userAtMs = new Date(turn.createdAt).getTime() - 1;
         const userAt = Number.isFinite(userAtMs) ? new Date(userAtMs).toISOString() : turn.createdAt;
-        if (turn.userContent.trim()) {
+        if (turn.userContent.trim() || turn.userDocument) {
             history.push({
                 id: `${turn.id}_user`,
                 sessionId: session.id,
                 role: "user",
-                content: turn.userContent,
+                content: turn.userDocument ? formatChatDocumentForPrompt(turn.userContent, turn.userDocument.metadata) : turn.userContent,
                 status: "sent",
                 createdAt: userAt,
             });

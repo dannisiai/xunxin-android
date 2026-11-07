@@ -1,0 +1,562 @@
+/* ── Moments feed ── */
+.chat-app .moments-feed-page > .page-body {
+  padding-top: 0;
+  background-color: var(--c-page-body-bg, var(--c-page-body-bg));
+}
+
+.feed-post-action-menu {
+  position: absolute;
+  top: 40px;
+  right: 12px;
+  z-index: 12;
+  min-width: 132px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--c-card-border) 80%, transparent);
+  background: color-mix(in srgb, var(--c-panel) 96%, var(--c-page-body-bg));
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.16);
+}
+
+.feed-post-action-menu button {
+  width: 100%;
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--c-text-title);
+  font-size: calc(12px*var(--app-text-scale,1));
+  font-weight: 600;
+  text-align: left;
+  padding: 7px 9px;
+  cursor: pointer;
+}
+
+.feed-post-action-menu button:active {
+  background: color-mix(in srgb, var(--c-icon-active) 12%, transparent);
+}
+
+.feed-post-action-menu button[data-danger="true"] {
+  color: var(--c-danger, #ef4444);
+}
+
+.feed-comment-reply-btn {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  font-size: inherit;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-comment-reply-btn:active {
+  opacity: 0.55;
+}
+
+.feed-comment-icon-button {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--c-icon);
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-comment-icon-button:active {
+  background: color-mix(in srgb, var(--c-icon-active) 12%, transparent);
+}
+
+.feed-comment-icon-button-danger {
+  color: color-mix(in srgb, #ef4444 72%, var(--c-icon));
+}
+
+.feed-comment-modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  pointer-events: auto;
+}
+
+.feed-comment-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  -webkit-appearance: none;
+  appearance: none;
+  border: 0;
+  outline: 0;
+  padding: 0;
+  margin: 0;
+  background: rgba(15, 23, 42, 0.18);
+  cursor: default;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-comment-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(340px, calc(100% - 12px));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  border: 0;
+  background: color-mix(in srgb, var(--c-panel) 96%, var(--c-page-body-bg));
+  box-shadow: 0 20px 55px rgba(15, 23, 42, 0.18), inset 0 1px 0 color-mix(in srgb, white 42%, transparent);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  animation: none !important;
+  overflow: hidden;
+}
+
+.feed-comment-modal-title {
+  text-align: center;
+  color: var(--c-text-title);
+  font-size: calc(15px * var(--app-text-scale, 1));
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.feed-comment-modal-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  min-height: 96px;
+  max-height: 148px;
+  border: 0;
+  outline: 0;
+  border-radius: 16px;
+  background: var(--c-input);
+  color: var(--c-text-title);
+  font: inherit;
+  font-size: calc(14px * var(--app-text-scale, 1));
+  line-height: 1.65;
+  padding: 11px 13px;
+  resize: none;
+  overflow-y: auto;
+  box-shadow: none;
+}
+
+.feed-comment-modal-input::placeholder {
+  color: var(--c-icon);
+  opacity: 0.78;
+}
+
+.feed-comment-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.feed-comment-modal-cancel,
+.feed-comment-modal-send {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 42px;
+  border: 0;
+  outline: 0;
+  border-radius: 999px;
+  padding: 0 16px;
+  font-size: calc(13.5px * var(--app-text-scale, 1));
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.feed-comment-modal-cancel {
+  background: var(--c-input);
+  color: var(--c-text-title);
+}
+
+.feed-comment-modal-send {
+  background: var(--c-icon-active);
+  color: #fff;
+}
+
+.feed-comment-modal-cancel:active,
+.feed-comment-modal-send:active {
+  transform: scale(0.95);
+}
+
+.feed-comment-modal-send:disabled {
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+/* ── Feed cover area ── */
+.feed-cover-wrapper {
+  position: relative;
+  margin-top: 0;
+  margin-bottom: 74px;
+}
+.feed-cover {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  margin: 0;
+  height: calc(var(--page-header-safe-top, 48px) + var(--page-header-content-height, 54px) + 260px);
+  border-radius: 0;
+  background: var(--c-input);
+}
+.feed-avatar-overlay {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.feed-avatar-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--c-input-border);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 4px solid var(--c-panel);
+}
+
+/* ── Moments notification banner ── */
+.feed-notif-banner {
+  display: block;
+  margin: 8px auto 4px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  border: none;
+  background: color-mix(in srgb, var(--c-icon-active) 12%, var(--c-card));
+  color: var(--c-icon-active);
+  font-size: calc(11.7px*var(--app-text-scale,1));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.feed-notif-banner:active {
+  background: color-mix(in srgb, var(--c-icon-active) 20%, var(--c-card));
+}
+
+/* ── Moments compose ── */
+.compose-modal {
+  width: 78%;
+  max-height: 80%;
+  background: var(--c-panel);
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.compose-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 0.5px solid var(--c-panel-border);
+  flex-shrink: 0;
+}
+.compose-modal-title {
+  font-size: calc(14.4px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: var(--c-text-title);
+}
+.compose-modal-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.compose-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--c-icon);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.compose-header-icon:active {
+  transform: scale(0.88);
+}
+.compose-header-send {
+  color: var(--c-icon-active, #07c160);
+}
+.compose-header-send:disabled {
+  opacity: 0.3;
+  cursor: default;
+  transform: none;
+}
+
+.compose-body {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.compose-top-area {
+  padding: 20px 24px 30px;
+  background: var(--c-page-body-bg);
+}
+
+.compose-textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 100px;
+  border: none;
+  outline: none;
+  font-size: calc(14.4px*var(--app-text-scale,1));
+  line-height: 1.6;
+  resize: none;
+  color: var(--c-text-title);
+  caret-color: var(--c-icon-active, #07c160);
+  background: transparent;
+  font-family: inherit;
+  overflow-y: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  touch-action: auto;
+  -webkit-tap-highlight-color: transparent;
+}
+.compose-textarea::placeholder {
+  color: color-mix(in srgb, var(--c-text) 40%, transparent);
+  font-weight: 400;
+}
+
+.compose-media-grid {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.compose-photo-block {
+  width: 104px;
+  height: 104px;
+  border-radius: 6px;
+  background: var(--c-input);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-icon);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.compose-photo-block:active {
+  background: var(--c-input-border);
+}
+
+.compose-photo-block-preview {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex-shrink: 0;
+}
+.compose-photo-block-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
+}
+.compose-photo-block-preview .compose-photo-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  z-index: 2;
+}
+
+.compose-nav-list {
+  background: var(--c-page-body-bg);
+  border-top: 0.5px solid var(--c-card-border);
+  border-bottom: 0.5px solid var(--c-card-border);
+}
+
+.compose-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 0.5px solid var(--c-card-border);
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.15s;
+}
+.compose-nav-row:last-child {
+  border-bottom: none;
+}
+.compose-nav-row:active {
+  background: var(--c-input);
+}
+
+.compose-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.compose-nav-icon {
+  color: var(--c-text-title);
+}
+.compose-nav-icon-text {
+  font-size: calc(20px*var(--app-text-scale,1));
+  font-weight: 500;
+  color: var(--c-text-title);
+  line-height: 1;
+  width: 20px;
+  text-align: center;
+}
+.compose-nav-label {
+  font-size: calc(14.4px*var(--app-text-scale,1));
+  color: var(--c-text-title);
+  font-weight: 400;
+}
+
+.compose-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.compose-nav-value {
+  font-size: calc(13.5px*var(--app-text-scale,1));
+  color: var(--c-text);
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.compose-nav-chevron {
+  color: var(--c-icon);
+}
+
+.compose-panels-area {
+  background: var(--c-page-body-bg);
+}
+.compose-panel-inline {
+  background: var(--c-page-body-bg);
+  border-bottom: 0.5px solid var(--c-card-border);
+  animation: panel-slide-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top;
+  overflow: hidden;
+}
+@keyframes panel-slide-down {
+  from { opacity: 0; transform: scaleY(0.95); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+.compose-inline-btn {
+  background: var(--c-icon-active, #07c160);
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: calc(11.7px*var(--app-text-scale,1));
+  cursor: pointer;
+  font-weight: 500;
+}
+.compose-inline-btn:active {
+  opacity: 0.8;
+}
+
+.compose-location-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: calc(13.5px*var(--app-text-scale,1));
+  color: var(--c-text-title);
+  background: transparent;
+  font-family: inherit;
+  padding: 8px 0;
+}
+.compose-location-input::placeholder {
+  color: color-mix(in srgb, var(--c-text) 40%, transparent);
+}
+.feed-post-location {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: calc(9.9px*var(--app-text-scale,1));
+  color: var(--c-icon);
+  margin-top: 4px;
+}
+
+/* ── Add friend ── */
+.add-friend-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--c-page-body-bg);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* ── Feed comment send button ── */
+.feed-comment-send {
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  cursor: pointer;
+  background: var(--c-icon-active);
+}
+.feed-comment-send:disabled {
+  background: var(--c-icon);
+  cursor: default;
+}
+
+/* ── Feed likes row ── */
+.feed-likes-row {
+  padding: 12px 8px 10px;
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  color: var(--c-text-title);
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.feed-likes-row[data-has-comments] {
+  border-bottom: none;
+  position: relative;
+  padding-bottom: 14px;
+}
+.feed-likes-row[data-has-comments]::after {
+  content: "· · · · · ♡ · · · · ·";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: calc(9px*var(--app-text-scale,1));
+  color: var(--c-icon);
+  letter-spacing: 2px;
+}

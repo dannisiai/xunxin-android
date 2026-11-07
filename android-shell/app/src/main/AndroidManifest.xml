@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
@@ -19,6 +19,7 @@
 
     <queries>
         <package android:name="com.xingin.xhs" />
+        <package android:name="com.ss.android.ugc.aweme" />
     </queries>
 
     <application
@@ -34,7 +35,8 @@
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|uiMode"
+            android:resizeableActivity="true"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize|density|uiMode"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,6 +47,7 @@
         <activity
             android:name=".IncomingCallActivity"
             android:exported="false"
+            android:resizeableActivity="true"
             android:excludeFromRecents="true"
             android:launchMode="singleInstance"
             android:showWhenLocked="true"
@@ -61,12 +64,9 @@
             android:foregroundServiceType="dataSync" />
 
         <service
-            android:name=".TransparentPhoneOverlayService"
+            android:name=".CompanionOverlayService"
             android:exported="false"
-            android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User-controlled transparent decorative phone frame displayed over another app" />
-        </service>
+            android:foregroundServiceType="mediaProjection" />
 
         <receiver
             android:name=".BootReceiver"

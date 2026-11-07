@@ -1,0 +1,5 @@
+{
+  "overlayClasses": ["modal-overlay", "wb-modal-overlay"],
+  "cardClasses": ["modal-dialog", "modal-sheet", "modal-expand"],
+  "surfaceKinds": ["overlay", "fullscreen", "card", "decoration", "content"]
+}

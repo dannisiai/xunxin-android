@@ -56,13 +56,16 @@ class IncomingCallActivity : AppCompatActivity() {
             setPadding(dp(32), dp(96), dp(32), dp(56))
         }
 
-        root.addView(TextView(this).apply {
+        val nameLabel = TextView(this).apply {
             text = characterName
             textSize = 34f
             setTextColor(Color.WHITE)
             typeface = Typeface.DEFAULT_BOLD
             gravity = Gravity.CENTER
-        })
+            maxLines = 2
+            ellipsize = android.text.TextUtils.TruncateAt.END
+        }
+        root.addView(nameLabel)
         root.addView(TextView(this).apply {
             text = "语音来电…"
             textSize = 15f
@@ -99,7 +102,19 @@ class IncomingCallActivity : AppCompatActivity() {
         buttons.addView(roundButton("接听", Color.parseColor("#30A46C")) { answer(sessionId, callTs) })
         root.addView(buttons)
 
-        setContentView(root)
+        installFoldSafeContent(this, root) { width, height ->
+            val horizontal = minOf(dp(32), width / 14)
+            root.setPadding(horizontal, minOf(dp(96), height / 8), horizontal, minOf(dp(56), height / 8))
+            nameLabel.textSize = if (height < dp(400)) 24f else 34f
+            val margin = minOf(dp(24), width / 24)
+            val size = maxOf(1, minOf(dp(78), height / 4, (width - horizontal * 2) / 2 - margin * 2))
+            for (index in 0 until buttons.childCount) {
+                buttons.getChildAt(index).layoutParams = LinearLayout.LayoutParams(size, size).apply {
+                    marginStart = margin
+                    marginEnd = margin
+                }
+            }
+        }
     }
 
     private fun answer(sessionId: String, callTs: Long) {

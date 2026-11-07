@@ -753,7 +753,7 @@ export function GroupCallScreen({ type, session, characters, onEnd, initiator = 
             {...(inputMode === "text" && callState !== "CONNECTING" && callState !== "ENDED" ? { "data-text-input": "" } : {})}
             style={voiceBgResolved ? { ...keyboardOffsetStyle, background: `url(${voiceBgResolved}) center/cover no-repeat` } : keyboardOffsetStyle}
         >
-            <div className="call-overlay" {...(voiceBgResolved ? { "data-has-image": "" } : {})} />
+            <div data-adaptive-surface="decoration" className="call-overlay" {...(voiceBgResolved ? { "data-has-image": "" } : {})} />
 
             <CallVolumeControl />
 
@@ -818,7 +818,7 @@ export function GroupCallScreen({ type, session, characters, onEnd, initiator = 
                 </div>
 
                 {/* Subtitle overlay */}
-                <div className="gcall-subtitle-overlay" ref={subtitleScrollRef}>
+                <div data-adaptive-surface="content" className="gcall-subtitle-overlay" ref={subtitleScrollRef}>
                     <div className="gcall-subtitle-spacer" aria-hidden="true" />
                     {subtitles.map((sub) => (
                         <div key={sub.id} className="gcall-subtitle-bubble" data-role={sub.role}>

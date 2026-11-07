@@ -209,7 +209,8 @@ a {
 .xunxin-auth-error { color: #bd3543; font-size: 12px; line-height: 1.5; }
 .xunxin-auth-footnote { margin: 15px 0 0; text-align: center; font-size: 11px; color: #a0abc0; }
 
-/* ── Scaled text utilities (replace Tailwind text-[Npx]) ── */
+/* 紧凑字号：ts-N 的基准沿用标称 N 的 90%，再应用用户字号缩放。
+ * 普通 text-* 则读取 globals.css 的 --text-*，两者用途分别明确。 */
 .ts-8  { font-size: calc(7.2px*var(--app-text-scale,1)); }
 .ts-9  { font-size: calc(8.1px*var(--app-text-scale,1)); }
 .ts-10 { font-size: calc(9px*var(--app-text-scale,1)); }
@@ -231,78 +232,78 @@ a {
 .ts-60 { font-size: calc(54px*var(--app-text-scale,1)); }
 
 /* Tailwind text-size utilities need to follow the app-level scale too. */
-.text-xs { font-size: calc(12px*var(--app-text-scale,1)); }
-.text-sm { font-size: calc(14px*var(--app-text-scale,1)); }
-.text-base { font-size: calc(16px*var(--app-text-scale,1)); }
-.text-lg { font-size: calc(18px*var(--app-text-scale,1)); }
-.text-xl { font-size: calc(20px*var(--app-text-scale,1)); }
-.text-2xl { font-size: calc(24px*var(--app-text-scale,1)); }
-.text-3xl { font-size: calc(30px*var(--app-text-scale,1)); }
-.text-4xl { font-size: calc(36px*var(--app-text-scale,1)); }
-.text-5xl { font-size: calc(48px*var(--app-text-scale,1)); }
-.text-6xl { font-size: calc(60px*var(--app-text-scale,1)); }
+.text-xs { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+.text-sm { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+.text-base { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+.text-lg { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+.text-xl { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+.text-2xl { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+.text-3xl { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+.text-4xl { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+.text-5xl { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+.text-6xl { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 
-.first-letter\:text-xs::first-letter { font-size: calc(12px*var(--app-text-scale,1)); }
-.first-letter\:text-sm::first-letter { font-size: calc(14px*var(--app-text-scale,1)); }
-.first-letter\:text-base::first-letter { font-size: calc(16px*var(--app-text-scale,1)); }
-.first-letter\:text-lg::first-letter { font-size: calc(18px*var(--app-text-scale,1)); }
-.first-letter\:text-xl::first-letter { font-size: calc(20px*var(--app-text-scale,1)); }
-.first-letter\:text-2xl::first-letter { font-size: calc(24px*var(--app-text-scale,1)); }
-.first-letter\:text-3xl::first-letter { font-size: calc(30px*var(--app-text-scale,1)); }
-.first-letter\:text-4xl::first-letter { font-size: calc(36px*var(--app-text-scale,1)); }
-.first-letter\:text-5xl::first-letter { font-size: calc(48px*var(--app-text-scale,1)); }
-.first-letter\:text-6xl::first-letter { font-size: calc(60px*var(--app-text-scale,1)); }
+.first-letter\:text-xs::first-letter { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+.first-letter\:text-sm::first-letter { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+.first-letter\:text-base::first-letter { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+.first-letter\:text-lg::first-letter { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+.first-letter\:text-xl::first-letter { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+.first-letter\:text-2xl::first-letter { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+.first-letter\:text-3xl::first-letter { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+.first-letter\:text-4xl::first-letter { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+.first-letter\:text-5xl::first-letter { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+.first-letter\:text-6xl::first-letter { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 
 @media (min-width: 640px) {
-  .sm\:text-xs { font-size: calc(12px*var(--app-text-scale,1)); }
-  .sm\:text-sm { font-size: calc(14px*var(--app-text-scale,1)); }
-  .sm\:text-base { font-size: calc(16px*var(--app-text-scale,1)); }
-  .sm\:text-lg { font-size: calc(18px*var(--app-text-scale,1)); }
-  .sm\:text-xl { font-size: calc(20px*var(--app-text-scale,1)); }
-  .sm\:text-2xl { font-size: calc(24px*var(--app-text-scale,1)); }
-  .sm\:text-3xl { font-size: calc(30px*var(--app-text-scale,1)); }
-  .sm\:text-4xl { font-size: calc(36px*var(--app-text-scale,1)); }
-  .sm\:text-5xl { font-size: calc(48px*var(--app-text-scale,1)); }
-  .sm\:text-6xl { font-size: calc(60px*var(--app-text-scale,1)); }
+  .sm\:text-xs { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+  .sm\:text-sm { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+  .sm\:text-base { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+  .sm\:text-lg { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+  .sm\:text-xl { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+  .sm\:text-2xl { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+  .sm\:text-3xl { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+  .sm\:text-4xl { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+  .sm\:text-5xl { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+  .sm\:text-6xl { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 }
 
 @media (min-width: 768px) {
-  .md\:text-xs { font-size: calc(12px*var(--app-text-scale,1)); }
-  .md\:text-sm { font-size: calc(14px*var(--app-text-scale,1)); }
-  .md\:text-base { font-size: calc(16px*var(--app-text-scale,1)); }
-  .md\:text-lg { font-size: calc(18px*var(--app-text-scale,1)); }
-  .md\:text-xl { font-size: calc(20px*var(--app-text-scale,1)); }
-  .md\:text-2xl { font-size: calc(24px*var(--app-text-scale,1)); }
-  .md\:text-3xl { font-size: calc(30px*var(--app-text-scale,1)); }
-  .md\:text-4xl { font-size: calc(36px*var(--app-text-scale,1)); }
-  .md\:text-5xl { font-size: calc(48px*var(--app-text-scale,1)); }
-  .md\:text-6xl { font-size: calc(60px*var(--app-text-scale,1)); }
+  .md\:text-xs { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+  .md\:text-sm { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+  .md\:text-base { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+  .md\:text-lg { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+  .md\:text-xl { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+  .md\:text-2xl { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+  .md\:text-3xl { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+  .md\:text-4xl { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+  .md\:text-5xl { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+  .md\:text-6xl { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 }
 
 @media (min-width: 1024px) {
-  .lg\:text-xs { font-size: calc(12px*var(--app-text-scale,1)); }
-  .lg\:text-sm { font-size: calc(14px*var(--app-text-scale,1)); }
-  .lg\:text-base { font-size: calc(16px*var(--app-text-scale,1)); }
-  .lg\:text-lg { font-size: calc(18px*var(--app-text-scale,1)); }
-  .lg\:text-xl { font-size: calc(20px*var(--app-text-scale,1)); }
-  .lg\:text-2xl { font-size: calc(24px*var(--app-text-scale,1)); }
-  .lg\:text-3xl { font-size: calc(30px*var(--app-text-scale,1)); }
-  .lg\:text-4xl { font-size: calc(36px*var(--app-text-scale,1)); }
-  .lg\:text-5xl { font-size: calc(48px*var(--app-text-scale,1)); }
-  .lg\:text-6xl { font-size: calc(60px*var(--app-text-scale,1)); }
+  .lg\:text-xs { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+  .lg\:text-sm { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+  .lg\:text-base { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+  .lg\:text-lg { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+  .lg\:text-xl { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+  .lg\:text-2xl { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+  .lg\:text-3xl { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+  .lg\:text-4xl { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+  .lg\:text-5xl { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+  .lg\:text-6xl { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 }
 
 @media (min-width: 1280px) {
-  .xl\:text-xs { font-size: calc(12px*var(--app-text-scale,1)); }
-  .xl\:text-sm { font-size: calc(14px*var(--app-text-scale,1)); }
-  .xl\:text-base { font-size: calc(16px*var(--app-text-scale,1)); }
-  .xl\:text-lg { font-size: calc(18px*var(--app-text-scale,1)); }
-  .xl\:text-xl { font-size: calc(20px*var(--app-text-scale,1)); }
-  .xl\:text-2xl { font-size: calc(24px*var(--app-text-scale,1)); }
-  .xl\:text-3xl { font-size: calc(30px*var(--app-text-scale,1)); }
-  .xl\:text-4xl { font-size: calc(36px*var(--app-text-scale,1)); }
-  .xl\:text-5xl { font-size: calc(48px*var(--app-text-scale,1)); }
-  .xl\:text-6xl { font-size: calc(60px*var(--app-text-scale,1)); }
+  .xl\:text-xs { font-size: calc(var(--text-xs)*var(--app-text-scale,1)); }
+  .xl\:text-sm { font-size: calc(var(--text-sm)*var(--app-text-scale,1)); }
+  .xl\:text-base { font-size: calc(var(--text-base)*var(--app-text-scale,1)); }
+  .xl\:text-lg { font-size: calc(var(--text-lg)*var(--app-text-scale,1)); }
+  .xl\:text-xl { font-size: calc(var(--text-xl)*var(--app-text-scale,1)); }
+  .xl\:text-2xl { font-size: calc(var(--text-2xl)*var(--app-text-scale,1)); }
+  .xl\:text-3xl { font-size: calc(var(--text-3xl)*var(--app-text-scale,1)); }
+  .xl\:text-4xl { font-size: calc(var(--text-4xl)*var(--app-text-scale,1)); }
+  .xl\:text-5xl { font-size: calc(var(--text-5xl)*var(--app-text-scale,1)); }
+  .xl\:text-6xl { font-size: calc(var(--text-6xl)*var(--app-text-scale,1)); }
 }
 
 

@@ -21,12 +21,12 @@ import {
  *  与同一套高度桥，所见即所得。示例数据经 window.STATUS_RAW / {{RAW}} 注入。 */
 function StatusBarPreviewDialog({ request, onClose }: { request: StatusBarPreviewRequest; onClose: () => void }) {
   return (
-    <div
+    <div data-adaptive-surface="overlay"
       style={{ position: "fixed", inset: 0, zIndex: 4000, background: "rgba(10,10,14,0.55)", display: "flex", alignItems: "center", justifyContent: "center" }}
       onClick={onClose}
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <div
+      <div data-adaptive-surface="card"
         style={{ background: "#1c1d24", borderRadius: 18, padding: "14px 16px 16px", width: "min(88vw, 380px)", maxHeight: "80vh", overflowY: "auto", boxShadow: "0 18px 48px rgba(0,0,0,0.45)" }}
         onClick={(e) => e.stopPropagation()}
       >

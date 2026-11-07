@@ -14,6 +14,7 @@ import { hydrateKvDb, isKvHydrated } from "@/lib/kv-db";
 import { getThemeAssetMap, readThemeProfile } from "@/lib/theme-storage";
 import { resolveActiveIconSkins, type ThemeProfile } from "@/lib/theme-types";
 import { hasPendingMcpOAuthCallback } from "@/lib/tool-executor";
+import { isTouchDevice } from "@/lib/device-adaptation";
 import { shouldRequestPwaFullscreen } from "@/lib/pwa-display-mode";
 
 const TEXT = {
@@ -150,7 +151,7 @@ async function warmBuiltinFonts(shouldStop: () => boolean): Promise<void> {
 
 function SplashScreen({ ready = false, onEnter }: { ready?: boolean; onEnter?: () => void }) {
   return (
-    <main className="app-root splash-root">
+    <main data-adaptive-surface="content" className="app-root splash-root">
       <section
         className="phone-shell-wrap splash-shell-wrap"
         aria-label={TEXT.loading}
@@ -266,7 +267,7 @@ export function MainApp() {
     })();
 
     // 安卓全屏兜底。是否请求全屏在每次点击时读取，设置切换后无需重载。
-    const isMobile = window.matchMedia("(max-width: 500px) and (hover: none) and (pointer: coarse)").matches;
+    const isMobile = isTouchDevice();
     if (!isMobile) return () => {
       cancelled = true;
     };
@@ -286,7 +287,7 @@ export function MainApp() {
 
   if (kvHydrateFailed) {
     return (
-      <main className="app-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "0 28px", background: "#0c0c12", color: "#e8e8ef" }}>
+      <main data-adaptive-surface="content" className="app-root" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "0 28px", background: "#0c0c12", color: "#e8e8ef" }}>
         <div style={{ maxWidth: 340, textAlign: "center" }}>
           <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 12 }}>本机数据暂时读取失败</div>
           <div style={{ fontSize: 13, lineHeight: 1.8, opacity: 0.75, marginBottom: 20 }}>
@@ -310,7 +311,7 @@ export function MainApp() {
       <SplashScreen ready={hydrated} onEnter={() => setSplashDismissed(true)} />
     ) : (
       <AccountGate onBack={() => setSplashDismissed(false)}>
-        <main className="app-root">
+        <main data-adaptive-surface="content" className="app-root">
           <MusicProvider>
             <DesktopShell
               initialThemeProfile={preparedDesktopTheme?.profile}

@@ -641,7 +641,7 @@ export function VoiceCallScreen({ session, character, onEnd, onConnect, initiato
                 aria-label={`返回与${character.name}的语音通话`}
                 title="点击返回通话"
             >
-                <span className="call-mini-window-overlay" />
+                <span data-adaptive-surface="decoration" className="call-mini-window-overlay" />
                 <span className="call-mini-window-name">{character.name}</span>
             </button>
         );
@@ -653,7 +653,7 @@ export function VoiceCallScreen({ session, character, onEnd, onConnect, initiato
             style={bgImageResolved ? { ...keyboardOffsetStyle, background: `url(${bgImageResolved}) center/cover no-repeat` } : keyboardOffsetStyle}
         >
             {/* Dark overlay for readability */}
-            <div
+            <div data-adaptive-surface="decoration"
                 className="call-overlay absolute inset-0 z-0"
                 {...(bgImageResolved ? { "data-has-image": "" } : {})}
             />
@@ -735,7 +735,7 @@ export function VoiceCallScreen({ session, character, onEnd, onConnect, initiato
                 </div>
 
                 {/* Subtitle area — top fade via mask */}
-                <div
+                <div data-adaptive-surface="content"
                     ref={subtitleScrollRef}
                     className="voicecall-subtitle-mask flex-1 min-h-0 overflow-auto px-5 py-[10px] flex flex-col gap-2 relative"
                     {...(inputMode === "text" && callState !== "CONNECTING" && callState !== "ENDED" ? { "data-text-input": "" } : {})}

@@ -11,10 +11,10 @@ import { saveStatusRegionConfig } from "./chat-status-region";
 import { setSessionKeyboardAutoSendDebounce, setSessionKeyboardAutoSendEnabled } from "./keyboard-auto-send-config";
 import { PENDING_REPLY_PREFIX } from "./friend-request-engine";
 import { kvRemove } from "./kv-db";
+import { CHAT_OFFLINE_MODE_PREFIX } from "./chat-mode";
 
-// 与 chat-room.tsx 里的同名常量保持一致（备份模块 data-management/modules.ts 也在用同样的字面量）
+// 会话临时状态键；线下模式键由 chat-mode 统一提供。
 const GENERATING_PREFIX = "chat-generating:";
-const CHAT_OFFLINE_MODE_PREFIX = "chat-offline-mode:";
 const CHAT_THEATER_MODE_PREFIX = "chat-theater-mode:";
 
 export function removeChatSessionCompletely(sessionId: string): void {

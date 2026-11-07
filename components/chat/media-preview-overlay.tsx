@@ -38,14 +38,14 @@ export function MediaPreviewOverlay({
     const [saving, setSaving] = useState(false);
     if (typeof document === "undefined") return null;
     return createPortal(
-        <div
+        <div data-adaptive-surface="overlay"
             style={{ position: "fixed", inset: 0, zIndex: 10000, background: "rgba(0,0,0,0.85)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 24 }}
             onClick={onClose}
         >
             {imageUrl ? (
-                <img src={imageUrl} alt="" style={{ maxWidth: "90vw", maxHeight: "75vh", objectFit: "contain" }} />
+                <img data-adaptive-surface="card" src={imageUrl} alt="" style={{ maxWidth: "90vw", maxHeight: "75vh", objectFit: "contain" }} />
             ) : description ? (
-                <div
+                <div data-adaptive-surface="card"
                     style={{ color: "#fff", opacity: 0.9, maxWidth: "min(85vw, 420px)", maxHeight: "60vh", overflowY: "auto", fontSize: "calc(14px*var(--app-text-scale,1))", lineHeight: 1.8, fontStyle: "italic", whiteSpace: "pre-wrap" }}
                     onClick={e => e.stopPropagation()}
                 >

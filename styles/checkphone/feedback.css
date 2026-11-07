@@ -1,0 +1,112 @@
+/* ---------------- UNIFIED EMPTY COPY START ---------------- */
+.cp-empty-copy {
+  display: flex;
+  flex: 0 0 auto;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
+  color: rgba(16, 36, 61, 0.68);
+}
+
+.cp-empty-copy p {
+  margin: 0;
+  font-size: calc(15px*var(--app-text-scale,1));
+  line-height: 1.35;
+  font-weight: 600;
+  color: currentColor;
+}
+
+.cp-empty-copy span {
+  display: block;
+  margin: 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.45;
+  font-weight: 400;
+  color: rgba(16, 36, 61, 0.5);
+}
+
+.cp-messages-module .cp-empty-copy,
+.cp-phone-module .cp-empty-copy,
+.cp-music-module .cp-empty-copy,
+.cp-assets-module .cp-empty-copy,
+.cp-steam-module .cp-empty-copy {
+  color: rgba(236, 237, 239, 0.88);
+}
+
+.cp-messages-module .cp-empty-copy span,
+.cp-phone-module .cp-empty-copy span,
+.cp-music-module .cp-empty-copy span,
+.cp-assets-module .cp-empty-copy span,
+.cp-steam-module .cp-empty-copy span {
+  color: rgba(203, 206, 214, 0.62);
+}
+/* ---------------- UNIFIED EMPTY COPY END ---------------- */
+
+/* ---------------- UNIFIED SYNC ERROR DIALOG START ---------------- */
+.cp-sync-error-dialog {
+  position: relative;
+  width: 84%;
+  max-width: 320px;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.cp-sync-error-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+}
+
+.modal-dialog .cp-sync-error-header {
+  padding: 2px 28px 0;
+}
+
+.cp-sync-error-header .modal-title {
+  text-align: center;
+  font-size: calc(15px*var(--app-text-scale,1));
+  line-height: 1.55;
+}
+
+.modal-dialog .cp-sync-error-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  overflow: visible;
+}
+
+.cp-sync-error-raw {
+  height: 210px;
+  overflow: auto;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-text) 7%, transparent);
+  border: 1px solid var(--c-panel-border);
+  padding: 12px;
+  text-align: left;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cp-sync-error-raw pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: calc(11px*var(--app-text-scale,1));
+  line-height: 1.55;
+  color: var(--c-text);
+}
+
+.cp-sync-error-copy {
+  width: 100%;
+}
+/* ---------------- UNIFIED SYNC ERROR DIALOG END ---------------- */

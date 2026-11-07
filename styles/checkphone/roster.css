@@ -1,0 +1,330 @@
+/* ----------------- ROSTER VIEW (Layer 1) ----------------- */
+.cp-roster-page {
+  background: #000000 !important;
+  position: relative;
+  color: #c9d1d9;
+}
+
+/* Subtle edge glow on left and right */
+.cp-roster-page::before {
+  content: '' !important;
+  position: absolute !important;
+  inset: 0 !important;
+  box-shadow:
+    inset 40px 0 80px -20px rgba(255, 255, 255, 0.1),
+    inset -40px 0 80px -20px rgba(255, 255, 255, 0.1) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* Make PageShell header blend into the dark theme */
+.cp-roster-page > .page-header {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important; /* Removing the border to make it even cleaner */
+}
+.cp-roster-page > .page-header .page-back-btn,
+.cp-roster-page > .page-header .page-title,
+.cp-roster-page > .page-header .page-header-right {
+  color: #c9d1d9 !important;
+}
+
+/* Clear any lingering after pseudoelements */
+.cp-roster-page::after {
+  display: none !important;
+}
+
+.cp-roster-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  padding: 24px 16px 80px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header style for Forensic Decryption Console */
+.cp-terminal-header {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto 24px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, SF Pro Pipeline, Menlo, Monaco, Consolas, monospace;
+}
+
+.cp-terminal-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+
+.cp-terminal-pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  animation: cpPulseLight 2s infinite;
+}
+
+.cp-terminal-subtitle {
+  font-size: calc(13px*var(--app-text-scale,1));
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.05em;
+}
+
+@keyframes cpPulseLight {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* Grid Layout for Forensic Dossier Cards */
+.cp-roster-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 16px !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  padding: 0 !important;
+}
+
+/* Dossier Card Container */
+.cp-roster-card {
+  position: relative;
+  width: 100% !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  padding: 16px 12px 14px !important;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  flex-shrink: 0;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.cp-roster-card:focus,
+.cp-roster-card:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+}
+
+.cp-roster-card:active {
+  transform: scale(0.98) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 8px rgba(255, 255, 255, 0.04) !important;
+}
+
+/* HUD Style Avatar Wrapper */
+.cp-roster-avatar-hud {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin-bottom: 12px;
+}
+
+/* Corner L-shaped brackets */
+.cp-roster-avatar-hud::before,
+.cp-roster-avatar-hud::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-color: rgba(255, 255, 255, 0.2);
+  border-style: solid;
+  pointer-events: none;
+  z-index: 3;
+  transition: border-color 0.3s;
+}
+.cp-roster-card:active .cp-roster-avatar-hud::before,
+.cp-roster-card:active .cp-roster-avatar-hud::after {
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Top-Left and Bottom-Right brackets */
+.cp-roster-avatar-hud::before {
+  top: -3px;
+  left: -3px;
+  border-width: 1.5px 0 0 1.5px;
+}
+.cp-roster-avatar-hud::after {
+  bottom: -3px;
+  right: -3px;
+  border-width: 0 1.5px 1.5px 0;
+}
+
+/* Circular Avatar Frame */
+.cp-roster-avatar {
+  position: static !important;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  padding: 3px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  display: block;
+  box-sizing: border-box;
+}
+
+.cp-roster-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  background: #18191c !important;
+  display: block;
+}
+
+.cp-roster-fallback-inner {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #1f2023, #2a2b2f) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cp-roster-fallback-inner span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Card Name Badge */
+.cp-name-badge {
+  position: static !important;
+  transform: none !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: calc(14px*var(--app-text-scale,1)) !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  letter-spacing: 0.02em !important;
+  box-shadow: none !important;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+/* Card Metadata Grid (Monospace details) */
+.cp-card-metadata {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, SF Pro Pipeline, Menlo, Monaco, Consolas, monospace;
+  font-size: calc(10px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+  margin-top: 6px;
+}
+
+.cp-card-meta-row {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  gap: 4px;
+}
+
+.cp-card-meta-val {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* Tiny app icon badges for decrypted targets */
+.cp-card-apps-preview {
+  display: flex;
+  gap: 4px;
+  margin-top: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  min-height: 16px;
+}
+
+.cp-card-app-icon-mini {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.35);
+  display: grid;
+  place-items: center;
+}
+
+/* Micro Decryption Status Lights */
+.cp-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: calc(9px*var(--app-text-scale,1));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cp-status-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.cp-status-indicator--decrypted {
+  color: rgba(255, 255, 255, 0.85);
+}
+.cp-status-indicator--decrypted .cp-status-dot {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+}
+
+.cp-status-indicator--encrypted {
+  color: rgba(255, 255, 255, 0.25);
+}
+.cp-status-indicator--encrypted .cp-status-dot {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cp-roster-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #888;
+  padding: 60px 20px;
+  font-size: calc(14px*var(--app-text-scale,1));
+  letter-spacing: 0.05em;
+  width: 100%;
+}

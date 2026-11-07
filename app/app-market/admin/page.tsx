@@ -95,7 +95,7 @@ export default function AppMarketAdminPage() {
   }
 
   return (
-    <main className="ama-root">
+    <main data-adaptive-surface="content" className="ama-root">
       <div className="ama-shell">
         <header className="ama-header">
           <span className="ama-logo">

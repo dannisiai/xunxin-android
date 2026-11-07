@@ -342,8 +342,8 @@ export function CheckPhoneInstagramPage({ character, onBack }: CheckPhoneInstagr
       </div>
 
       {commentSheetPost && (
-        <div className="cp-instagram-sheet-backdrop" onClick={() => setCommentSheetPostId(null)}>
-          <section className="cp-instagram-comments-sheet" onClick={(event) => event.stopPropagation()} aria-label="Comments">
+        <div data-adaptive-surface="overlay" className="cp-instagram-sheet-backdrop" onClick={() => setCommentSheetPostId(null)}>
+          <section data-adaptive-surface="card" className="cp-instagram-comments-sheet" onClick={(event) => event.stopPropagation()} aria-label="Comments">
             <div className="cp-instagram-sheet-handle" />
             <div className="cp-instagram-sheet-head">
               <span />
@@ -385,7 +385,7 @@ export function CheckPhoneInstagramPage({ character, onBack }: CheckPhoneInstagr
       )}
 
       {selectedHighlight && (
-        <div className="cp-instagram-story-backdrop" onClick={() => setSelectedHighlightId(null)}>
+        <div data-adaptive-surface="overlay" className="cp-instagram-story-backdrop" onClick={() => setSelectedHighlightId(null)}>
           <section className="cp-instagram-story-viewer" onClick={(event) => event.stopPropagation()} aria-label="Story highlight">
             <div className="cp-instagram-story-progress" aria-hidden="true"><span /></div>
             <div className="cp-instagram-story-head">

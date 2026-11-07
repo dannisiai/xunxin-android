@@ -1,3 +1,15 @@
+/** Shared user persona data, independent of the settings UI. */
+export type UserIdentity = {
+    id: string;
+    name: string;
+    avatarUrl?: string;
+    bio: string;
+    gender: string;
+    age: string;
+    occupation: string;
+    customSettings: string;
+};
+
 export type SettingItemMeta = {
     id: string;
     name: string;

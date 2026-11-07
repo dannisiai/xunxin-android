@@ -1072,8 +1072,8 @@ export function MixologyGame({ sessionId, onBack, onToast }: GameProps) {
             </div>
             {bgTuneOpen ? (
                 <>
-                    <div className="mix-bgtune-mask" onClick={() => setBgTuneOpen(false)} />
-                    <div className="mix-bgtune">
+                    <div data-adaptive-surface="decoration" className="mix-bgtune-mask" onClick={() => setBgTuneOpen(false)} />
+                    <div data-adaptive-surface="card" className="mix-bgtune">
                         <label className="mix-bgtune-row">
                             <span>蒙版亮度</span>
                             <input
@@ -1383,8 +1383,8 @@ export function MixologyGame({ sessionId, onBack, onToast }: GameProps) {
 
             {/* 修改方案：换本局的槽位材料 */}
             {recipeOpen ? (
-                <div className="mix-sheet-mask" onClick={() => setRecipeOpen(false)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setRecipeOpen(false)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">修改方案</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setRecipeOpen(false)} aria-label="关闭"><X size={18} /></button>
@@ -1512,8 +1512,8 @@ export function MixologyGame({ sessionId, onBack, onToast }: GameProps) {
             ) : null}
 
             {slotPick ? (
-                <div className="mix-sheet-mask" onClick={() => setSlotPick(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setSlotPick(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">
                                 {MIX_KIND_LABELS[slotPick]} · 已放 {mixSlotEntries(session.recipe.slots, slotPick).length} 件
@@ -1572,8 +1572,8 @@ export function MixologyGame({ sessionId, onBack, onToast }: GameProps) {
             {/* 局内材料编辑/新建：复用酒柜的创建弹窗。保存逻辑与酒柜同款——
                 保留云端发布关联、机括改完收掉旧沙盒；从「+」新建的顺手放进那一格 */}
             {matEditor ? (
-                <div className="mix-sheet-mask">
-                    <div className="mix-sheet" style={{ maxHeight: "92%" }} onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask">
+                    <div data-adaptive-surface="card" className="mix-sheet" style={{ maxHeight: "92%" }} onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">{matEditor.initial ? "编辑" : "自建"}{MIX_KIND_LABELS[matEditor.kind]}</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setMatEditor(null)} aria-label="关闭"><X size={18} /></button>
@@ -1620,8 +1620,8 @@ export function MixologyGame({ sessionId, onBack, onToast }: GameProps) {
             {editing ? (() => {
                 const editingTurn = session.turns.find((t) => t.id === editing.id);
                 return (
-                    <div className="mix-sheet-mask" ref={editMaskRef} onClick={() => setEditing(null)}>
-                        <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                    <div data-adaptive-surface="overlay" className="mix-sheet-mask" ref={editMaskRef} onClick={() => setEditing(null)}>
+                        <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                             <div className="mix-sheet-head">
                                 <div className="mix-sheet-title">编辑消息</div>
                                 <button type="button" className="mix-icon-btn" onClick={() => setEditing(null)} aria-label="关闭"><X size={18} /></button>

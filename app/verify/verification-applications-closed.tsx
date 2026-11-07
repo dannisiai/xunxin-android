@@ -63,7 +63,7 @@ export function VerificationApplicationsClosed() {
   }
 
   return (
-    <main className="vr-root">
+    <main data-adaptive-surface="content" className="vr-root">
       <div className="vr-brand">Float</div>
       <div className="vr-brand-sub">访问资格查询 · Adult Verification</div>
 

@@ -1,0 +1,237 @@
+/* ----------------- BROWSER SUB-APP (Receipt Folded Paper) ----------------- */
+.cp-browser-module {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: var(--screen-radius);
+  background: #fdfdfc;
+  color: #111;
+  overflow: hidden;
+}
+
+.cp-browser-aurora-bg {
+  display: none;
+}
+
+.cp-browser-appbar--unified {
+  display: block;
+  padding: 0;
+  position: relative;
+  z-index: 10;
+  background: transparent;
+  border-bottom: none;
+}
+
+.cp-browser-unified-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--cp-appbar-safe-top) 20px 8px;
+}
+
+.cp-unified-header-left, .cp-unified-header-right { display: flex; align-items: center; gap: 16px; }
+.cp-unified-actions { display: flex; gap: 8px; }
+.cp-unified-btn {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  color: #3b3b42;
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.cp-unified-btn:hover { background: #fafafa; }
+.cp-unified-btn--danger { color: #ef4444; }
+
+.cp-unified-title-stack { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; min-width: 0; padding: 0 8px; }
+.cp-unified-title-row { display: flex; align-items: center; gap: 8px; }
+.cp-unified-title { font-size: calc(14px*var(--app-text-scale,1)); font-weight: 800; letter-spacing: 0.15em; color: #222224; text-transform: uppercase; font-family: Pretendard, "Inter", sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cp-unified-subtitle { font-size: calc(8.5px*var(--app-text-scale,1)); color: #888894; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+.cp-unified-blink { width: 5px; height: 5px; border-radius: 50%; background: #222; animation: cpPulse 2s infinite; }
+.cp-unified-status-bar { display: flex; justify-content: space-between; padding: 0 20px 12px; opacity: 0.7; }
+.cp-unified-mini-text { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: calc(8px*var(--app-text-scale,1)); color: #9a9aa1; letter-spacing: 0.1em; }
+
+.cp-browser-body { flex: 1; min-height: 0; overflow: hidden; display: flex; flex-direction: column; padding: 16px 0 0; position: relative; z-index: 2; }
+
+/* Dymo Label Sticker Searchbar */
+.cp-browser-searchbar-dymo {
+  margin: 12px 16px 12px; 
+  display: flex; align-items: center; justify-content: center;
+}
+.cp-dymo-tape {
+  background: #111; color: #fdfdfd; padding: 6px 16px;
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", monospace;
+  font-size: calc(11px*var(--app-text-scale,1)); font-weight: 600; letter-spacing: 0.15em;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.3), inset 0px 1px 1px rgba(255,255,255,0.15);
+  transform: rotate(-1.5deg);
+  position: relative;
+}
+.cp-dymo-tape::before, .cp-dymo-tape::after {
+  content: ''; position: absolute; width: 4px; height: 100%; top: 0; background: #222;
+}
+.cp-dymo-tape::before { left: -4px; border-left: 1px dashed rgba(255,255,255,0.15); }
+.cp-dymo-tape::after { right: -4px; border-right: 1px dashed rgba(255,255,255,0.15); }
+.cp-browser-status { padding: 56px 24px 0; text-align: center; color: #6d6d73; font-size: calc(13px*var(--app-text-scale,1)); font-family: "Noto Serif SC", serif; }
+.cp-browser-status p { margin: 0 0 6px; font-size: calc(15px*var(--app-text-scale,1)); color: #222; }
+.cp-browser-hint { display: block; color: #9a9aa1; }
+
+.cp-browser-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px 32px; display: flex; flex-direction: column; gap: 18px; perspective: 1500px; }
+.cp-browser-scroll::-webkit-scrollbar { display: none; }
+
+/* Taped Tags (Centered on Baseline) */
+.cp-browser-tabs-folder {
+  display: flex; gap: 16px; margin-bottom: 8px; flex-shrink: 0; padding: 0 24px;
+  position: relative; z-index: 10;
+}
+/* The straight dashed line traversing the middle */
+.cp-browser-tabs-folder::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 0;
+  border-top: 1.5px dashed #b0b0b8; z-index: 0; transform: translateY(-50%);
+}
+.cp-folder-tab {
+  background: #e8e8eb; border: none; /* Solid tag background for inactive */
+  padding: 6px 16px; 
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-family: "Noto Serif SC", "Songti SC", serif; font-size: calc(11.5px*var(--app-text-scale,1)); font-weight: 600; color: #777; letter-spacing: 0.05em;
+  border-radius: 2px; position: relative; z-index: 1; transition: all 0.2s;
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.06);
+}
+.cp-folder-tab:hover { background: #dfdfe4; color: #444; }
+.cp-folder-tab.active { 
+  background: #ffffff; color: #111; font-weight: 800; font-size: calc(12.5px*var(--app-text-scale,1));
+  z-index: 2; box-shadow: 2px 4px 8px rgba(0,0,0,0.12); 
+}
+
+/* Receipt Paper Wrapper */
+.cp-receipt-wrapper {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  padding-top: 10px;
+}
+/* Minimalist Paperclips */
+.cp-receipt-paperclips {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.cp-paperclip-left {
+  position: absolute;
+  left: 20px;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.12));
+  transform: rotate(5deg);
+}
+.cp-paperclip-right {
+  position: absolute;
+  right: 20px;
+  filter: drop-shadow(1px 2px 2px rgba(0,0,0,0.12));
+  transform: rotate(-4deg);
+}
+
+/* Paper list container */
+.cp-browser-list {
+  display: flex; flex-direction: column; width: 100%;
+  margin-bottom: 20px;
+  box-shadow: 0 15px 30px -5px rgba(0,0,0,0.12);
+}
+.cp-browser-empty-list { background: #fff; padding: 40px; text-align: center; font-family: "Noto Serif SC", serif; color: #888; border: 1px solid #eee; }
+
+/* 2D Origami Folds (Seamless Vertical Accordion) */
+.cp-browser-list-item {
+  display: flex; flex-direction: column;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+/* OUTWARD face (front-facing plane, catching light) */
+.cp-browser-list-item:nth-child(odd) {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f8f8 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,1);
+  z-index: 2;
+}
+
+/* INWARD face (back-facing plane, in shadow) */
+.cp-browser-list-item:nth-child(even) {
+  background: linear-gradient(180deg, #e6e6e8 0%, #f2f2f4 100%);
+  box-shadow: inset 0 12px 18px -10px rgba(0,0,0,0.12), inset 0 1px 0 rgba(0,0,0,0.03);
+  z-index: 1;
+}
+
+/* Smooth top cut */
+.cp-browser-list-item:first-child { 
+  border-top-left-radius: 2px; border-top-right-radius: 2px; 
+  box-shadow: none; /* First item is the start of paper, no prior crest */
+}
+
+/* Smooth bottom cut */
+.cp-browser-list-item:last-child {
+  border-bottom-left-radius: 2px; border-bottom-right-radius: 2px;
+}
+
+
+.cp-browser-item-header {
+  display: flex; align-items: center; gap: 16px; padding: 24px 32px;
+  background: transparent; border: none; text-align: left; cursor: pointer; width: 100%;
+}
+
+.cp-browser-item-icon { color: #888; display: grid; place-items: center; flex-shrink: 0; }
+.cp-icon-bookmark { color: #222; }
+
+.cp-browser-item-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.cp-browser-item-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; width: 100%; }
+.cp-browser-item-title-row h4 {
+  margin: 0; font-size: calc(12px*var(--app-text-scale,1)); font-weight: 700; flex: 1; min-width: 0; line-height: 1.35;
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace; color: #111;
+  white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; word-break: break-word; letter-spacing: 0.02em;
+}
+.cp-browser-item-date { font-size: calc(9.5px*var(--app-text-scale,1)); color: #888; font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace; flex-shrink: 0; }
+
+.cp-browser-item-info > span {
+  font-size: calc(9.5px*var(--app-text-scale,1)); color: #888; font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cp-browser-item-snippet {
+  margin-top: 4px; font-size: calc(11px*var(--app-text-scale,1)); line-height: 1.6; font-weight: 400;
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace; color: #444; letter-spacing: 0.02em;
+  white-space: normal;
+}
+
+.cp-browser-item-snippet .cp-bilingual,
+.cp-browser-item-snippet .cp-bilingual-original,
+.cp-browser-item-snippet .cp-bilingual-translation {
+  white-space: pre-wrap;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cp-list-tag {
+  font-size: calc(9px*var(--app-text-scale,1)); color: #555; border: 1px dotted #888; padding: 2px 6px;
+  font-family: ui-monospace, SFMono-Regular, "Courier New", monospace; text-transform: uppercase; display: inline-flex; flex-shrink: 0;
+}
+
+.cp-browser-item-details { padding: 16px 32px 32px 32px; display: flex; flex-direction: column; gap: 16px; transform-origin: top; }
+.cp-browser-item-details p {
+  margin: 0; font-size: calc(11px*var(--app-text-scale,1)); line-height: 1.8; font-weight: 400;
+  font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace; color: #333; letter-spacing: 0.02em;
+}
+
+.cp-browser-bookmark-reason { font-size: calc(10.5px*var(--app-text-scale,1)); color: #666; font-family: ui-monospace, SFMono-Regular, "Courier New", "NSimSun", "SimSun", monospace; line-height: 1.6; border-left: 2px solid #ccc; padding-left: 14px; }
+
+/* Elegant Context / Thought blocks */
+.cp-browser-history-note {
+  margin: 6px 0; padding: 18px 24px; border: 1px dashed #e2e2e2; background: #fafafa;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cp-browser-history-note b { font-size: calc(8.5px*var(--app-text-scale,1)); letter-spacing: 0.1em; color: #888; font-family: ui-monospace, SFMono-Regular, "Courier New", monospace; text-transform: uppercase; border-bottom: 1px solid #efefef; padding-bottom: 6px; }
+.cp-browser-history-note span { font-size: calc(11px*var(--app-text-scale,1)); line-height: 1.7; color: #444; font-family: ui-monospace, SFMono-Regular, "Cascadia Mono", Menlo, Consolas, "Courier New", "NSimSun", "SimSun", "STFangsong", monospace; }
+
+.cp-note-thought { background: #fdfdfd; border-style: dashed; border-color: #ccc; }
+.cp-note-thought b { color: #444; }
+.cp-note-thought span { color: #222; }

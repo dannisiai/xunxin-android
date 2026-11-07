@@ -345,7 +345,7 @@ export function RoomView({
 
             {/* 重新生成 / 开关生图确认弹窗 */}
             {confirmAction && (
-                <div className="dw-confirm-overlay">
+                <div data-adaptive-surface="overlay" className="dw-confirm-overlay">
                     <div className="dw-confirm-shade" onClick={() => setConfirmAction(null)} />
                     <div className="dw-confirm-card">
                         <div className="dw-confirm-title">
@@ -373,9 +373,9 @@ export function RoomView({
 
             {/* 家具底部弹窗 */}
             {sheetFurniture && (
-                <div className="dw2-sheet-overlay">
+                <div data-adaptive-surface="overlay" className="dw2-sheet-overlay">
                     <div className="dw2-dim" onClick={() => { setSheetFurnitureId(null); setExpandedItemId(null); }} />
-                    <div className="dw2-sheet" role="dialog" aria-modal="true" aria-label={sheetFurniture.label}>
+                    <div data-adaptive-surface="card" className="dw2-sheet" role="dialog" aria-modal="true" aria-label={sheetFurniture.label}>
                         <div className="dw2-grab" />
                         <div className="dw2-sh">
                             <span className="dw2-sh-zh">{sheetFurniture.label}<i>{String(sheetFurniture.items.length).padStart(2, "0")}</i></span>

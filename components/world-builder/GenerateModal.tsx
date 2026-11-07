@@ -286,7 +286,7 @@ export default function GenerateModal({ open, categories, characters = [], onClo
 
   return (
     <div className="wb-modal-overlay" onClick={resetAndClose}>
-      <div className="wb-modal" onClick={(e) => e.stopPropagation()}>
+      <div data-adaptive-surface="card" className="wb-modal" onClick={(e) => e.stopPropagation()}>
         <div className="wb-modal-header">
           <span>生成模型</span>
           <button className="wb-float-close" onClick={resetAndClose}>✕</button>

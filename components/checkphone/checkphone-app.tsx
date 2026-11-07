@@ -896,7 +896,7 @@ export function CheckPhoneApp({ onClose }: CheckPhoneAppProps) {
 
           {/* Temporary App Modal */}
           {selectedAppId && selectedAppSpec && !activeEmbeddedAppView && (
-            <div className="cp-modal-backdrop" onClick={closeSelectedApp}>
+            <div data-adaptive-surface="overlay" className="cp-modal-backdrop" onClick={closeSelectedApp}>
               <div className="cp-modal-body" onClick={(e) => e.stopPropagation()}>
                  <div className="cp-modal-icon-container">
                    <AppGlyph appId={selectedAppId} />
@@ -920,7 +920,7 @@ export function CheckPhoneApp({ onClose }: CheckPhoneAppProps) {
           />
         )}
         {promptEditorOpen && (
-          <div
+          <div data-adaptive-surface="overlay"
             className="cp-prompt-modal-overlay"
             role="dialog"
             aria-modal="true"
@@ -1096,7 +1096,7 @@ export function CheckPhoneApp({ onClose }: CheckPhoneAppProps) {
 
         {/* Access log: 查手机记录（注入短期记忆的条目，可逐条删除） */}
         {historyOpen && (
-          <div
+          <div data-adaptive-surface="overlay"
             className="cp-history-overlay"
             role="dialog"
             aria-modal="true"

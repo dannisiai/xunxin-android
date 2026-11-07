@@ -109,7 +109,7 @@ export function createDefaultDesktopIconLayout(_widgets: WidgetInstance[] = []):
       row: 5 + Math.floor(i / GRID_COLS),
       col: (i % GRID_COLS) + 1,
     })),
-    // 第三页：右半边 2×2（第 4~5 行、第 3~4 列），左半边留给日历组件
+    // 第三页：右半边两列（从第 4 行开始），左半边留给日历组件
     page3: PAGE_3_DEFAULT.map((id, i) => ({
       id,
       row: 4 + Math.floor(i / 2),

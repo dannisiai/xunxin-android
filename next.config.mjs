@@ -24,6 +24,7 @@ const nextConfig = {
   ...(process.env.XUNXIN_ANDROID_BUILD === "1" ? { output: "standalone" } : {}),
   typedRoutes: true,
   outputFileTracingRoot: projectRoot,
+  serverExternalPackages: ["unpdf", "word-extractor"],
   distDir: resolveDistDir(),
   eslint: {
     ignoreDuringBuilds: true,

@@ -10,6 +10,7 @@ export type IconId =
   | "game"
   | "appmarket"
   | "xiaohongshu"
+  | "douyin"
   | "dwelling"
   | "checkphone"
   | "shopping"
@@ -68,8 +69,8 @@ export const PAGE_2_DEFAULT: IconId[] = [
   "mapmode"
 ];
 
-// 第三页默认图标：右半边 2×2 排布（左半边留给日历组件），位置见 createDefaultDesktopIconLayout
-export const PAGE_3_DEFAULT: IconId[] = ["worldbuilder", "qa", "resource_hub", "realitybridge", "mixology"];
+// 第三页默认图标：右半边两列排布（左半边留给日历组件），位置见 createDefaultDesktopIconLayout
+export const PAGE_3_DEFAULT: IconId[] = ["worldbuilder", "qa", "resource_hub", "realitybridge", "mixology", "douyin"];
 
 export const DOCK_DEFAULT: IconId[] = ["settings", "theme", "resources", "characters"];
 
@@ -89,6 +90,7 @@ export const ICONS: Record<IconId, IconMeta> = {
     placeholder: false
   },
   checkphone: { id: "checkphone", label: "查手机", tone: "var(--c-icon-slate)", placeholder: false },
+  douyin: { id: "douyin", label: "抖音", tone: "#262334", placeholder: false },
   dwelling: {
     id: "dwelling",
     label: "栖所",

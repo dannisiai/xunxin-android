@@ -1,0 +1,290 @@
+/* Shared check-phone theme and shell foundations. */
+.cp-page-override {
+  background: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --cp-ink-primary: #000000;
+  --cp-ink-secondary: #737373;
+  --cp-ink-tertiary: #a3a3a3;
+  --cp-border-light: rgba(0, 0, 0, 0.05);
+
+  /* Device Metrics */
+  --device-radius: 44px;
+  --bezel-width: 6px;
+  --screen-radius: 38px;
+  --cp-appbar-safe-top: var(--page-header-safe-top, max(48px, env(safe-area-inset-top, 48px)));
+  --cp-appbar-safe-top-tight: var(--page-header-safe-top, max(44px, env(safe-area-inset-top, 44px)));
+  --cp-appbar-row-height: var(--page-header-content-height, 42px);
+  --cp-appbar-row-padding-y: 1px;
+}
+
+.cp-fullscreen-simulator,
+.cp-fullscreen-inner {
+  --cp-appbar-safe-top: var(--page-header-safe-top, max(48px, env(safe-area-inset-top, 48px)));
+  --cp-appbar-safe-top-tight: var(--page-header-safe-top, max(44px, env(safe-area-inset-top, 44px)));
+  --cp-appbar-row-height: var(--page-header-content-height, 42px);
+  --cp-appbar-row-padding-y: 1px;
+}
+
+.cp-page-override,
+.cp-page-override * {
+  box-sizing: border-box;
+}
+
+.cp-bilingual {
+  --cp-bilingual-accent: #2563eb;
+  --cp-bilingual-translation: rgba(15, 23, 42, 0.72);
+  --cp-bilingual-divider: rgba(37, 99, 235, 0.16);
+  min-width: 0;
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cp-bilingual-original {
+  min-width: 0;
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cp-bilingual-translation {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cp-bilingual a,
+.cp-bilingual-original a,
+.cp-bilingual-translation a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.cp-bilingual-toggle {
+  display: inline-flex;
+  margin-left: 6px;
+  color: var(--cp-bilingual-accent);
+  font-size: 0.92em;
+  font-weight: 650;
+  line-height: 1;
+  vertical-align: baseline;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cp-bilingual-toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--cp-bilingual-accent) 55%, transparent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.cp-bilingual-divider,
+.cp-bilingual-translation {
+  display: block;
+}
+
+.cp-bilingual-divider {
+  height: 1px;
+  margin: 7px 0 5px;
+  background: var(--cp-bilingual-divider);
+}
+
+.cp-bilingual-translation {
+  color: var(--cp-bilingual-translation);
+}
+
+.cp-bilingual--inline {
+  white-space: normal;
+}
+
+.cp-bilingual--inline .cp-bilingual-original,
+.cp-bilingual--inline .cp-bilingual-translation {
+  display: inline;
+  white-space: normal;
+}
+
+.cp-bilingual--inline .cp-bilingual-translation {
+  margin-left: 4px;
+}
+
+.cp-bilingual-inline-separator {
+  margin-left: 2px;
+  color: var(--cp-bilingual-accent);
+  font-weight: 650;
+}
+
+.cp-bilingual--light {
+  --cp-bilingual-accent: rgba(255, 255, 255, 0.92);
+  --cp-bilingual-translation: rgba(255, 255, 255, 0.74);
+  --cp-bilingual-divider: rgba(255, 255, 255, 0.22);
+}
+
+.cp-bilingual--ios,
+.cp-bilingual--browser,
+.cp-bilingual--photos {
+  --cp-bilingual-accent: #007aff;
+}
+
+.cp-bilingual--phone {
+  --cp-bilingual-accent: #2563eb;
+  --cp-bilingual-translation: rgba(38, 38, 36, 0.76);
+  --cp-bilingual-divider: rgba(17, 17, 17, 0.12);
+}
+
+.cp-bilingual--chat {
+  --cp-bilingual-accent: #7d68b4;
+  --cp-bilingual-translation: rgba(65, 53, 76, 0.64);
+  --cp-bilingual-divider: rgba(125, 104, 180, 0.18);
+}
+
+.cp-bilingual--messages {
+  --cp-bilingual-accent: #2563eb;
+  --cp-bilingual-translation: rgba(38, 38, 36, 0.76);
+  --cp-bilingual-divider: rgba(17, 17, 17, 0.12);
+}
+
+.cp-bilingual--telegram {
+  --cp-bilingual-accent: #2aabee;
+}
+
+.cp-bilingual--x {
+  --cp-bilingual-accent: #1d9bf0;
+}
+
+.cp-bilingual--reddit {
+  --cp-bilingual-accent: #ff4500;
+}
+
+.cp-bilingual--youtube {
+  --cp-bilingual-accent: #ff0033;
+}
+
+.cp-bilingual--bilibili {
+  --cp-bilingual-accent: #00a1d6;
+}
+
+.cp-bilingual--instagram {
+  --cp-bilingual-accent: #d62976;
+}
+
+.cp-bilingual--douyin {
+  --cp-bilingual-accent: #fe2c55;
+}
+
+.cp-bilingual--weibo {
+  --cp-bilingual-accent: #ff8200;
+}
+
+.cp-bilingual--xiaohongshu {
+  --cp-bilingual-accent: #ff2442;
+}
+
+.cp-bilingual--douban {
+  --cp-bilingual-accent: #9acba5;
+}
+
+.cp-bilingual--steam {
+  --cp-bilingual-accent: #66c0f4;
+  --cp-bilingual-translation: rgba(224, 235, 250, 0.72);
+  --cp-bilingual-divider: rgba(102, 192, 244, 0.22);
+}
+
+.cp-bilingual--reading {
+  --cp-bilingual-accent: #8a5a2b;
+}
+
+.cp-bilingual--music {
+  --cp-bilingual-accent: hsl(var(--cp-music-purple, 270 5% 75%) / 0.86);
+  --cp-bilingual-translation: hsl(var(--cp-music-text-violet, 266 4% 92%) / 0.68);
+  --cp-bilingual-divider: hsl(var(--cp-music-purple, 270 5% 75%) / 0.22);
+}
+
+.cp-bilingual--music .cp-bilingual-original,
+.cp-bilingual--music .cp-bilingual-translation {
+  display: inline;
+  white-space: normal;
+}
+
+.cp-bilingual--music .cp-bilingual-original {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  opacity: 1;
+}
+
+.cp-bilingual--music .cp-bilingual-divider {
+  display: none;
+}
+
+.cp-bilingual--music .cp-bilingual-toggle {
+  font-size: 0.86em;
+  font-weight: 400;
+  opacity: 0.72;
+}
+
+.cp-bilingual--music .cp-bilingual-translation {
+  margin-left: 5px;
+}
+
+.cp-bilingual--notes {
+  --cp-bilingual-accent: #b88400;
+}
+
+.cp-bilingual--shopping,
+.cp-bilingual--takeout {
+  --cp-bilingual-accent: #ff5a1f;
+}
+
+.cp-bilingual--assets {
+  --cp-bilingual-accent: #d4af37;
+  --cp-bilingual-translation: rgba(238, 229, 198, 0.72);
+  --cp-bilingual-divider: rgba(212, 175, 55, 0.22);
+}
+
+.cp-bilingual--email {
+  --cp-bilingual-accent: #0b57d0;
+  --cp-bilingual-divider: rgba(11, 87, 208, 0.18);
+}
+
+.cp-bilingual.cp-x-profile-bio,
+.cp-bilingual.cp-x-tweet-body,
+.cp-bilingual.cp-x-reply-snippet,
+.cp-bilingual.cp-x-note-body,
+.cp-bilingual.cp-x-media-caption,
+.cp-bilingual.cp-reddit-profile-bio,
+.cp-bilingual.cp-reddit-feed-title,
+.cp-bilingual.cp-reddit-feed-body,
+.cp-bilingual.cp-reddit-reply-title,
+.cp-bilingual.cp-reddit-thought-text {
+  display: block;
+}
+
+.cp-music-inner-float .cp-bilingual-original {
+  display: inline;
+}
+
+.cp-music-inner-float .cp-bilingual-toggle {
+  display: inline-flex;
+}
+
+.cp-page-override .page-body {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-bottom: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: transparent;
+}
+
+.cp-app-wrapper {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+}

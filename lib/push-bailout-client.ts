@@ -30,6 +30,7 @@ import {
 import { loadCharacters } from "./character-storage";
 import type { RegexConfig } from "./settings-types";
 import type { LLMMessage } from "./llm-prompt-assembler";
+import { isChatOfflineMode } from "./chat-mode";
 
 // ── 离线来电：让 AI 自己决定"这条主动消息要不要改成打电话" ──────────
 // 只在主动类离线任务（冷场重连/定时唤醒）的生成快照里注入一句能力说明；
@@ -131,9 +132,10 @@ export async function armReplyBailout(params: {
     replyAfter?: { localMessageId: string; createdAt: string };
     signal?: AbortSignal;
 }): Promise<ReplyBailoutHandle | null> {
+    if (isChatOfflineMode(params.sessionId)) return null;
     if (!bailoutEnabled()) return null;
     if (!(await hasAccountPushSubscription())) return null;
-    if (params.signal?.aborted) return null;
+    if (params.signal?.aborted || isChatOfflineMode(params.sessionId)) return null;
 
     const triggerKey = `reply:${params.sessionId}`;
     const armAt = new Date().toISOString();
@@ -177,7 +179,7 @@ export async function armReplyBailout(params: {
         if (response) console.warn("[PushBailout] 回复兜底预约失败：HTTP", response.status);
         return null;
     }
-    if (params.signal?.aborted) {
+    if (params.signal?.aborted || isChatOfflineMode(params.sessionId)) {
         await deleteBailoutJob(triggerKey);
         return null;
     }
@@ -259,6 +261,7 @@ export async function armFollowUpBailout(
     delaySec: number,
     fireAt: number,
 ): Promise<void> {
+    if (isChatOfflineMode(sessionId)) return;
     if (!bailoutEnabled()) return;
     try {
         if (!(await hasAccountPushSubscription())) return;
@@ -286,7 +289,7 @@ export async function armFollowUpBailout(
 
         // 组装耗时不短——上传前复核排期还在且没被改过（用户可能已回复触发了取消）
         const latestSchedule = loadFollowUpSchedule(sessionId);
-        if (!latestSchedule || latestSchedule.count !== prevCount || Math.abs(latestSchedule.fireAt - fireAt) > 1000) return;
+        if (isChatOfflineMode(sessionId) || !latestSchedule || latestSchedule.count !== prevCount || Math.abs(latestSchedule.fireAt - fireAt) > 1000) return;
 
         await pushJobsFetch({
             method: "POST",
@@ -321,6 +324,8 @@ export async function armFollowUpBailout(
     } catch (err) {
         console.warn("[PushBailout] arm failed:", err);
     }
+    // A mode switch can happen while the POST is in flight.
+    if (isChatOfflineMode(sessionId)) cancelFollowUpBailout(sessionId);
 }
 
 /** 通用预约上传：组装快照 → POST 服务端任务。返回是否成功。 */
@@ -334,6 +339,8 @@ async function postBailoutJob(input: {
     weixinBotId?: string;
     shortcutContinuation?: OfflineShortcutContinuation | null;
 }): Promise<boolean> {
+    const sessionId = typeof input.merge.sessionId === "string" ? input.merge.sessionId : "";
+    if (sessionId && isChatOfflineMode(sessionId)) return false;
     const response = await pushJobsFetch({
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -355,6 +362,10 @@ async function postBailoutJob(input: {
             },
         }),
     }).catch(() => null);
+    if (sessionId && isChatOfflineMode(sessionId)) {
+        await deleteBailoutJob(input.triggerKey);
+        return false;
+    }
     return Boolean(response && response.ok);
 }
 
@@ -395,6 +406,7 @@ function buildQuietWindowMeta(): { startMin: number; endMin: number; tzOffsetMin
 /** 冷场重连兜底：按「用户最后一条消息 + 间隔」预约服务端触发；
  *  服务端触发一次后会自动排下一发（连发上限内），用户回复后客户端重挂新周期。 */
 export async function armIdleReconnectBailout(rule: IdleReconnectRule): Promise<BailoutArmResult> {
+    if (isChatOfflineMode(rule.sessionId)) return { ok: false, reason: "当前会话为线下模式" };
     if (!bailoutEnabled()) return { ok: false, reason: "当前环境不支持服务端离线预约" };
     try {
         if (!(await hasAccountPushSubscription())) return { ok: false, reason: "当前账号没有可用的离线推送订阅" };
@@ -482,6 +494,7 @@ export async function armIdleReconnectBailout(rule: IdleReconnectRule): Promise<
 /** 定时唤醒（稍后主动联系）兜底：创建/刷新时把到点生成预约到服务端。
  *  "已过X分钟"的语境按预定触发时刻精确烤入。 */
 export async function armTimedWakeBailout(schedule: TimedWakeSchedule): Promise<BailoutArmResult> {
+    if (isChatOfflineMode(schedule.sessionId)) return { ok: false, reason: "当前会话为线下模式" };
     if (!bailoutEnabled()) return { ok: false, reason: "当前环境不支持服务端离线预约" };
     try {
         if (!(await hasAccountPushSubscription())) return { ok: false, reason: "当前账号没有可用的离线推送订阅" };
@@ -559,6 +572,7 @@ export async function armPeriodCareBailouts(): Promise<void> {
             for (const session of sessions) {
                 if (seen.has(session.contactId)) continue;
                 seen.add(session.contactId);
+                if (isChatOfflineMode(session.id)) continue;
                 if (hasMenstrualPeriodCareTriggered(session.contactId, event.cycleKey)) continue;
                 const characterName = loadCharacters().find(c => c.id === session.contactId)?.name ?? "小手机";
                 const history = loadChatMessages(session.id);
@@ -641,4 +655,19 @@ export function cancelFollowUpBailout(sessionId: string, count?: number): void {
                 : { triggerPrefix: `followup:${sessionId}:` },
         ),
     }).catch(() => undefined);
+}
+
+/** Stop previously armed online jobs when this conversation enters offline mode. */
+export function cancelOnlineChatBailouts(sessionId: string): void {
+    if (!isChatOfflineMode(sessionId)) return;
+    cancelBailoutKey(`reply:${sessionId}`);
+    cancelFollowUpBailout(sessionId);
+    for (const rule of loadIdleReconnectRules()) {
+        if (rule.sessionId === sessionId) void cancelBailoutPrefix(`idle:${rule.id}:`);
+    }
+    for (const schedule of loadTimedWakeSchedules()) {
+        if (schedule.sessionId === sessionId) cancelBailoutKey(`timedwake:${schedule.id}`);
+    }
+    const session = loadChatSessions().find(item => item.id === sessionId);
+    if (session && !session.isGroup) void cancelBailoutPrefix(`periodcare:${session.contactId}:`);
 }

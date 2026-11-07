@@ -1,0 +1,227 @@
+/* Final device layer: shell, persistent chat panes, safe overlays and compact windows. */
+html[data-adaptive-window="true"] {
+  --phone-screen-width: var(--app-pane-width, 100vw) !important;
+  --phone-screen-height: var(--app-pane-height, 100dvh) !important;
+  --app-content-left: var(--app-pane-left, 0px);
+  --app-content-top: var(--app-pane-top, 0px);
+  --adaptive-grid-row-min: 72px;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+html[data-adaptive-window="true"] body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+html[data-adaptive-window="true"] .app-root,
+html[data-adaptive-window="true"] .app-root.splash-root {
+  position: fixed;
+  inset: 0;
+  width: var(--app-window-width, 100vw);
+  height: var(--app-window-height, 100dvh);
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: var(--c-page-body-bg);
+}
+html[data-adaptive-window="true"] .phone-shell-wrap {
+  --phone-frame-size: 0px;
+  --phone-case-padding: 0px;
+  --phone-case-border-size: 0px;
+  --phone-screen-radius: 0px;
+  position: absolute;
+  left: var(--app-content-left);
+  top: var(--app-content-top);
+  width: var(--phone-screen-width) !important;
+  height: var(--phone-screen-height) !important;
+  margin: 0 !important;
+  padding: 0;
+  display: block;
+  transform-origin: top left;
+  transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0) !important;
+  transition: none;
+}
+html[data-adaptive-window="true"] .phone-case,
+html[data-adaptive-window="true"] .phone-frame {
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+html[data-adaptive-window="true"] .phone-case::before,
+html[data-adaptive-window="true"] .phone-case::after,
+html[data-adaptive-window="true"] .phone-frame::before,
+html[data-adaptive-window="true"] .phone-frame::after { display: none; }
+html[data-adaptive-window="true"] .phone-shell {
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 0;
+  min-height: 0;
+  border-radius: 0;
+  box-sizing: border-box;
+  padding: 12px max(12px, env(safe-area-inset-right, 0px)) max(12px, env(safe-area-inset-bottom, 0px)) max(12px, env(safe-area-inset-left, 0px));
+}
+html[data-adaptive-window="true"] .phone-shell.app-open-shell {
+  padding: 0 env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px);
+}
+html[data-adaptive-window="true"] .phone-workspace,
+html[data-adaptive-window="true"] .phone-app-pane { min-width: 0; min-height: 0; }
+html[data-adaptive-window="true"] .phone-app-pane { container: app-pane / inline-size; }
+html[data-adaptive-window="true"] .icon-grid {
+  --slot-size: clamp(44px, calc((var(--phone-screen-width) - 72px) / 4), 88px);
+  --slot-gap-x: clamp(10px, calc(var(--phone-screen-width) * .035), 32px);
+  --slot-icon-width: min(66px, var(--slot-size));
+  --slot-icon-height: min(66px, var(--slot-size));
+  grid-template-rows: repeat(6, minmax(var(--adaptive-grid-row-min), 1fr));
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+}
+html[data-adaptive-window="true"] .dock {
+  --slot-size: clamp(44px, calc((var(--phone-screen-width) - 72px) / 4), 88px);
+  --slot-gap-x: clamp(10px, calc(var(--phone-screen-width) * .035), 32px);
+  max-width: calc(100% - 8px);
+  flex-shrink: 0;
+}
+html[data-adaptive-window="true"][data-orientation="landscape"] {
+  --adaptive-grid-row-min: 58px;
+}
+html[data-fold-separating="true"] .phone-status-bar { display: none; }
+html[data-fold-separating="true"] {
+  --safe-area-top: env(safe-area-inset-top, 0px);
+  --phone-titlebar-safe-top: env(safe-area-inset-top, 0px);
+  --page-header-safe-top: env(safe-area-inset-top, 0px);
+  --home-grid-top-offset: max(16px, env(safe-area-inset-top, 0px));
+}
+/* Only the chat master/detail surface spans both screens. Other apps use a safe segment. */
+html[data-active-app="chat"][data-split-layout="true"][data-adaptive-window="true"] {
+  --phone-screen-width: var(--app-window-width) !important;
+  --phone-screen-height: var(--app-window-height) !important;
+  --app-content-left: 0px;
+  --app-content-top: 0px;
+}
+html[data-active-app="chat"][data-fold-separating="true"] .phone-shell.app-open-shell { padding: 0; }
+/* These three DOM parents never change when a device is folded or rotated. */
+.chat-app > .chat-split-master { position: relative; display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; height: 100%; overflow: hidden; background: var(--c-page-body-bg); z-index: 10; }
+.chat-app > .chat-split-detail { position: relative; display: none; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; background: var(--c-page-body-bg); }
+.chat-app > .chat-split-seam { display: none; }
+.chat-app .chat-split-master .chat-main-content { padding-bottom: var(--chat-tabbar-height, 68px); pointer-events: auto; }
+.chat-app .chat-split-master .chat-main-content .page-shell > .page-body,
+.chat-app .chat-split-master .chat-main-content .page-shell.absolute > .page-body { padding-bottom: 16px; --chat-ios-bottom-scroll-spacer: 0px; }
+.chat-app[data-tabbar-hidden] .chat-split-master .chat-main-content { padding-bottom: 0; }
+.chat-app:not([data-split="true"]) { display: flex; flex-direction: column; }
+.chat-app:not([data-split="true"])[data-room-active] > .chat-split-master { display: none; }
+.chat-app:not([data-split="true"])[data-room-active] > .chat-split-detail { display: flex; position: absolute; inset: 0; }
+.chat-app[data-split="true"] { display: flex; flex-direction: row; }
+.chat-app[data-split="true"] > .chat-split-master { flex: 0 0 clamp(280px, 35%, 400px); width: auto; border-right: 1px solid var(--c-card-border); }
+.chat-app[data-split="true"] > .chat-split-detail { display: flex; flex: 1; min-width: 0; height: 100%; }
+.chat-split-empty { background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, .8), transparent 70%); }
+.chat-app .chat-split-detail > .chat-room-layer { position: absolute; inset: 0; }
+.chat-app:not([data-split="true"]) .chat-main-content[data-covered-by-room] { pointer-events: none; }
+.chat-app[data-dual-screen="true"] > .chat-split-master,
+.chat-app[data-dual-screen="true"] > .chat-split-detail {
+  position: absolute;
+  flex: none;
+  border: 0;
+}
+.chat-app[data-dual-screen="true"] > .chat-split-master {
+  left: var(--viewport-segment-left-0);
+  top: var(--viewport-segment-top-0);
+  width: var(--viewport-segment-width-0);
+  height: var(--viewport-segment-height-0);
+}
+.chat-app[data-dual-screen="true"] > .chat-split-detail {
+  left: var(--viewport-segment-left-1);
+  top: var(--viewport-segment-top-1);
+  width: var(--viewport-segment-width-1);
+  height: var(--viewport-segment-height-1);
+}
+.chat-app[data-dual-screen="true"] > .chat-split-seam { display: block; position: absolute; left: var(--hinge-left); top: var(--hinge-top); width: var(--hinge-width); height: var(--hinge-height); }
+.chat-app[data-dual-screen="true"] .chat-split-master .page-header-content { padding-left: max(14px, env(safe-area-inset-left, 0px)); }
+.chat-app[data-dual-screen="true"] .chat-split-detail .page-header-content { padding-right: max(14px, env(safe-area-inset-right, 0px)); }
+/* Shared layout primitives cover settings, reader, games and other built-in app hosts. */
+html[data-adaptive-window="true"] .page-header-content { grid-template-columns: minmax(40px, max-content) minmax(0, 1fr) minmax(40px, max-content); }
+html[data-adaptive-window="true"] .page-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html[data-adaptive-window="true"] .page-body { min-width: 0; min-height: 0; }
+html[data-adaptive-window="true"] .page-body img,
+html[data-adaptive-window="true"] .page-body video { max-inline-size: 100%; }
+html[data-adaptive-window="true"] :is(pre, .chat-document-info, .chat-document-info > span) { min-width: 0; max-inline-size: 100%; overflow-wrap: anywhere; }
+html[data-adaptive-window="true"] pre { overflow-x: auto; }
+html[data-adaptive-window="true"] :is(.settings-main-menu, .appearance-main-menu) { width: min(100%, 960px); margin-inline: auto; }
+html[data-adaptive-window="true"] .reading-scroll-content { width: min(100%, 80ch); margin-inline: auto; }
+html[data-adaptive-window="true"] :is(.ui-btn, .page-back-btn) { min-height: 44px; }
+html[data-adaptive-window="true"] :is(.ui-input, .ui-textarea, .chat-input-textarea) { font-size: max(16px, calc(14px * var(--app-text-scale, 1))); }
+html[data-adaptive-window="true"] :is(.modal-dialog, .modal-sheet, .modal-expand) { box-sizing: border-box; min-width: 0; max-height: calc(100% - 24px); overflow: auto; }
+html[data-adaptive-window="true"] .modal-dialog { width: min(92%, 560px); max-width: calc(100% - 24px); }
+html[data-adaptive-window="true"] .modal-expand { max-width: min(1000px, calc(100% - 24px)); }
+/* Standalone routes use the same safe pane and own their scrolling. */
+html[data-adaptive-window="true"] :is(.wb-layout, .vr-root, .ama-root, body > .page-frame) {
+  position: fixed;
+  inset: auto;
+  left: var(--app-pane-left);
+  top: var(--app-pane-top);
+  width: var(--app-pane-width);
+  height: var(--app-pane-height);
+  min-height: 0;
+  box-sizing: border-box;
+}
+html[data-adaptive-window="true"] :is(.vr-root, .ama-root, body > .page-frame) { overflow: auto; overscroll-behavior: contain; }
+html[data-adaptive-window="true"] .wb-layout { transform: translateZ(0); }
+html[data-adaptive-window="true"] .wb-topbar { height: 48px; padding-inline: max(8px, env(safe-area-inset-left, 0px)); }
+html[data-adaptive-window="true"] .wb-topbar-btn { min-height: 40px; }
+html[data-adaptive-window="true"] .wb-bottom-bar { max-height: 42%; overflow-y: auto; padding-bottom: env(safe-area-inset-bottom, 0px); }
+html[data-adaptive-window="true"] .wb-modal { width: min(440px, 100%); max-width: 100%; max-height: 100%; box-sizing: border-box; }
+html[data-adaptive-window="true"] .wb-float-panel { top: min(120px, 20%); max-width: calc(100% - 24px); max-height: 60%; overflow-y: auto; }
+/* Query the actual app pane rather than the full dual-screen viewport. */
+@container app-pane (max-width: 360px) {
+  .page-body > .grid-cols-2,
+  .page-body > div > .grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  .page-header-content { padding-inline: 8px; gap: 4px; }
+  .menu-item { gap: 8px; }
+}
+[data-adaptive-overlay="true"] {
+  margin: 0 !important;
+  inset: auto !important;
+  left: var(--adaptive-overlay-left) !important;
+  top: var(--adaptive-overlay-top) !important;
+  width: var(--adaptive-overlay-width) !important;
+  height: var(--adaptive-overlay-height) !important;
+  max-width: var(--adaptive-overlay-width) !important;
+  max-height: var(--adaptive-overlay-height) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  overflow: auto;
+  padding: max(var(--adaptive-overlay-padding-top, 0px), env(safe-area-inset-top, 0px)) max(var(--adaptive-overlay-padding-right, 0px), env(safe-area-inset-right, 0px)) max(var(--adaptive-overlay-padding-bottom, 0px), env(safe-area-inset-bottom, 0px)) max(var(--adaptive-overlay-padding-left, 0px), env(safe-area-inset-left, 0px));
+}
+[data-adaptive-card="true"] {
+  box-sizing: border-box;
+  max-width: var(--adaptive-card-width) !important;
+  max-height: var(--adaptive-card-height) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: auto;
+}
+[data-adaptive-card="true"][data-adaptive-shift="true"] {
+  translate: calc(var(--adaptive-card-base-x, 0px) + var(--adaptive-card-shift-x, 0px)) calc(var(--adaptive-card-base-y, 0px) + var(--adaptive-card-shift-y, 0px)) var(--adaptive-card-base-z, 0px);
+}
+[data-adaptive-card="true"] > :is(.modal-header, .modal-footer, [data-adaptive-fixed]) { flex-shrink: 0; }
+html[data-adaptive-window="true"] :is([data-adaptive-surface="overlay"], [data-adaptive-surface="fullscreen"], [data-adaptive-surface="card"], .modal-overlay) :is(input, textarea, select) { font-size: max(16px, 1em, calc(14px * var(--app-text-scale, 1))); }
+/* Reflow forms and maintain reachable controls in short landscape/multi-window views. */
+@media (max-height: 500px) {
+  html[data-adaptive-window="true"] .folder-panel { max-height: calc(100% - 24px); overflow-y: auto; }
+  html[data-adaptive-window="true"] .chat-input-textarea { max-height: min(120px, 24dvh); }
+  html[data-adaptive-window="true"] :is(.modal-header, .modal-footer) { flex-shrink: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-adaptive-window="true"] .phone-shell-wrap { transition: none; }
+}
+
+/* A singular or edge-on plane cannot receive finite overlay coordinates. Retry when it changes. */
+[data-adaptive-unavailable="true"] { visibility: hidden !important; pointer-events: none !important; }
+[data-adaptive-probe] { pointer-events: none !important; }

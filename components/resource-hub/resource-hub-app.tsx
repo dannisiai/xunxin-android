@@ -1136,8 +1136,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 导入目的地选择 */}
             {importFile && (
-                <div className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setImportFile(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setImportFile(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">导入到...</span>
                             <span className="rh-titlebar-controls">
@@ -1162,8 +1162,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 聊天室 CSS：选择角色 */}
             {pickCharacterFor && (
-                <div className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setPickCharacterFor(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setPickCharacterFor(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">应用到哪个角色的聊天室？</span>
                             <span className="rh-titlebar-controls">
@@ -1189,8 +1189,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 删除确认（管理员） */}
             {confirmDeleteEntry && (
-                <div className="rh-dialog-overlay" onClick={deleting ? undefined : () => setConfirmDeleteEntry(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={deleting ? undefined : () => setConfirmDeleteEntry(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">下架资源</span></div>
                         <div className="rh-dialog-body">
                             <span className="rh-dialog-icon">🗑️</span>
@@ -1208,8 +1208,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 摊主钥匙：换设备时带走它，就能继续管理自己的发布 */}
             {showKeyDialog && (
-                <div className="rh-dialog-overlay" onClick={() => setShowKeyDialog(false)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={() => setShowKeyDialog(false)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">摊主钥匙</span>
                             <span className="rh-titlebar-controls">
@@ -1266,8 +1266,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 找回作品：选资源 + 传证明，开申请给管理员人工审核 */}
             {showClaim && (
-                <div className="rh-dialog-overlay" onClick={claimSubmitting ? undefined : () => setShowClaim(false)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={claimSubmitting ? undefined : () => setShowClaim(false)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">找回作品</span>
                             <span className="rh-titlebar-controls">
@@ -1343,8 +1343,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 发布成功后的强制钥匙备份（不可跳过：必须保存或复制后才能关闭） */}
             {showKeyBackup && (
-                <div className="rh-dialog-overlay">
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay">
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">请备份你的摊主钥匙</span></div>
                         <div className="rh-dialog-body rh-form">
                             <div className="rh-key-danger">⚠️ 钥匙丢失将无法找回作品所有权</div>
@@ -1394,8 +1394,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 编辑已发布的资源（仅作者，凭本机凭证） */}
             {editEntry && (
-                <div className="rh-dialog-overlay" onClick={savingEdit ? undefined : () => { setEditEntry(null); closeRichPickers(); }}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={savingEdit ? undefined : () => { setEditEntry(null); closeRichPickers(); }}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">编辑资源</span>
                             <span className="rh-titlebar-controls">
@@ -1468,8 +1468,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 上传对话框 */}
             {showUpload && (
-                <div className="rh-dialog-overlay" onClick={uploading ? undefined : () => { setShowUpload(false); closeRichPickers(); }}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={uploading ? undefined : () => { setShowUpload(false); closeRichPickers(); }}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">上传资源</span>
                             <span className="rh-titlebar-controls">
@@ -1547,8 +1547,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 公开性确认：点「上传」先过这一关，确认后才打开上传表单 */}
             {confirmUpload && (
-                <div className="rh-dialog-overlay" onClick={() => setConfirmUpload(false)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={() => setConfirmUpload(false)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">确认上传</span></div>
                         <div className="rh-dialog-body">
                             <span className="rh-dialog-icon">⚠️</span>
@@ -1572,8 +1572,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 预设条目：新增 or 覆盖 → 选预设 → 选位置 */}
             {entryImport && (
-                <div className="rh-dialog-overlay" onClick={entryBusy ? undefined : () => setEntryImport(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={entryBusy ? undefined : () => setEntryImport(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar">
                             <span className="rh-titlebar-text">
                                 {!entryImport.mode ? "导入预设条目"
@@ -1638,8 +1638,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 主题包覆盖确认：主题包是整体替换当前外观，不是叠加 */}
             {confirmTheme && (
-                <div className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setConfirmTheme(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setConfirmTheme(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">应用主题包</span></div>
                         <div className="rh-dialog-body">
                             <span className="rh-dialog-icon">🎨</span>
@@ -1662,8 +1662,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 特调信任模式告知：这类机括不进沙盒，与插件同权限，落库前必须问一句 */}
             {confirmTrusted && (
-                <div className="rh-dialog-overlay">
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay">
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">这份资源里有信任模式的机括</span></div>
                         <div className="rh-dialog-body">
                             <span className="rh-dialog-icon">⚠️</span>
@@ -1683,8 +1683,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 插件安装告知：插件与本应用同权限，装上即执行，必须先问一句 */}
             {confirmPlugin && (
-                <div className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setConfirmPlugin(null)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={importingTo ? undefined : () => setConfirmPlugin(null)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">安装插件</span></div>
                         <div className="rh-dialog-body">
                             <span className="rh-dialog-icon">⚠️</span>
@@ -1707,8 +1707,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 开屏版权提示：进 app 先说清楚集市作品只能本机用，「永不显示」写进 kv 后不再弹 */}
             {showNotice && (
-                <div className="rh-dialog-overlay">
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay">
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">资源市场 APP 须知</span></div>
                         <div className="rh-dialog-body rh-notice-body">
                             <p>
@@ -1735,8 +1735,8 @@ export function ResourceHubApp({ onClose, onNotice }: { onClose: () => void; onN
 
             {/* 资源仓库设置 */}
             {showSourceEditor && (
-                <div className="rh-dialog-overlay" onClick={() => setShowSourceEditor(false)}>
-                    <div className="rh-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="rh-dialog-overlay" onClick={() => setShowSourceEditor(false)}>
+                    <div data-adaptive-surface="card" className="rh-dialog" onClick={e => e.stopPropagation()}>
                         <div className="rh-titlebar"><span className="rh-titlebar-text">资源仓库</span></div>
                         <div className="rh-dialog-body rh-form">
                             <label>GitHub 用户/组织

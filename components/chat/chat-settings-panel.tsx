@@ -1405,7 +1405,7 @@ export function ChatSettingsPanel({
             {/* Modal: Bilingual Prompt */}
             {editingBilingualPrompt && (
                 <div className="modal-overlay">
-                    <div className="modal-dialog chat-bilingual-prompt-dialog">
+                    <div data-adaptive-surface="card" className="modal-dialog chat-bilingual-prompt-dialog">
                         <div className="ts-17 font-semibold text-center text-[var(--c-text)]">双语提示词</div>
                         <div className="chat-bilingual-prompt-stack">
                             <div className="chat-bilingual-prompt-section">
@@ -1657,7 +1657,7 @@ export function ChatSettingsPanel({
                 </div>
             )}
             {showStatusRegionDialog && (
-                <div className="fixed inset-0 z-[10030] flex items-end justify-center bg-black/45 sm:items-center" role="dialog" aria-modal="true" aria-label="自定义状态栏">
+                <div data-adaptive-surface="overlay" className="fixed inset-0 z-[10030] flex items-end justify-center bg-black/45 sm:items-center" role="dialog" aria-modal="true" aria-label="自定义状态栏">
                     <div className="flex max-h-[86vh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl bg-[var(--c-page-body-bg)] text-[var(--c-text)] shadow-2xl sm:rounded-2xl">
                         <div className="flex items-center justify-between px-5 pb-2 pt-4">
                             <div className="font-bold text-[var(--c-text-title)]">自定义状态栏</div>

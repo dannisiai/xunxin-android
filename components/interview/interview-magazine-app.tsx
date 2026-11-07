@@ -19,7 +19,7 @@ import {
 
 import { loadCharacters } from "@/lib/character-storage";
 import type { Character } from "@/lib/character-types";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import type { UserIdentity } from "@/lib/settings-types";
 import {
   composeInterviewArticle,
   formatInterviewTranscript,
@@ -173,7 +173,7 @@ function BackgroundLayer({ imageUrl }: { imageUrl?: string | null }) {
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-stone-900 to-black" />
       )}
-      <div className="overlay" />
+      <div data-adaptive-surface="decoration" className="overlay" />
     </div>
   );
 }
@@ -979,8 +979,8 @@ function HomeScreen({
 
       {archiveOpen && (
         <>
-          <div className="interview-modal-scrim" onClick={() => setArchiveOpen(false)} />
-          <div className="interview-drawer">
+          <div data-adaptive-surface="decoration" className="interview-modal-scrim" onClick={() => setArchiveOpen(false)} />
+          <div data-adaptive-surface="card" className="interview-drawer">
             <header className="p-6 pb-4 border-b border-white/10 flex items-center justify-between">
               <div>
                 <SmallCaps className="text-white/50">ARCHIVES</SmallCaps>

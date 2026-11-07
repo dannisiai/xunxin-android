@@ -2,29 +2,29 @@
 
 import { useState, useEffect, useContext, type CSSProperties } from "react";
 import {
-    Asterisk,
-    BookOpen,
-    Box,
-    Brain,
-    Check,
-    ChevronRight,
-    Code2,
-    Languages,
-    Layers,
-    Mic,
-    RotateCcw,
-    User,
-    UserPlus,
-    Wrench,
-    X,
-    type LucideIcon,
+  Asterisk,
+  BookOpen,
+  Box,
+  Brain,
+  Check,
+  ChevronRight,
+  Code2,
+  Languages,
+  Layers,
+  Mic,
+  RotateCcw,
+  User,
+  UserPlus,
+  Wrench,
+  X,
+  type LucideIcon,
 } from "lucide-react";
 import { SettingsContext } from "../phone-settings-app";
 import { ICONS, type IconId } from "@/lib/desktop-config";
 import { IconGlyph } from "@/components/icon-glyph";
 import { CUSTOM_APPS_UPDATED_EVENT, loadInstalledCustomApps } from "@/lib/custom-app-storage";
-import { toCustomAppIconId } from "@/lib/custom-app-types";
-import type { InstalledCustomApp } from "@/lib/custom-app-types";
+import { toCustomAppIconId, type InstalledCustomApp } from "@/lib/custom-app-types";
+
 
 /** Map ContentAppId → IconId (only needed where they differ) */
 const APP_ICON_MAP: Partial<Record<ContentAppId, IconId>> = {
@@ -32,34 +32,37 @@ const APP_ICON_MAP: Partial<Record<ContentAppId, IconId>> = {
     vn: "vnmode",
 };
 const appIconId = (appId: ContentAppId): IconId => APP_ICON_MAP[appId] ?? appId as IconId;
-import type {
-    BindingConfig,
-    BindingSlot,
-    CharacterBinding,
-    ContentAppId,
-    ApiConfig,
-    VoiceApiConfig,
-    PresetConfig,
-    WorldBookConfig,
-    RegexConfig,
+import {
+  type BindingConfig,
+  type BindingSlot,
+  type CharacterBinding,
+  type ContentAppId,
+  type ApiConfig,
+  type VoiceApiConfig,
+  type PresetConfig,
+  type WorldBookConfig,
+  type RegexConfig,
+  CONTENT_APP_IDS,
+  CONTENT_APP_LABELS,
+  type UserIdentity,
 } from "@/lib/settings-types";
-import { CONTENT_APP_IDS, CONTENT_APP_LABELS } from "@/lib/settings-types";
+
 import { BINDING_ACCENTS, CONTENT_APP_ACCENTS } from "@/lib/ui-accent-colors";
 import {
-    loadBindingConfig,
-    saveBindingConfig,
-    getCharacterBinding,
-    setCharacterBinding,
-    loadApiConfigs,
-    loadVoiceConfigs,
-    loadPresets,
-    loadWorldBooks,
-    loadRegexes,
-    loadUserIdentities,
-    ensureSettingsStorageHydrated,
+  loadBindingConfig,
+  saveBindingConfig,
+  getCharacterBinding,
+  setCharacterBinding,
+  loadApiConfigs,
+  loadVoiceConfigs,
+  loadPresets,
+  loadWorldBooks,
+  loadRegexes,
+  loadUserIdentities,
+  ensureSettingsStorageHydrated,
 } from "@/lib/settings-storage";
 import { hydrateKvDb } from "@/lib/kv-db";
-import type { UserIdentity } from "@/components/settings/user-identity";
+
 import { loadCharacters } from "@/lib/character-storage";
 import type { Character } from "@/lib/character-types";
 
@@ -662,7 +665,7 @@ export function BindingManager() {
 
         return (
             <div className="modal-overlay" data-ui="modal" onClick={() => setActiveGlobalSheetField(null)}>
-                <div
+                <div data-adaptive-surface="card"
                     className="binding-picker-dialog"
                     role="dialog"
                     aria-modal="true"
@@ -763,7 +766,7 @@ export function BindingManager() {
 
         return (
             <div className="modal-overlay" data-ui="modal" onClick={() => setActiveSlotSheetField(null)}>
-                <div
+                <div data-adaptive-surface="card"
                     className="binding-picker-dialog"
                     role="dialog"
                     aria-modal="true"
@@ -849,7 +852,7 @@ export function BindingManager() {
 
         return (
             <div className="modal-overlay" data-ui="modal" onClick={() => setActiveAuxSheetField(null)}>
-                <div
+                <div data-adaptive-surface="card"
                     className="binding-picker-dialog"
                     role="dialog"
                     aria-modal="true"

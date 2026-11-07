@@ -666,12 +666,12 @@ export function CheckPhoneShoppingPage({ character, onBack }: CheckPhoneShopping
         )}
       </div>
       {translationPreview && (
-        <div
+        <div data-adaptive-surface="overlay"
           className="cp-shopping-translation-overlay"
           role="presentation"
           onClick={() => setTranslationPreview(null)}
         >
-          <div
+          <div data-adaptive-surface="card"
             className="cp-shopping-translation-sheet"
             role="dialog"
             aria-modal="true"

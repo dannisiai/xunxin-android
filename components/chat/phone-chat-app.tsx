@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useEffect, useRef } from "react";
+import { memo, useState, useEffect, useRef, useMemo } from "react";
 import { ChatMessageList } from "./chat-message-list";
 import { ChatContactsList } from "./chat-contacts-list";
 import { MomentsFeed } from "./moments-feed";
@@ -17,6 +17,8 @@ import { formatXiaohongshuShareForPrompt, formatScreenshotShareForPrompt, type C
 import { CHAT_OPEN_SESSION_EVENT, CHAT_OPEN_ADD_CONTACT_EVENT } from "@/lib/chat-notification-events";
 import { CHAT_SESSIONS_MERGED_EVENT, type ChatSessionsMergedDetail } from "@/lib/chat-session-merge";
 import { getMascotSettingsSnapshot } from "@/lib/mascot-settings";
+import { isChatOfflineMode, OFFLINE_CHAT_SEND_BLOCKED } from "@/lib/chat-mode";
+import { useDeviceAdaptation } from "@/components/device-adaptation-provider";
 
 type TabKey = "messages" | "contacts" | "feeds" | "me";
 
@@ -40,6 +42,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
     const [visitedSessions, setVisitedSessions] = useState<Map<string, ChatSession>>(new Map());
     const [dbReady, setDbReady] = useState(false);
     const [hideTabBar, setHideTabBar] = useState(false);
+    const { isSplitLayout, isSeparating, foldOrientation } = useDeviceAdaptation();
 
     // Hydrate IndexedDB → in-memory caches on mount
     useEffect(() => {
@@ -165,6 +168,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
 
     const handleSelectContact = (sess: ChatSession | null) => {
         if (sharePayload && sess) {
+            if (isChatOfflineMode(sess.id)) { window.alert(OFFLINE_CHAT_SEND_BLOCKED); return; }
             if (sharePayload.type === "music") {
                 pushChatMessage({
                     sessionId: sess.id,
@@ -246,19 +250,29 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
     }, []);
 
     // Wait for IndexedDB hydration before rendering
+    // Pre-compute visited sessions including active one to avoid 1-frame blank flicker
+    const effectiveVisitedSessions = useMemo(() => {
+        if (!activeSession) return visitedSessions;
+        if (visitedSessions.has(activeSession.id)) return visitedSessions;
+        const next = new Map(visitedSessions);
+        next.set(activeSession.id, activeSession);
+        return next;
+    }, [visitedSessions, activeSession]);
+
     if (!dbReady) return null;
 
     return (
         <div
-            className="chat-app absolute inset-0 flex flex-col overflow-hidden z-10"
+            className="chat-app absolute inset-0 overflow-hidden z-10"
+            data-split={String(isSplitLayout)}
+            data-dual-screen={String(isSplitLayout && isSeparating && foldOrientation === "vertical")}
             {...(activeSession || activeMascot ? { "data-room-active": "" } : {})}
             {...(hideTabBar ? { "data-tabbar-hidden": "" } : {})}
         >
-            {/* Chat app-level custom CSS (lower priority than per-session CSS) */}
             {chatAppCSS && <SessionCustomCSS css={chatAppCSS} scope=".chat-app" />}
-            {/* The Main Content Area */}
-            <div className="chat-main-content relative flex-1 flex flex-col overflow-hidden" {...(activeSession || activeMascot ? { "data-covered-by-room": "" } : {})}>
-                {activeTab === "messages" && <ChatMessageList onCloseApp={onClose} activeSession={activeSession} onSelectSession={(session) => { setActiveMascot(false); setActiveSession(session); }} onSelectMascot={handleSelectMascot} />}
+            <div className="chat-split-master">
+                <div className="chat-main-content relative flex-1 flex flex-col overflow-hidden" {...(activeSession || activeMascot ? { "data-covered-by-room": "" } : {})}>
+                {activeTab === "messages" && <ChatMessageList onCloseApp={onClose} activeSession={activeSession} onSelectSession={(session) => { setActiveMascot(false); setActiveSession(session); }} onSelectMascot={handleSelectMascot} isMascotActive={activeMascot} />}
                 {activeTab === "contacts" && (
                     <ChatContactsList
                         onCloseApp={onClose}
@@ -280,9 +294,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                 {activeTab === "feeds" && <MomentsFeed onCloseApp={onClose} />}
                 {activeTab === "me" && <UserProfilePanel onClose={() => setActiveTab("messages")} />}
             </div>
-
-            {/* Bottom Navigation Bar — hide when inside a chat room */}
-            <nav className="chat-tab-bar chat-bottom-glass-bar" data-ui="nav" style={{ display: activeSession || activeMascot || hideTabBar ? "none" : undefined }}>
+                <nav className="chat-tab-bar chat-bottom-glass-bar" data-ui="nav" style={{ display: hideTabBar ? "none" : undefined }}>
                 <button
                     className={`chat-tab ${activeTab === "messages" ? "chat-tab-active" : ""}`}
                     onClick={() => setActiveTab("messages")}
@@ -312,9 +324,10 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                     <span style={{ fontSize: "calc(10px*var(--app-text-scale,1))", color: activeTab === "me" ? undefined : "var(--c-text)" }}>主页</span>
                 </button>
             </nav>
-
-            {/* Chat Rooms — all visited sessions stay mounted, only active one is visible */}
-            {[...visitedSessions.values()].map(sess => (
+            </div>
+            <div className="chat-split-seam" aria-hidden="true" />
+            <div className="chat-split-detail">
+                {[...effectiveVisitedSessions.values()].map(sess => (
                 <div key={sess.id} style={{ display: activeSession?.id === sess.id ? undefined : 'none' }} className="chat-room-layer absolute inset-0">
                     <ChatRoom
                         session={sess}
@@ -331,7 +344,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                     />
                 </div>
             ))}
-            {activeMascot && (
+                {activeMascot && (
                 <div className="chat-room-layer absolute inset-0">
                     <MascotChatRoom
                         onBack={() => setActiveMascot(false)}
@@ -339,6 +352,14 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                     />
                 </div>
             )}
+                {!activeSession && !activeMascot && (
+                    <div className="chat-split-empty flex-1 flex flex-col items-center justify-center p-8 text-center select-none">
+                        <MessageCircle size={38} strokeWidth={1.4} className="mb-4" />
+                        <div className="text-base font-semibold text-[var(--c-text-title)]">寻信</div>
+                        <p className="text-sm text-[var(--c-text)]">选择联系人或小伴侣开始聊天</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 });

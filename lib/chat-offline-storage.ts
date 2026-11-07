@@ -1,6 +1,7 @@
 import { loadChatSessions } from "./chat-storage";
 import { formatChatTimestamp } from "./llm-prompt-assembler";
 import { kvGet, kvRemove, kvSet, registerDynamicPrefix } from "./kv-db";
+import { normalizeStoredChatDocument, type StoredChatDocument } from "./chat-documents";
 
 const CHAT_OFFLINE_TURNS_PREFIX = "ai_phone_chat_offline_turns:";
 registerDynamicPrefix(CHAT_OFFLINE_TURNS_PREFIX);
@@ -9,6 +10,7 @@ export type ChatOfflineTurn = {
     id: string;
     sessionId: string;
     userContent: string;
+    userDocument?: StoredChatDocument;
     assistantContent: string;
     summary: string;
     summaryTag: string;
@@ -54,6 +56,7 @@ function normalizeTurn(value: unknown): ChatOfflineTurn | null {
         id: item.id,
         sessionId: item.sessionId,
         userContent: item.userContent,
+        userDocument: normalizeStoredChatDocument(item.userDocument),
         assistantContent: item.assistantContent,
         summary: typeof item.summary === "string" ? item.summary : "",
         summaryTag: typeof item.summaryTag === "string" && item.summaryTag.trim() ? item.summaryTag.trim() : "summary",
@@ -94,6 +97,7 @@ export function clearChatOfflineTurns(sessionId: string): void {
 export function appendChatOfflineTurn(input: {
     sessionId: string;
     userContent: string;
+    userDocument?: StoredChatDocument;
     assistantContent: string;
     summary: string;
     summaryTag: string;
@@ -106,6 +110,7 @@ export function appendChatOfflineTurn(input: {
         id: createTurnId(),
         sessionId: input.sessionId,
         userContent: input.userContent,
+        userDocument: input.userDocument,
         assistantContent: input.assistantContent,
         summary: input.summary,
         summaryTag: input.summaryTag.trim() || "summary",

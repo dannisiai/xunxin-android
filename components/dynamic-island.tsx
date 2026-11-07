@@ -132,12 +132,12 @@ export function DynamicIsland({
   return (
     <>
       {/* Backdrop overlay */}
-      <div
+      <div data-adaptive-surface="decoration"
         className="fixed inset-0 z-[10010] bg-black/25 backdrop-blur-[2px]"
         onClick={() => setIsExpanded(false)}
       />
 
-      <div
+      <div data-adaptive-surface="card"
         ref={containerRef}
         className="dynamic-island-expanded-card fixed z-[10020] left-1/2 -translate-x-1/2 top-2 w-[calc(100%-24px)] max-w-[360px] rounded-[24px] bg-[#0c0c10]/95 backdrop-blur-2xl border border-white/15 p-4 text-white shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all animate-in fade-in zoom-in-95 duration-200 select-none"
       >

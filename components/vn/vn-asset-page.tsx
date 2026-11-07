@@ -770,8 +770,8 @@ export function VnAssetPage({ onNotice }: VnAssetPageProps) {
 
       {/* ── Naming Dialog ── */}
       {pendingFile && portalTarget && createPortal(
-        <div className="vna-naming-overlay" onClick={handleCancelAdd}>
-          <div className="vna-naming-dialog" onClick={(e) => e.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="vna-naming-overlay" onClick={handleCancelAdd}>
+          <div data-adaptive-surface="card" className="vna-naming-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="vna-naming-title">
               {tab === "scenes" ? "命名场景" : "命名立绘"}
             </div>
@@ -825,8 +825,8 @@ export function VnAssetPage({ onNotice }: VnAssetPageProps) {
         };
 
         return createPortal(
-          <div className="modal-overlay vna-layout-overlay" onClick={() => { setEditingLayoutAsset(null); reload(); }}>
-            <div className="modal-dialog vna-layout-dialog" style={layoutPreviewStyle} onClick={(e) => e.stopPropagation()}>
+          <div data-adaptive-surface="overlay" className="modal-overlay vna-layout-overlay" onClick={() => { setEditingLayoutAsset(null); reload(); }}>
+            <div data-adaptive-surface="card" className="modal-dialog vna-layout-dialog" style={layoutPreviewStyle} onClick={(e) => e.stopPropagation()}>
               <div className="modal-body" style={{ padding: 0 }}>
                 {/* Preview */}
                 <div className="vna-layout-preview">

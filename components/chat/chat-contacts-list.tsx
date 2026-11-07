@@ -350,7 +350,7 @@ export function ChatContactsList({ onCloseApp, onSelectSession, onSelectMascot, 
             {/* Friend Request List Modal */}
             {showRequestList && (
                 <div className="modal-overlay" onClick={() => setShowRequestList(false)}>
-                    <div className="modal-dialog freq-dialog" onClick={e => e.stopPropagation()}>
+                    <div data-adaptive-surface="card" className="modal-dialog freq-dialog" onClick={e => e.stopPropagation()}>
                         <div className="ts-17 font-semibold text-center text-[var(--c-text-title)]">
                             新的朋友
                         </div>
@@ -405,7 +405,7 @@ export function ChatContactsList({ onCloseApp, onSelectSession, onSelectMascot, 
                 const char = getCharForRequest(selectedRequest);
                 return (
                     <div className="modal-overlay" onClick={() => !isProcessing && setSelectedRequest(null)}>
-                        <div className="modal-dialog freq-dialog" onClick={e => e.stopPropagation()}>
+                        <div data-adaptive-surface="card" className="modal-dialog freq-dialog" onClick={e => e.stopPropagation()}>
                             {/* Avatar */}
                             <div className="freq-detail-avatar">
                                 {char?.avatar ? (

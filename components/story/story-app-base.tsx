@@ -923,8 +923,8 @@ export function StoryApp({ onClose }: StoryAppProps) {
         <SessionCustomCSS css={currentSession.customCSS} scope={sessionScope} />
       ) : null}
 
-      {drawerOpen ? <div className="story-drawer-overlay" onClick={() => setDrawerOpen(false)} /> : null}
-      <aside className="story-drawer" style={{ transform: drawerOpen ? "translateX(0)" : "translateX(106%)", transition: "transform 220ms ease" }}>
+      {drawerOpen ? <div data-adaptive-surface="decoration" className="story-drawer-overlay" onClick={() => setDrawerOpen(false)} /> : null}
+      <aside data-adaptive-surface={drawerOpen ? "card" : "content"} className="story-drawer" style={{ transform: drawerOpen ? "translateX(0)" : "translateX(106%)", transition: "transform 220ms ease" }}>
         <div className="story-drawer-section">
           <div className="story-drawer-eyebrow">剧情角色</div>
           <div className="story-character-list">
@@ -1172,7 +1172,7 @@ export function StoryApp({ onClose }: StoryAppProps) {
                         </div>
                         {activeMessageId === message.id && (() => {
                           const menu = (
-                            <div
+                            <div data-adaptive-surface="card"
                               className="story-ctx-menu"
                               style={contextMenuPoint ? { left: contextMenuPoint.x, top: contextMenuPoint.y } : undefined}
                               onPointerDown={(e) => e.stopPropagation()}

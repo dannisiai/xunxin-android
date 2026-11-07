@@ -465,7 +465,7 @@ export function DwellingApp({ onClose, visible, onIdle }: DwellingAppProps) {
                 <div className="dwelling-loading-bar"><span className="dwelling-spinner" style={{ width: 14, height: 14, borderWidth: 2 }} /><span>刷新中…</span></div>
             )}
             {cs && (cs.error || cs.lastItemError) && (
-                <div className="dw-confirm-overlay">
+                <div data-adaptive-surface="overlay" className="dw-confirm-overlay">
                     <div className="dw-confirm-shade" onClick={() => { cs.error = null; cs.lastItemError = null; rerender(); }} />
                     <div className="dw-confirm-card">
                         <div className="dw-confirm-title">{cs.error ? "生成失败" : "探索失败"}</div>
@@ -563,9 +563,9 @@ export function DwellingApp({ onClose, visible, onIdle }: DwellingAppProps) {
                 );
             })()}
             {itemDetail && (
-                <div className="dwelling-detail-overlay" data-show="true">
+                <div data-adaptive-surface="overlay" className="dwelling-detail-overlay" data-show="true">
                     <div className="dwelling-items-shade" onClick={() => setItemDetail(null)} />
-                    <div className="dwelling-detail-card" role="dialog" aria-modal="true" aria-label={itemDetail.itemName}>
+                    <div data-adaptive-surface="card" className="dwelling-detail-card" role="dialog" aria-modal="true" aria-label={itemDetail.itemName}>
                         <div className="dwelling-items-header">
                             <div className="dwelling-detail-heading">
                                 <div className="dwelling-detail-name">{itemDetail.itemName}</div>
@@ -588,7 +588,7 @@ export function DwellingApp({ onClose, visible, onIdle }: DwellingAppProps) {
             )}
             {/* Refresh confirm dialog */}
             {showRefreshConfirm && (
-                <div className="dw-confirm-overlay">
+                <div data-adaptive-surface="overlay" className="dw-confirm-overlay">
                     <div className="dw-confirm-shade" onClick={() => setShowRefreshConfirm(false)} />
                     <div className="dw-confirm-card">
                         <div className="dw-confirm-title">刷新房间</div>
@@ -614,7 +614,7 @@ export function DwellingApp({ onClose, visible, onIdle }: DwellingAppProps) {
 
             {/* 一键探索确认：先说清楚会调用几次模型 */}
             {exploreAllConfirm && (
-                <div className="dw-confirm-overlay">
+                <div data-adaptive-surface="overlay" className="dw-confirm-overlay">
                     <div className="dw-confirm-shade" onClick={() => setExploreAllConfirm(null)} />
                     <div className="dw-confirm-card">
                         <div className="dw-confirm-title">一键探索</div>
@@ -644,7 +644,7 @@ export function DwellingApp({ onClose, visible, onIdle }: DwellingAppProps) {
 
             {/* Delete confirm dialog */}
             {showDeleteConfirm && (
-                <div className="dw-confirm-overlay">
+                <div data-adaptive-surface="overlay" className="dw-confirm-overlay">
                     <div className="dw-confirm-shade" onClick={() => setShowDeleteConfirm(false)} />
                     <div className="dw-confirm-card">
                         <div className="dw-confirm-title">要离开这里吗？</div>

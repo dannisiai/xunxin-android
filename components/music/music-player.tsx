@@ -420,7 +420,7 @@ export default function MusicPlayer() {
     return (
         <div className="music-player mp-lumen" style={ambientVars}>
             {musicToast && (
-                <div className="music-toast-overlay">
+                <div data-adaptive-surface="content" className="music-toast-overlay">
                     <div className="music-toast-chip">
                         {musicToast === "加载音乐中..." ? (
                             <span className="ui-loading-toast-content">
@@ -653,8 +653,8 @@ export default function MusicPlayer() {
 
             {/* Queue drawer */}
             {showQueue && (
-                <div className="music-queue-overlay" onClick={() => setShowQueue(false)}>
-                    <div className="music-queue-drawer" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="music-queue-overlay" onClick={() => setShowQueue(false)}>
+                    <div data-adaptive-surface="card" className="music-queue-drawer" onClick={e => e.stopPropagation()}>
                         <div className="music-queue-header">
                             <span>播放列表</span>
                             <span className="music-queue-count">{player.queue.length}首</span>
@@ -700,7 +700,7 @@ export default function MusicPlayer() {
 
             {/* Playlist picker overlay */}
             {showPlaylistPicker && (
-                <div className="music-playlist-picker-overlay" onClick={() => setShowPlaylistPicker(false)}>
+                <div data-adaptive-surface="overlay" className="music-playlist-picker-overlay" onClick={() => setShowPlaylistPicker(false)}>
                     <div className="music-playlist-picker" onClick={e => e.stopPropagation()}>
                         <div className="music-playlist-picker-header">
                             <span>收藏到歌单</span>

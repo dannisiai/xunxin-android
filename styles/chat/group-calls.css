@@ -1,0 +1,437 @@
+/* ══════════════════════════════════════════
+   Group Voice Call (.gcall-*)
+   ══════════════════════════════════════════ */
+
+.gcall-root {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.gcall-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: max(12px, env(safe-area-inset-top));
+}
+
+/* ── Top bar ── */
+.gcall-topbar {
+  text-align: center;
+  padding: 42px 20px 6px;
+  flex-shrink: 0;
+}
+.gcall-topbar-video {
+  padding-top: calc(max(20px, env(safe-area-inset-top)) + 56px);
+}
+.gcall-topbar-title {
+  font-size: calc(14.4px*var(--app-text-scale,1));
+  font-weight: 600;
+  text-shadow: 0 1px 4px color-mix(in srgb, var(--c-overlay) 50%, transparent);
+}
+.gcall-topbar-sub {
+  font-size: calc(11.7px*var(--app-text-scale,1));
+  opacity: 0.8;
+  margin-top: 4px;
+  text-shadow: 0 1px 4px color-mix(in srgb, var(--c-overlay) 50%, transparent);
+}
+.gcall-topbar-sub[data-anim] {
+  animation: voicecall-pulse 1.5s ease-in-out infinite;
+}
+
+/* ── Participant grid ── */
+.gcall-grid {
+  flex: 0 0 auto;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-content: flex-start;
+  align-items: flex-start;
+  gap: 8px 12px;
+  padding: 6px 18px 8px;
+  max-height: 176px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.gcall-grid::-webkit-scrollbar { display: none; }
+
+/* ── Participant tile ── */
+.gcall-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 0 4px;
+  flex: 0 1 calc((100% - 36px) / 4);
+  max-width: 72px;
+  min-width: 58px;
+  transition: opacity 0.3s;
+}
+
+/* ── Tile avatar ── */
+.gcall-tile-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid color-mix(in srgb, var(--c-card-border) 30%, transparent);
+  background: color-mix(in srgb, var(--c-card) 12%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  flex-shrink: 0;
+}
+.gcall-tile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gcall-tile[data-speaking] .gcall-tile-avatar {
+  border-color: var(--c-success);
+  animation: gcall-avatar-glow 1.5s ease-in-out infinite;
+}
+
+.gcall-tile-initial {
+  font-size: calc(15.3px*var(--app-text-scale,1));
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+/* ── Tile name ── */
+.gcall-tile-name {
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0.85;
+}
+
+/* ── Wave bars ── */
+.gcall-wave-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 10px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.gcall-tile[data-speaking] .gcall-wave-bars {
+  opacity: 1;
+}
+.gcall-wave-bar {
+  width: 3px;
+  height: 3px;
+  border-radius: 1.5px;
+  background: var(--c-success);
+  animation: gcall-wave 0.8s ease-in-out infinite;
+}
+.gcall-wave-bar:nth-child(2) { animation-delay: 0.15s; }
+.gcall-wave-bar:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── Subtitle overlay ── */
+.gcall-subtitle-overlay {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 20px 12px;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 30px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 30px);
+}
+
+.gcall-root[data-text-input] .gcall-subtitle-overlay {
+  padding-bottom: 96px;
+}
+
+.gcall-subtitle-spacer {
+  flex: 1 0 auto;
+  min-height: 0;
+}
+
+.gcall-subtitle-bubble {
+  padding: 6px 12px;
+  border-radius: 10px;
+  max-width: 85%;
+  word-break: break-word;
+  font-size: calc(11.7px*var(--app-text-scale,1));
+  line-height: 1.5;
+}
+.gcall-subtitle-bubble[data-role="user"] {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--c-success) 70%, transparent);
+}
+.gcall-subtitle-bubble[data-role="assistant"] {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--c-bubble-other) 15%, transparent);
+  backdrop-filter: blur(var(--ui-blur-light));
+  -webkit-backdrop-filter: blur(var(--ui-blur-light));
+}
+.gcall-subtitle-bubble[data-interim] {
+  align-self: flex-end;
+  opacity: 0.6;
+  background: color-mix(in srgb, var(--c-success) 50%, transparent);
+}
+.gcall-subtitle-sender {
+  font-size: calc(9.9px*var(--app-text-scale,1));
+  opacity: 0.7;
+  margin-bottom: 2px;
+}
+
+/* ── Controls bar ── */
+.gcall-controls-bar {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  margin: 0 56px calc(32px + env(safe-area-inset-bottom, 0px));
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-panel) 12%, transparent);
+  backdrop-filter: blur(var(--ui-blur)) saturate(var(--ui-saturate));
+  -webkit-backdrop-filter: blur(var(--ui-blur)) saturate(var(--ui-saturate));
+  border: 1px solid color-mix(in srgb, var(--c-card-border) 18%, transparent);
+}
+.gcall-controls-bar .ui-call-btn,
+.gcall-controls-bar .ui-call-mic {
+  transform: scale(0.82);
+}
+
+/* ── Connecting ring ── */
+.gcall-connecting-ring {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+.gcall-ring-circle {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 2px solid color-mix(in srgb, var(--c-card-border) 25%, transparent);
+  animation: gcall-ring-expand 1.5s ease-out infinite;
+}
+.gcall-ring-circle-delay {
+  animation-delay: 0.5s;
+}
+
+/* ══════════════════════════════════════════
+   Incoming Call Bar (global overlay)
+   ══════════════════════════════════════════ */
+
+.incoming-call-bar {
+  position: absolute;
+  top: 54px;
+  left: 8px;
+  right: 8px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px;
+  border-radius: 16px;
+  background: rgba(40, 40, 40, 0.92);
+  backdrop-filter: blur(var(--ui-blur));
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  animation: incoming-call-slide-in 0.35s ease-out;
+  color: #fff;
+}
+
+.incoming-call-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.incoming-call-bar-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+}
+.incoming-call-bar-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: calc(16px*var(--app-text-scale,1));
+  font-weight: 600;
+}
+
+.incoming-call-bar-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.incoming-call-bar-name {
+  font-size: calc(12.6px*var(--app-text-scale,1));
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.incoming-call-bar-type {
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  opacity: 0.7;
+}
+
+.incoming-call-bar-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.incoming-call-bar-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.incoming-call-bar-btn:active {
+  transform: scale(0.9);
+}
+.incoming-call-bar-decline {
+  background: var(--c-danger);
+  color: #fff;
+}
+.incoming-call-bar-accept {
+  background: var(--c-success);
+  color: #fff;
+}
+
+.chat-message-notice-bar {
+  position: absolute;
+  top: 54px;
+  left: 10px;
+  right: 10px;
+  z-index: 190;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 66px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--c-surface) 88%, white 12%);
+  color: var(--c-text);
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+  backdrop-filter: blur(var(--ui-blur));
+  -webkit-backdrop-filter: blur(var(--ui-blur));
+  animation: incoming-call-slide-in 0.3s ease-out;
+  cursor: pointer;
+  text-align: left;
+}
+
+.chat-message-notice-bar:active {
+  transform: scale(0.985);
+}
+
+.chat-message-notice-info {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+  gap: 10px;
+}
+
+.chat-message-notice-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.14);
+}
+
+.chat-message-notice-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--c-primary) 16%, var(--c-surface));
+  color: var(--c-primary);
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 700;
+}
+
+.chat-message-notice-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+
+.chat-message-notice-name {
+  color: var(--c-text-title);
+  font-size: calc(12.6px*var(--app-text-scale,1));
+  font-weight: 700;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-message-notice-body {
+  color: var(--c-text);
+  font-size: calc(11px*var(--app-text-scale,1));
+  line-height: 1.25;
+  opacity: 0.72;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chat-message-notice-action {
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c-primary) 14%, transparent);
+  color: var(--c-primary);
+  padding: 6px 10px;
+  font-size: calc(11px*var(--app-text-scale,1));
+  font-weight: 700;
+}
+
+/* Moments Feed Dynamic Header */
+.moments-feed-page:not(.is-scrolled) .page-header {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border-bottom-color: transparent !important;
+}
+.moments-feed-page:not(.is-scrolled) .page-title {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.moments-feed-page .page-header, .moments-feed-page .page-title {
+  transition: background 0.3s ease, backdrop-filter 0.3s ease, opacity 0.3s ease;
+}
+
+/* Consecutive Messages — data attribute only, no default style change.
+   To enable compact mode with hidden avatars, add to custom CSS:
+   .chat-msg-wrapper[data-consecutive] { margin-top: -12px !important; }
+   .chat-msg-wrapper[data-consecutive] > .flex-col.items-center.shrink-0 { opacity: 0; pointer-events: none; }
+*/

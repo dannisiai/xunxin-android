@@ -9,6 +9,7 @@ import {
   writeCustomAppCollection,
 } from "./custom-app-storage";
 import { buildCustomAppChatTags } from "./custom-app-tags";
+import { assertOnlineChatMode } from "./chat-mode";
 import { hydrateKvDb } from "./kv-db";
 import { loadCharacters } from "./character-storage";
 import {
@@ -1654,6 +1655,7 @@ export function sendCustomAppCard(app: InstalledCustomApp, record: Record<string
   const characterId = cleanText(record.characterId, 160);
   if (!characterId) throw new Error("chat.sendCard 缺少 characterId。");
   const session = ensureCharacterSession(characterId);
+  assertOnlineChatMode(session.id);
   const mediaData = normalizeCustomAppCardData(app, record);
   const summary = cleanText(mediaData.appCardSummary ?? record.summary ?? record.body ?? record.title, 2000);
   const historyText = cleanUnboundedText(mediaData.appHistoryText ?? record.historyText ?? record.content ?? summary);
@@ -1783,6 +1785,7 @@ export function sendCustomAppTextMessage(app: InstalledCustomApp, record: Record
   const content = cleanUnboundedText(record.content ?? record.text ?? record.message);
   if (!characterId || !content) throw new Error("chat.sendMessage 需要 characterId 和 content。");
   const session = ensureCharacterSession(characterId);
+  assertOnlineChatMode(session.id);
   const message = pushChatMessage({
     sessionId: session.id,
     role: normalizeHistoryRole(record.role),
@@ -1805,6 +1808,7 @@ export function writeCustomAppHistoryMessage(app: InstalledCustomApp, record: Re
   const content = cleanUnboundedText(record.content ?? record.historyText ?? record.text ?? record.message ?? record.summary);
   if (!characterId || !content) throw new Error("chat.history 需要 characterId 和 content。");
   const session = ensureCharacterSession(characterId);
+  assertOnlineChatMode(session.id);
   const role = normalizeHistoryRole(record.role);
   const message = pushChatMessage({
     sessionId: session.id,
@@ -1860,6 +1864,7 @@ export async function requestCustomAppReply(app: InstalledCustomApp, record: Rec
   const characterId = cleanText(record.characterId, 160);
   if (!characterId) throw new Error("chat.requestReply 缺少 characterId。");
   const session = ensureCharacterSession(characterId);
+  assertOnlineChatMode(session.id);
   const context = cleanUnboundedText(record.context ?? record.summary);
   if (context) {
     pushChatMessage({

@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
       - uses: actions/setup-java@v4
         with:
@@ -31,10 +31,7 @@ jobs:
           npm ci
           npm run build
           python3 scripts/prepare-xunxin-android.py
-          curl -fL --retry 3 -o /tmp/nodejs-mobile.zip https://github.com/fogtape/nodejs-mobile/releases/download/v24.22.1-0/nodejs-mobile-android-24.22.1-0.zip
-          echo "d6fd9f610fe5d81fede8f0d400c5a62723247725a19831835f15abf4f0604250  /tmp/nodejs-mobile.zip" | sha256sum -c -
-          mkdir -p android-shell/app/libnode
-          unzip -q /tmp/nodejs-mobile.zip -d android-shell/app/libnode
+          python3 scripts/install-android-node.py --install-toolchain
           gradle -p android-shell assembleDebug
       - name: Upload compiled APK
         uses: actions/upload-artifact@v4

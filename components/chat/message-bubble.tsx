@@ -1,4 +1,6 @@
 "use client";
+import { ChatDocumentCard } from "./document-card";
+import { getChatDocument } from "@/lib/chat-documents";
 
 import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { findCustomStickerByName, resolveCustomStickerUrl } from "@/lib/custom-sticker-storage";
@@ -270,7 +272,7 @@ function HtmlFullscreenModal({ html, onClose, onActionSelect }: { html: string; 
     if (!portalTarget) return null;
 
     return createPortal(
-        <div className="chat-html-overlay" onClick={onClose}>
+        <div data-adaptive-surface="overlay" className="chat-html-overlay" onClick={onClose}>
             <iframe
                 ref={iframeRef}
                 srcDoc={srcDoc}
@@ -1207,7 +1209,7 @@ function GeneratedImagePromptDialog({
                 onCancel();
             }}
         >
-            <div className="modal-dialog chat-generated-image-prompt-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
+            <div data-adaptive-surface="card" className="modal-dialog chat-generated-image-prompt-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
                 <div className="modal-header" data-ui="modal-header">
                     <h3 className="modal-title">重新生成图片</h3>
                 </div>
@@ -1915,6 +1917,8 @@ function MediaFileBubble({
     const rawUrl = msg.mediaUrl || "";
     const fileType = msg.mediaData?.fileType || "file";
     const title = msg.mediaData?.fileName || msg.content || "";
+    const document = getChatDocument(msg);
+    const hasDocument = Boolean(document);
     const [resolvedUrl, setResolvedUrl] = useState<string>(isMediaStoreRef(rawUrl) ? "" : rawUrl);
     const [expired, setExpired] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -1929,6 +1933,8 @@ function MediaFileBubble({
     const [imageFailureNotice, setImageFailureNotice] = useState("");
 
     useEffect(() => {
+        // Documents resolve their original blob only when the user saves it.
+        if (hasDocument) return;
         if (!isMediaStoreRef(rawUrl)) {
             // Plain URLs (e.g. the fresh data URL written by image regeneration)
             // must re-sync when the message's mediaUrl changes — resolvedUrl is
@@ -1944,7 +1950,7 @@ function MediaFileBubble({
             else setExpired(true);
         });
         return () => { if (revokeUrl) URL.revokeObjectURL(revokeUrl); };
-    }, [rawUrl]);
+    }, [rawUrl, hasDocument]);
 
     const togglePlay = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
@@ -2012,6 +2018,8 @@ function MediaFileBubble({
     }, []);
 
     const url = resolvedUrl;
+
+    if (document) return <ChatDocumentCard document={document} note={msg.content} />;
 
     if (expired) {
         return (
@@ -2114,7 +2122,7 @@ function MediaFileBubble({
                         </div>
                     )}
                 </div>
-                {showImagePromptEditor && typeof document !== "undefined" && createPortal(
+                {showImagePromptEditor && typeof window !== "undefined" && createPortal(
                     <GeneratedImagePromptDialog
                         value={imagePromptDraft}
                         onChange={setImagePromptDraft}
@@ -2126,7 +2134,7 @@ function MediaFileBubble({
                         busy={imageRegenerating}
                         error={imageRetryError}
                     />,
-                    document.body,
+                    window.document.body,
                 )}
                 {imageFailureNotice && (
                     <GeneratedImageErrorDialog

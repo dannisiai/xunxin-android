@@ -159,8 +159,8 @@ export function MixConnectorSheet({ onClose, onToast }: { onClose: () => void; o
     };
 
     return (
-        <div className="mix-sheet-mask" onClick={onClose}>
-            <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={onClose}>
+            <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                 <div className="mix-sheet-head">
                     <div className="mix-sheet-title">{draft ? (list.some((c) => c.id === draft.id) ? "编辑连接器" : "新建连接器") : "连接器"}</div>
                     <button type="button" className="mix-icon-btn" onClick={draft ? () => setDraft(null) : onClose} aria-label={draft ? "返回" : "关闭"}><X size={18} /></button>

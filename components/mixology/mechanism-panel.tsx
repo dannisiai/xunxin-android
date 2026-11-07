@@ -833,7 +833,7 @@ export function MixMechanismPanel({
               * backdrop-filter，会成为 fixed 子元素的包含块，挂在里面会被面板裁掉。
               */}
             {grabbing && typeof document !== "undefined"
-                ? createPortal(<div className="mix-panel-catch" data-mode={grabbing} aria-hidden="true" />, document.body)
+                ? createPortal(<div data-adaptive-surface="decoration" className="mix-panel-catch" data-mode={grabbing} aria-hidden="true" />, document.body)
                 : null}
         </div>
     );

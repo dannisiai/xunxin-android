@@ -3,15 +3,22 @@
 import { useState, useEffect, useMemo, type CSSProperties } from "react";
 import CSSSchemeBar from "@/components/ui/css-scheme-picker";
 import {
-    loadFollowUpConfig,
-    saveFollowUpConfig,
-    getDefaultFollowUpConfig,
-    resolveUserIdentity,
+  loadFollowUpConfig,
+  saveFollowUpConfig,
+  getDefaultFollowUpConfig,
+  resolveUserIdentity,
+  type FollowUpConfig,
 } from "@/lib/settings-storage";
-import { loadChatAppSettings, saveChatAppSettings } from "@/lib/chat-storage";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import {
+  loadChatAppSettings,
+  saveChatAppSettings,
+  loadChatContacts,
+  addChatContact,
+  createOrGetSession,
+} from "@/lib/chat-storage";
+import type { UserIdentity } from "@/lib/settings-types";
 import { getApiLogs, clearApiLogs, type DebugInfo } from "@/lib/chat-engine";
-import type { FollowUpConfig } from "@/lib/settings-storage";
+
 import { PageShell } from "@/components/ui/page-shell";
 import { CHAT_APP_CSS_EXAMPLE } from "@/lib/css-examples";
 import { Toggle } from "@/components/ui/form";
@@ -19,49 +26,81 @@ import { StickerManager } from "./sticker-manager";
 import { ChatPluginManager } from "./chat-plugin-manager";
 import { ChatPluginPageBoundary } from "./chat-plugin-page-boundary";
 import { WalletPanel } from "./wallet-panel";
-import { loadMomentsConfig, saveMomentsConfig, DEFAULT_MOMENTS_CONFIG, type MomentsInteractionConfig, getAllPosts } from "@/lib/moments-storage";
-import { loadChatContacts } from "@/lib/chat-storage";
+import {
+  loadMomentsConfig,
+  saveMomentsConfig,
+  DEFAULT_MOMENTS_CONFIG,
+  type MomentsInteractionConfig,
+  getAllPosts,
+} from "@/lib/moments-storage";
+
 import { loadCharacters } from "@/lib/character-storage";
 import { triggerImmediatePost } from "@/lib/moments-engine";
 import type { Character } from "@/lib/character-types";
 import { requestNotificationPermission } from "@/lib/browser-notification";
-import { disableOfflinePush, enableOfflinePush, getOfflinePushState, isShellEnvironment, loadPushQuietHours, savePushQuietHours, sendTestOfflinePush, type OfflinePushState } from "@/lib/push-client";
+import {
+  disableOfflinePush,
+  enableOfflinePush,
+  getOfflinePushState,
+  isShellEnvironment,
+  loadPushQuietHours,
+  savePushQuietHours,
+  sendTestOfflinePush,
+  type OfflinePushState,
+} from "@/lib/push-client";
 import { isPersonalPushCloudActive, setPersonalPushCloudScheduled } from "@/lib/personal-push-cloud";
 import { loadPushCloudScheduled, savePushCloudScheduled } from "@/lib/cloud-deploy-status";
-import { armIdleReconnectBailout, armTimedWakeBailout, cancelBailoutKey, cancelBailoutPrefix } from "@/lib/push-bailout-client";
-import { loadTimedWakeSchedules, makeTimedWakeId, removeTimedWakeSchedule, saveTimedWakeSchedule, type TimedWakeSchedule } from "@/lib/timed-wake-storage";
-import { IDLE_RECONNECT_MAX_CONSECUTIVE, loadIdleReconnectRules, removeIdleReconnectRule, upsertIdleReconnectRule, type IdleReconnectRule } from "@/lib/idle-reconnect-storage";
-import { addChatContact, createOrGetSession } from "@/lib/chat-storage";
+import {
+  armIdleReconnectBailout,
+  armTimedWakeBailout,
+  cancelBailoutKey,
+  cancelBailoutPrefix,
+} from "@/lib/push-bailout-client";
+import {
+  loadTimedWakeSchedules,
+  makeTimedWakeId,
+  removeTimedWakeSchedule,
+  saveTimedWakeSchedule,
+  type TimedWakeSchedule,
+} from "@/lib/timed-wake-storage";
+import {
+  IDLE_RECONNECT_MAX_CONSECUTIVE,
+  loadIdleReconnectRules,
+  removeIdleReconnectRule,
+  upsertIdleReconnectRule,
+  type IdleReconnectRule,
+} from "@/lib/idle-reconnect-storage";
+
 import { kvGet, kvSet, kvRemove } from "@/lib/kv-db";
 import { formatWalletAmount, getWalletBalance, loadWalletState, WALLET_UPDATED_EVENT } from "@/lib/wallet-storage";
 import { ChatFallbackAvatar } from "./chat-fallback-avatar";
 import {
-    Loader2,
-    Bell,
-    CloudUpload,
-    ChevronRight,
-    Clock,
-    FileCode2,
-    Heart,
-    MessageSquare,
-    MessageSquareDashed,
-    Palette,
-    Puzzle,
-    Keyboard,
-    Vibrate,
-    Radio,
-    RotateCcw,
-    Moon,
-    MoreHorizontal,
-    Satellite,
-    Send,
-    X,
-    SlidersHorizontal,
-    Sticker,
-    ThumbsUp,
-    Trash2,
-    User,
-    type LucideIcon,
+  Loader2,
+  Bell,
+  CloudUpload,
+  ChevronRight,
+  Clock,
+  FileCode2,
+  Heart,
+  MessageSquare,
+  MessageSquareDashed,
+  Palette,
+  Puzzle,
+  Keyboard,
+  Vibrate,
+  Radio,
+  RotateCcw,
+  Moon,
+  MoreHorizontal,
+  Satellite,
+  Send,
+  X,
+  SlidersHorizontal,
+  Sticker,
+  ThumbsUp,
+  Trash2,
+  User,
+  type LucideIcon,
 } from "lucide-react";
 import { BINDING_ACCENTS, CONTENT_APP_ACCENTS } from "@/lib/ui-accent-colors";
 
@@ -321,7 +360,7 @@ export function UserProfilePanel({ onClose, className }: UserProfilePanelProps) 
             `}</style>
             <PageShell title="" onBack={onClose} className={`user-profile-page-root ${className || ""}`}>
                 <div className="relative z-[1] w-full max-w-2xl mx-auto flex flex-col pb-8">
-                    
+
                     {/* User Info & Stats Block */}
                     <div className="flex items-center gap-5 px-6 pt-2 pb-4">
                         {/* Avatar */}
@@ -357,8 +396,6 @@ export function UserProfilePanel({ onClose, className }: UserProfilePanelProps) 
                             </div>
                         </div>
                     </div>
-
-
 
                     <button
                         type="button"
@@ -701,7 +738,7 @@ function ApiLogViewer({ onBack }: { onBack: () => void }) {
                         {/* 来源过滤：右上角三点打开的底部弹窗，样式同记忆库的「记忆来源」 */}
                         {sourcePickerOpen ? (
                             <div className="modal-overlay modal-overlay-bottom" data-ui="modal" onClick={() => setSourcePickerOpen(false)}>
-                                <div className="modal-sheet memory-source-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
+                                <div data-adaptive-surface="card" className="modal-sheet memory-source-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
                                     <div className="modal-header" data-ui="modal-header">
                                         <button
                                             type="button"
@@ -1139,7 +1176,7 @@ function InlineMomentsSettings({ onBack }: { onBack: () => void }) {
             </div>
             {editingBilingualPrompt && (
                 <div className="modal-overlay">
-                    <div className="modal-dialog chat-bilingual-prompt-dialog">
+                    <div data-adaptive-surface="card" className="modal-dialog chat-bilingual-prompt-dialog">
                         <div className="ts-17 font-semibold text-center text-[var(--c-text)]">朋友圈双语提示词</div>
                         <textarea
                             className="ui-input chat-bilingual-prompt-textarea"

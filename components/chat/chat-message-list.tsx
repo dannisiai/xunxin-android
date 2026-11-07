@@ -2,11 +2,22 @@
 
 import React, { useState, useEffect, useSyncExternalStore } from "react";
 import { ChevronLeft } from "lucide-react";
-import { loadChatSessions, loadChatContacts, ChatSession, createOrGetSession, createGroupSession, pushChatMessage, addChatContact, loadChatMessages, getLastVisibleSessionMessage, getChatMessagePreview } from "@/lib/chat-storage";
+import {
+  loadChatSessions,
+  loadChatContacts,
+  ChatSession,
+  createOrGetSession,
+  createGroupSession,
+  pushChatMessage,
+  addChatContact,
+  loadChatMessages,
+  getLastVisibleSessionMessage,
+  getChatMessagePreview,
+} from "@/lib/chat-storage";
 import { loadCharacters } from "@/lib/character-storage";
 import { Character } from "@/lib/character-types";
 import { resolveUserIdentity } from "@/lib/settings-storage";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import type { UserIdentity } from "@/lib/settings-types";
 import { PENDING_REPLY_PREFIX } from "@/lib/friend-request-engine";
 import { clearRequestsForCharacter, dispatchFriendRequestUpdated } from "@/lib/friend-request-storage";
 import { UserProfilePanel } from "./user-profile-panel";
@@ -16,25 +27,25 @@ import { Toggle } from "@/components/ui/form";
 import { formatChatUiTime } from "@/lib/chat-time";
 import { getChatOfflineTurnPreview, getLastChatOfflineTurn } from "@/lib/chat-offline-storage";
 import {
-    dismissMergeSignatures,
-    findPromptableDuplicateSessionGroups,
-    mergeDuplicateSessionGroup,
-    type DuplicateSessionGroup,
+  dismissMergeSignatures,
+  findPromptableDuplicateSessionGroups,
+  mergeDuplicateSessionGroup,
+  type DuplicateSessionGroup,
 } from "@/lib/chat-session-merge";
 import { kvSet } from "@/lib/kv-db";
 import { ChatFallbackAvatar } from "./chat-fallback-avatar";
 import {
-    getMascotLastPreview,
-    getMascotChatSnapshot,
-    hydrateMascotChat,
-    subscribeMascotChat,
+  getMascotLastPreview,
+  getMascotChatSnapshot,
+  hydrateMascotChat,
+  subscribeMascotChat,
 } from "@/lib/mascot-chat-store";
 import {
-    DEFAULT_MASCOT_AVATAR,
-    getMascotSettingsSnapshot,
-    resolveMascotImageRef,
-    subscribeMascotSettings,
-    updateMascotSettings,
+  DEFAULT_MASCOT_AVATAR,
+  getMascotSettingsSnapshot,
+  resolveMascotImageRef,
+  subscribeMascotSettings,
+  updateMascotSettings,
 } from "@/lib/mascot-settings";
 
 function parseTime(value?: string | null): number {
@@ -84,9 +95,10 @@ type ChatMessageListProps = {
     activeSession: ChatSession | null;
     onSelectSession: (session: ChatSession | null) => void;
     onSelectMascot: () => void;
+    isMascotActive?: boolean;
 };
 
-export function ChatMessageList({ onCloseApp, activeSession, onSelectSession, onSelectMascot }: ChatMessageListProps) {
+export function ChatMessageList({ onCloseApp, activeSession, onSelectSession, onSelectMascot, isMascotActive }: ChatMessageListProps) {
     const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [listFilter, setListFilter] = useState("");
     const [listTab, setListTab] = useState<"all" | "private" | "group">("all");
@@ -305,7 +317,7 @@ export function ChatMessageList({ onCloseApp, activeSession, onSelectSession, on
                             })
                             .map(s => (
                                 <div key={s.id}>
-                                    <SessionItem session={s} onSelect={() => onSelectSession(s)} isPinned={!!s.isPinned} />
+                                    <SessionItem session={s} onSelect={() => onSelectSession(s)} isPinned={!!s.isPinned} isActive={activeSession?.id === s.id} />
                                 </div>
                             ));
                             if (!showMascot && regularItems.length === 0) {
@@ -324,6 +336,7 @@ export function ChatMessageList({ onCloseApp, activeSession, onSelectSession, on
                                             preview={getMascotLastPreview()}
                                             isThinking={mascotChat.isThinking}
                                             onSelect={onSelectMascot}
+                                            isActive={isMascotActive}
                                         />
                                     )}
                                     {regularItems}
@@ -706,15 +719,17 @@ function MascotSessionItem({
     preview,
     isThinking,
     onSelect,
+    isActive,
 }: {
     name: string;
     avatarUrl: string;
     preview: string;
     isThinking: boolean;
     onSelect: () => void;
+    isActive?: boolean;
 }) {
     return (
-        <div className="minimal-list-item" onClick={onSelect}>
+        <div className={`minimal-list-item${isActive ? ' minimal-list-item-active' : ''}`} data-active={isActive ? "true" : undefined} onClick={onSelect}>
             <div className="minimal-avatar-wrapper bg-white">
                 <img src={avatarUrl} className="w-full h-full object-contain pointer-events-none rounded-full p-[2px]" alt="" />
                 <span className="minimal-online-dot" />
@@ -773,7 +788,7 @@ function ContactPicker({ onClose, onSelect }: { onClose: () => void; onSelect: (
     );
 }
 
-function SessionItem({ session, onSelect, isPinned }: { session: ChatSession, onSelect: () => void, isPinned?: boolean }) {
+function SessionItem({ session, onSelect, isPinned, isActive }: { session: ChatSession, onSelect: () => void, isPinned?: boolean, isActive?: boolean }) {
     const chars = loadCharacters();
     const character = chars.find(c => c.id === session.contactId);
     const lastVisibleMessage = getLastVisibleSessionMessage(session.id);
@@ -800,7 +815,8 @@ function SessionItem({ session, onSelect, isPinned }: { session: ChatSession, on
 
     return (
         <div
-            className={`minimal-list-item${isPinned ? ' chat-pinned' : ''}`}
+            className={`minimal-list-item${isPinned ? ' chat-pinned' : ''}${isActive ? ' minimal-list-item-active' : ''}`}
+            data-active={isActive ? "true" : undefined}
             onClick={onSelect}
         >
             {isGroup ? (

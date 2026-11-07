@@ -1,7 +1,7 @@
 import type { Character } from "./character-types";
 import type { ApiConfig, PresetConfig, RegexConfig, WorldBookConfig } from "./settings-types";
-import type { UserIdentity } from "@/components/settings/user-identity";
-import type { AssemblerInput, LLMMessage } from "./llm-prompt-assembler";
+import type { UserIdentity } from "@/lib/settings-types";
+import { type AssemblerInput, type LLMMessage, assemblePromptPayload } from "./llm-prompt-assembler";
 import type { CalendarOwnerType, CalendarScheduleItem } from "./calendar-types";
 import { loadCharacters } from "./character-storage";
 import {
@@ -13,14 +13,20 @@ import {
   resolveBinding,
   resolveUserIdentity,
 } from "./settings-storage";
-import { assemblePromptPayload } from "./llm-prompt-assembler";
+
 import { loadMemoryConfig } from "./memory-storage";
 import { retrieveCoreMemoriesForPrompt, retrieveMemoriesForPrompt } from "./memory-service";
 import { formatCoreMemories, formatLongTermMemories } from "./memory-injector";
 import { prepareShortTermContext } from "./short-term-assembler";
 import { getCustomStickerExample, getCustomStickerNames } from "./custom-sticker-storage";
 import { previewMessagesForApi, sendLLMRequest, type ChatEngineError } from "./chat-engine";
-import { buildCalendarScheduleMarker, clearGeneratedWeekItems, cloneWeekPlanWithManualEdits, normalizeGeneratedScheduleItems, restoreCalendarWeekItems } from "./calendar-storage";
+import {
+  buildCalendarScheduleMarker,
+  clearGeneratedWeekItems,
+  cloneWeekPlanWithManualEdits,
+  normalizeGeneratedScheduleItems,
+  restoreCalendarWeekItems,
+} from "./calendar-storage";
 import {
   getWeekDates,
   getWeekStartIso,

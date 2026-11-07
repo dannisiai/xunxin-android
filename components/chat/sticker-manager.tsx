@@ -930,7 +930,7 @@ function BatchAddStickerDialog({
 
     return (
         <div className="modal-overlay sticker-batch-import-overlay" data-ui="modal" onClick={adding ? undefined : onCancel}>
-            <div className="modal-dialog sticker-batch-import-dialog" onClick={e => e.stopPropagation()} style={{ width: "min(440px, 92vw)" }}>
+            <div data-adaptive-surface="card" className="modal-dialog sticker-batch-import-dialog" onClick={e => e.stopPropagation()} style={{ width: "min(440px, 92vw)" }}>
                 <div className="modal-header">
                     <h3 className="modal-title">批量添加表情{rows.length > 0 ? ` · ${rows.length}` : ""}</h3>
                 </div>

@@ -1,9 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
+
 import { createPortal } from "react-dom";
-import { AlertCircle, ChevronLeft, Code, Image as ImageIcon, MessageSquare, MoreHorizontal, RotateCcw, Sparkles, Trash2, UserRound } from "lucide-react";
+import {
+  AlertCircle,
+  ChevronLeft,
+  Code,
+  Image as ImageIcon,
+  MessageSquare,
+  MoreHorizontal,
+  RotateCcw,
+  Sparkles,
+  Trash2,
+  UserRound,
+} from "lucide-react";
 import { PageShell } from "@/components/ui/page-shell";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { MediaPreviewOverlay } from "@/components/chat/media-preview-overlay";
@@ -12,39 +34,41 @@ import CSSSchemeBar from "@/components/ui/css-scheme-picker";
 import { SessionCustomCSS } from "@/components/ui/session-custom-css";
 import { CHAT_SESSION_CSS_EXAMPLE } from "@/lib/css-examples";
 import {
-    clearMascotToolHistoryMessages,
-    createMascotSession,
-    deleteMascotMessageWithLinkedTools,
-    deleteMascotSession,
-    generateMascotReply,
-    sendMascotMessage,
-    getMascotChatSnapshot,
-    hasMascotToolHistoryMessages,
-    hydrateMascotChat,
-    renameMascotSession,
-    setMascotMessages,
-    stopMascotGeneration,
-    subscribeMascotChat,
-    switchMascotSession,
+  clearMascotToolHistoryMessages,
+  createMascotSession,
+  deleteMascotMessageWithLinkedTools,
+  deleteMascotSession,
+  generateMascotReply,
+  sendMascotMessage,
+  getMascotChatSnapshot,
+  hasMascotToolHistoryMessages,
+  hydrateMascotChat,
+  renameMascotSession,
+  setMascotMessages,
+  stopMascotGeneration,
+  subscribeMascotChat,
+  switchMascotSession,
 } from "@/lib/mascot-chat-store";
 import { stripThinkingTags, type MascotMsg } from "@/lib/mascot-engine";
 import { getMascotContext, subscribeMascotContext } from "@/lib/mascot-context";
 import {
-    DEFAULT_MASCOT_AVATAR,
-    DEFAULT_MASCOT_SETTINGS,
-    getMascotSettingsSnapshot,
-    resolveMascotImageRef,
-    subscribeMascotSettings,
-    updateMascotSettings,
+  DEFAULT_MASCOT_AVATAR,
+  DEFAULT_MASCOT_SETTINGS,
+  getMascotSettingsSnapshot,
+  resolveMascotImageRef,
+  subscribeMascotSettings,
+  updateMascotSettings,
 } from "@/lib/mascot-settings";
 import { resolveUserIdentity } from "@/lib/settings-storage";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import type { UserIdentity } from "@/lib/settings-types";
 import { EmojiPanel } from "./emoji-panel";
 import { BilingualTextBlock } from "./message-bubble";
 import { ChatFallbackAvatar } from "./chat-fallback-avatar";
 import { CHAT_APP_SETTINGS_UPDATED_EVENT, loadChatAppSettings } from "@/lib/chat-storage";
 import { shouldSendChatInputOnEnter } from "@/lib/chat-input-keyboard";
+import { useAdaptiveScrollAnchor } from "./use-adaptive-scroll-anchor";
 import { useChatBottomReserve } from "./use-chat-bottom-reserve";
+import { copyTextToClipboard } from "@/lib/browser/clipboard";
 
 type MascotChatRoomProps = {
     onBack: () => void;
@@ -80,24 +104,6 @@ function isHiddenMascotPlaceholder(msg: MascotMsg): boolean {
 function getMascotMessageText(msg: MascotMsg): string {
     const raw = msg.displayText || msg.text || "";
     return stripThinkingTags(raw);
-}
-
-function copyTextToClipboard(text: string): void {
-    const fallbackCopy = () => {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0";
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        try { document.execCommand("copy"); } catch {}
-        document.body.removeChild(ta);
-    };
-    if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text).catch(fallbackCopy);
-    } else {
-        fallbackCopy();
-    }
 }
 
 function MascotAvatar({ src, alt }: { src: string; alt: string }) {
@@ -474,6 +480,7 @@ export function MascotChatRoom({ onBack, onDeleted }: MascotChatRoomProps) {
     const [enterToSendEnabled, setEnterToSendEnabled] = useState(() => loadChatAppSettings().enterToSendEnabled === true);
     const wrapperRef = useRef<HTMLDivElement | null>(null);
     const scrollRef = useRef<HTMLDivElement | null>(null);
+    useAdaptiveScrollAnchor(scrollRef);
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     const bottomScrollTimersRef = useRef<number[]>([]);
     const loadMoreRestoreRef = useRef<{ scrollHeight: number; scrollTop: number } | null>(null);
@@ -840,7 +847,7 @@ export function MascotChatRoom({ onBack, onDeleted }: MascotChatRoomProps) {
     const renderMascotContextMenu = (rawIndex: number, role: MascotMsg["role"]) => {
         if (activeMascotMessageIndex !== rawIndex) return null;
         const menu = (
-            <div
+            <div data-adaptive-surface="content"
                 onPointerDown={(event) => event.stopPropagation()}
                 ref={positionFloatingContextMenu}
                 style={getContextMenuInitialStyle()}
@@ -1181,14 +1188,7 @@ export function MascotChatRoom({ onBack, onDeleted }: MascotChatRoomProps) {
                         setInputText(event.target.value);
                         resizeTextarea();
                     }}
-                    onFocus={(event) => {
-                        if (showEmojiPanel) {
-                            event.target.blur();
-                            setShowEmojiPanel(false);
-                            const target = event.target;
-                            requestAnimationFrame(() => requestAnimationFrame(() => target.focus()));
-                        }
-                    }}
+                    onFocus={() => { if (showEmojiPanel) setShowEmojiPanel(false); }}
                     onKeyDown={(event) => {
                         if (shouldSendChatInputOnEnter(event, enterToSendEnabled)) {
                             event.preventDefault();
@@ -1238,6 +1238,7 @@ export function MascotChatRoom({ onBack, onDeleted }: MascotChatRoomProps) {
                     <button
                         type="button"
                         onClick={() => void handleSend()}
+                        onMouseDown={event => event.preventDefault()}
                         disabled={!chat.isThinking && !inputText.trim() && pendingImages.length === 0}
                         className="ui-bare-btn text-[var(--c-text)]"
                         aria-label={chat.isThinking ? "停止生成" : "发送"}

@@ -1072,9 +1072,15 @@
   }
 }
 
-/* ── Mobile responsive ── */
+/* ── Responsive & Device Adaptation (Mobile, Tablet, Foldable) ── */
 
-@media (max-width: 500px) and (hover: none) and (pointer: coarse) {
+@media (max-width: 500px),
+       ((max-height: 500px) and (orientation: landscape)),
+       ((min-width: 501px) and (max-width: 1366px) and (pointer: coarse)),
+       (horizontal-viewport-segments: 2),
+       (vertical-viewport-segments: 2),
+       (screen-spanning: single-fold-vertical),
+       (screen-spanning: single-fold-horizontal) {
 
   /* 用户在设置里显式开启「显示系统状态栏」且运行时不在全屏时，控制器才会挂
      data-pwa-display-mode 标记（见 pwa-manifest-injector）：此时所有 App 共用系统
@@ -1118,6 +1124,7 @@
     width: 100vw;
     height: 100lvh;
     padding: 0;
+    margin: 0;
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
@@ -1133,14 +1140,10 @@
     --phone-frame-radius: 0px;
     --phone-case-radius: 0px;
     width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
     margin-inline: 0;
     gap: 0;
     transform-origin: top left;
-    /* 状态栏占位上移：部分安卓浏览器不允许网页绘制到真实状态栏，视口从状态栏下方开始；
-       而缩放仍按完整屏高算，844 设计稿被拉成整屏高、却只能从状态栏下方画起，底部被切。
-       用负上边距把整块画面上移 --status-bar-drop 像素：顶部那段（虚拟状态栏区域）超出
-       .app-root 被裁掉，底部栏随之顶回可视区。上移量可在「状态栏」弹窗里按设备调节，
-       让它约等于真实状态栏高度即可铺满。0 = 不上移（iOS 等能全屏的浏览器保持 0）。 */
     margin-top: calc(-1 * var(--status-bar-drop, 0px));
     transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0);
     transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1148,6 +1151,8 @@
   }
 
   .phone-shell-wrap .phone-case {
+    width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
     padding: 0;
     border: 0;
     background: transparent;
@@ -1160,6 +1165,8 @@
   }
 
   .phone-shell-wrap .phone-frame {
+    width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
     padding: 0;
     background: transparent;
     box-shadow: none;
@@ -1168,6 +1175,15 @@
   .phone-shell-wrap .phone-frame::before,
   .phone-shell-wrap .phone-frame::after {
     display: none;
+  }
+
+  .phone-shell {
+    width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
+    border-radius: 0;
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
   }
 
   .app-root.splash-root {
@@ -1184,12 +1200,205 @@
 
   .splash-shell-wrap {
     width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
     transform-origin: top left;
   }
 
   .splash-shell-wrap .phone-case,
   .splash-shell-wrap .phone-frame {
     width: var(--phone-screen-width);
+    height: var(--phone-screen-height);
+  }
+}
+
+/* ── Fallback Dataset Rules for Mobile, Tablet, and Foldables ── */
+html[data-device-type="mobile"] .phone-shell-wrap,
+html[data-device-type="tablet"] .phone-shell-wrap,
+html[data-fold-separating="true"] .phone-shell-wrap {
+  --phone-case-padding: 0px;
+  --phone-case-border-size: 0px;
+  --phone-frame-size: 0px;
+  --phone-screen-radius: 0px;
+  --phone-frame-radius: 0px;
+  --phone-case-radius: 0px;
+  width: var(--phone-screen-width, 100vw);
+  height: var(--phone-screen-height, 100lvh);
+  margin-inline: 0;
+  gap: 0;
+  transform-origin: top left;
+  margin-top: calc(-1 * var(--status-bar-drop, 0px));
+  transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0);
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+html[data-device-type="mobile"] .phone-shell-wrap .phone-case,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-case,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-case,
+html[data-device-type="mobile"] .phone-shell-wrap .phone-frame,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-frame,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-frame {
+  width: var(--phone-screen-width, 100vw);
+  height: var(--phone-screen-height, 100lvh);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+html[data-device-type="mobile"] .phone-shell-wrap .phone-case::before,
+html[data-device-type="mobile"] .phone-shell-wrap .phone-case::after,
+html[data-device-type="mobile"] .phone-shell-wrap .phone-frame::before,
+html[data-device-type="mobile"] .phone-shell-wrap .phone-frame::after,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-case::before,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-case::after,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-frame::before,
+html[data-device-type="tablet"] .phone-shell-wrap .phone-frame::after,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-case::before,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-case::after,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-frame::before,
+html[data-fold-separating="true"] .phone-shell-wrap .phone-frame::after {
+  display: none;
+}
+
+html[data-device-type="mobile"] .phone-shell,
+html[data-device-type="tablet"] .phone-shell,
+html[data-fold-separating="true"] .phone-shell {
+  width: var(--phone-screen-width, 100vw);
+  height: var(--phone-screen-height, 100lvh);
+  border-radius: 0;
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+html[data-device-type="mobile"] .app-root,
+html[data-device-type="tablet"] .app-root,
+html[data-fold-separating="true"] .app-root {
+  width: 100vw;
+  height: 100lvh;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  overflow: hidden;
+  background: var(--c-page-body-bg);
+}
+
+/* ── Mobile Landscape Specific Adaptation ── */
+@media ((max-height: 500px) and (orientation: landscape)) {
+  :root {
+    --status-bar-height: 24px;
+    --phone-titlebar-safe-top: max(24px, env(safe-area-inset-top, 0px));
+    --page-header-safe-top: var(--phone-titlebar-safe-top);
+    --home-grid-top-offset: 30px;
+    --home-grid-bottom-trim: 4px;
+  }
+
+  .icon-grid {
+    --slot-size: clamp(32px, calc((100vh - 120px) / 6), 46px);
+    --slot-icon-width: min(40px, var(--slot-size));
+    --slot-icon-height: min(40px, var(--slot-size));
+    --slot-gap-y: 1px;
+  }
+
+  .dock {
+    --slot-size: clamp(32px, calc((100vh - 120px) / 6), 46px);
+    min-height: 48px;
+    margin-top: 2px;
+    margin-bottom: max(calc(env(safe-area-inset-bottom, 0px) - 4px), 2px);
+  }
+
+  .folder-panel {
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .page-header-content {
+    padding-left: max(8px, env(safe-area-inset-left, 0px));
+    padding-right: max(8px, env(safe-area-inset-right, 0px));
+  }
+
+  .chat-bottom-glass-bar,
+  .chat-tab-bar {
+    padding-left: max(12px, env(safe-area-inset-left, 0px));
+    padding-right: max(12px, env(safe-area-inset-right, 0px));
+  }
+}
+
+html[data-device-type="mobile"][data-orientation="landscape"] {
+  --status-bar-height: 24px;
+  --phone-titlebar-safe-top: max(24px, env(safe-area-inset-top, 0px));
+  --page-header-safe-top: var(--phone-titlebar-safe-top);
+  --home-grid-top-offset: 30px;
+  --home-grid-bottom-trim: 4px;
+}
+
+html[data-device-type="mobile"][data-orientation="landscape"] .icon-grid {
+  --slot-size: clamp(32px, calc((100vh - 120px) / 6), 46px);
+  --slot-icon-width: min(40px, var(--slot-size));
+  --slot-icon-height: min(40px, var(--slot-size));
+  --slot-gap-y: 1px;
+}
+
+html[data-device-type="mobile"][data-orientation="landscape"] .dock {
+  --slot-size: clamp(32px, calc((100vh - 120px) / 6), 46px);
+  min-height: 48px;
+  margin-top: 2px;
+  margin-bottom: max(calc(env(safe-area-inset-bottom, 0px) - 4px), 2px);
+}
+
+/* ── Tablet Specific Grid Adaptation ── */
+@media ((min-width: 501px) and (max-width: 1366px) and (pointer: coarse)) {
+  .icon-grid {
+    --slot-size: clamp(68px, 10vw, 88px);
+    --slot-gap-x: clamp(24px, 4vw, 48px);
+    --slot-gap-y: 10px;
+    --slot-icon-width: min(72px, var(--slot-size));
+    --slot-icon-height: min(72px, var(--slot-size));
+    --home-grid-top-offset: 68px;
+    --home-grid-bottom-trim: 28px;
+  }
+
+  .dock {
+    --slot-size: clamp(68px, 10vw, 88px);
+    --slot-gap-x: clamp(24px, 4vw, 48px);
+    min-height: 94px;
+    margin-bottom: max(calc(env(safe-area-inset-bottom, 0px) + 8px), 20px);
+  }
+}
+
+html[data-device-type="tablet"] .icon-grid {
+  --slot-size: clamp(68px, 10vw, 88px);
+  --slot-gap-x: clamp(24px, 4vw, 48px);
+  --slot-gap-y: 10px;
+  --slot-icon-width: min(72px, var(--slot-size));
+  --slot-icon-height: min(72px, var(--slot-size));
+  --home-grid-top-offset: 68px;
+  --home-grid-bottom-trim: 28px;
+}
+
+html[data-device-type="tablet"] .dock {
+  --slot-size: clamp(68px, 10vw, 88px);
+  --slot-gap-x: clamp(24px, 4vw, 48px);
+  min-height: 94px;
+  margin-bottom: max(calc(env(safe-area-inset-bottom, 0px) + 8px), 20px);
+}
+
+/* ── Desktop Scaling for Compact Laptop Displays (<940px height) ── */
+@media (min-width: 501px) and (hover: hover) and (pointer: fine) and (max-height: 940px) {
+  .app-root {
+    height: 100vh;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .phone-shell-wrap {
+    transform-origin: center center;
+    transform: scale(min(1, calc((100vh - 20px) / 884)));
   }
 }
 
@@ -1475,15 +1684,15 @@
 }
 
 /* Android WebView may report no coarse pointer even on a touch device. */
-@media (max-width: 500px) {
-  html[data-android-shell="1"] { --phone-screen-width: 100vw; --phone-screen-height: 100lvh; overflow: hidden; width: 100%; height: 100lvh; }
-  html[data-android-shell="1"] body { overflow: hidden; width: 100%; height: 100lvh; background: var(--c-page-body-bg); }
-  html[data-android-shell="1"] .app-root, html[data-android-shell="1"] .app-root.splash-root { width: 100vw; height: 100lvh; margin: 0; padding: 0; display: flex; justify-content: flex-start; align-items: flex-start; overflow: hidden; background: var(--c-page-body-bg); }
-  html[data-android-shell="1"] .phone-shell-wrap { --phone-case-padding: 0px; --phone-case-border-size: 0px; --phone-frame-size: 0px; --phone-screen-radius: 0px; --phone-frame-radius: 0px; --phone-case-radius: 0px; width: var(--phone-screen-width); margin-inline: 0; gap: 0; transform-origin: top left; margin-top: calc(-1 * var(--status-bar-drop, 0px)); transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0); }
-  html[data-android-shell="1"] .phone-shell-wrap .phone-case { width: var(--phone-screen-width); padding: 0; border: 0; background: transparent; box-shadow: none; }
-  html[data-android-shell="1"] .phone-shell-wrap .phone-frame { width: var(--phone-screen-width); padding: 0; background: transparent; box-shadow: none; }
-  html[data-android-shell="1"] .phone-shell-wrap .phone-case::before, html[data-android-shell="1"] .phone-shell-wrap .phone-case::after, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::before, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::after { display: none; }
-}
+/* Android WebView shell: always fills native device viewport on phones, tablets, and foldables */
+html[data-android-shell="1"] { --phone-screen-width: 100vw; --phone-screen-height: 100lvh; overflow: hidden; width: 100%; height: 100lvh; }
+html[data-android-shell="1"] body { overflow: hidden; width: 100%; height: 100lvh; background: var(--c-page-body-bg); }
+html[data-android-shell="1"] .app-root, html[data-android-shell="1"] .app-root.splash-root { width: 100vw; height: 100lvh; margin: 0; padding: 0; display: flex; justify-content: flex-start; align-items: flex-start; overflow: hidden; background: var(--c-page-body-bg); }
+html[data-android-shell="1"] .phone-shell-wrap { --phone-case-padding: 0px; --phone-case-border-size: 0px; --phone-frame-size: 0px; --phone-screen-radius: 0px; --phone-frame-radius: 0px; --phone-case-radius: 0px; width: var(--phone-screen-width); height: var(--phone-screen-height); margin-inline: 0; gap: 0; transform-origin: top left; margin-top: calc(-1 * var(--status-bar-drop, 0px)); transform: translate3d(0, calc(-1 * var(--mobile-keyboard-lift, 0px)), 0); }
+html[data-android-shell="1"] .phone-shell-wrap .phone-case { width: var(--phone-screen-width); height: var(--phone-screen-height); padding: 0; border: 0; background: transparent; box-shadow: none; }
+html[data-android-shell="1"] .phone-shell-wrap .phone-frame { width: var(--phone-screen-width); height: var(--phone-screen-height); padding: 0; background: transparent; box-shadow: none; }
+html[data-android-shell="1"] .phone-shell-wrap .phone-case::before, html[data-android-shell="1"] .phone-shell-wrap .phone-case::after, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::before, html[data-android-shell="1"] .phone-shell-wrap .phone-frame::after { display: none; }
+html[data-android-shell="1"] .phone-shell { width: var(--phone-screen-width); height: var(--phone-screen-height); border-radius: 0; padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-bottom: max(12px, env(safe-area-inset-bottom, 0px)); }
 @media (max-width: 373px) {
   html[data-android-shell="1"] .icon-grid, html[data-android-shell="1"] .dock { --slot-size: 16.92vw; --slot-gap-x: 5.13vw; --slot-icon-width: 15.9vw; --slot-icon-height: 15.9vw; }
   html[data-android-shell="1"] .icon-glyph-box, html[data-android-shell="1"] .dock .dock-glyph-box { width: 14.87vw; height: 14.87vw; }

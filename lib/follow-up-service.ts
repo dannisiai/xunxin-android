@@ -18,6 +18,7 @@ import {
     getLatestCharacterStateValues,
 } from "./chat-storage";
 import type { ChatMessage, StateValue } from "./chat-storage";
+import { isChatOfflineMode } from "./chat-mode";
 import { generateChatCompletion, flattenCompletionResult } from "./chat-engine";
 import { armFollowUpBailout, armIdleReconnectBailout, cancelBailoutKey, cancelBailoutPrefix, cancelFollowUpBailout, startBailoutHeartbeat } from "./push-bailout-client";
 import { isWithinPushQuietHours } from "./push-client";
@@ -108,7 +109,7 @@ export function cancelBackgroundGeneration(sessionId: string): void {
 }
 
 function isBackgroundGenerationCancelled(sessionId: string): boolean {
-    return cancelledBackgroundSessions.has(sessionId);
+    return cancelledBackgroundSessions.has(sessionId) || isChatOfflineMode(sessionId);
 }
 let lastPeriodCarePollAt = 0;
 let scheduledOutboxGraceUntil = 0;
@@ -169,6 +170,11 @@ export function stopFollowUpService() {
 /** Schedule a follow-up for a session (called by ChatRoom after AI replies).
  *  Purely anxiety-driven: no anxiety field or below threshold → no follow-up. */
 export function scheduleFollowUp(sessionId: string, count: number, stateValues?: StateValue[]) {
+    if (isChatOfflineMode(sessionId)) {
+        clearFollowUpSchedule(sessionId);
+        cancelFollowUpBailout(sessionId);
+        return;
+    }
     const config = loadFollowUpConfig();
 
     if (!stateValues || stateValues.length === 0) {
@@ -205,6 +211,7 @@ export function scheduleFollowUp(sessionId: string, count: number, stateValues?:
 }
 
 export async function requestBackgroundChatReply(sessionId: string): Promise<{ ok: boolean; skipped?: string }> {
+    if (isChatOfflineMode(sessionId)) return { ok: false, skipped: "offline_mode" };
     if (backgroundReplyFiringSet.has(sessionId)) return { ok: false, skipped: "already_running" };
     const session = loadChatSessions().find(s => s.id === sessionId);
     if (!session) return { ok: false, skipped: "missing_session" };
@@ -231,6 +238,7 @@ export async function requestBackgroundChatReply(sessionId: string): Promise<{ o
         window.dispatchEvent(new CustomEvent("followup-fired", { detail: { sessionId: session.id } }));
         return { ok: true };
     } catch (error: any) {
+        if (isBackgroundGenerationCancelled(sessionId)) return { ok: false, skipped: "cancelled" };
         console.error("[BackgroundReply] Error:", error);
         pushChatMessage({
             sessionId,
@@ -252,7 +260,7 @@ export function cancelFollowUp(sessionId: string) {
     cancelFollowUpBailout(sessionId);
     // 用户发了消息：冷场重连计数清零，按新周期重挂服务端预约
     const idleRule = resetIdleReconnectForSession(sessionId);
-    if (idleRule) void armIdleReconnectBailout({ ...idleRule, consecutiveCount: 0 });
+    if (idleRule && !isChatOfflineMode(sessionId)) void armIdleReconnectBailout({ ...idleRule, consecutiveCount: 0 });
     // If an API call is already in-flight, mark it for cancellation
     if (firingSet.has(sessionId)) {
         cancelledWhileFiring.add(sessionId);
@@ -270,6 +278,7 @@ function delay(ms: number): Promise<void> {
 async function dispatchBackgroundMessagesOneByOne(sessionId: string, messages: ChatMessage[], immediate = false) {
     for (let index = 0; index < messages.length; index += 1) {
         if (index > 0 && !immediate) await delay(BACKGROUND_MESSAGE_STAGGER_MS);
+        if (isBackgroundGenerationCancelled(sessionId)) return;
         window.dispatchEvent(new CustomEvent("followup-message-saved", {
             detail: { sessionId, message: messages[index] },
         }));
@@ -324,6 +333,7 @@ async function saveBackgroundCompletionRounds(
     let newCount = currentCount;
     let stateValues: StateValue[] = [];
     for (const round of rounds) {
+        if (isBackgroundGenerationCancelled(sessionId)) break;
         const result = await parseAndSaveResponse(
             round.text,
             sessionId,
@@ -355,6 +365,7 @@ function pollSchedules() {
         const schedules = loadAllFollowUpSchedules();
         const now = Date.now();
         for (const sched of schedules) {
+            if (isChatOfflineMode(sched.sessionId)) continue;
             if (sched.fireAt > now) {
                 const remainSec = Math.round((sched.fireAt - now) / 1000);
                 if (remainSec % 10 === 0) console.log(`[FollowUp] Waiting: session=${sched.sessionId}, ${remainSec}s remaining`);
@@ -375,6 +386,7 @@ function pollSchedules() {
 function pollTimedWakeSchedules(now: number) {
     const schedules = loadTimedWakeSchedules();
     for (const sched of schedules) {
+        if (isChatOfflineMode(sched.sessionId)) continue;
         if (sched.fireAt > now) continue;
         if (timedWakeFiringSet.has(sched.id)) continue;
         if (now < scheduledOutboxGraceUntil) continue;
@@ -408,7 +420,7 @@ function pollMenstrualPeriodCare(now: number) {
     for (const characterId of selectedIds) {
         if (hasMenstrualPeriodCareTriggered(characterId, event.cycleKey)) continue;
         const session = latestSessionByCharacter.get(characterId);
-        if (!session) continue;
+        if (!session || isChatOfflineMode(session.id)) continue;
         const firingKey = `${characterId}:${event.cycleKey}`;
         if (periodCareFiringSet.has(firingKey)) continue;
         console.log(`[PeriodCare] Firing now for session=${session.id}, cycle=${event.cycleKey}`);
@@ -421,6 +433,7 @@ function pollMenstrualPeriodCare(now: number) {
 }
 
 async function fireFollowUp(sched: { sessionId: string; count: number; delaySec?: number }) {
+    if (isChatOfflineMode(sched.sessionId)) return;
     if (sched.count >= MAX_FOLLOW_UPS) {
         clearFollowUpSchedule(sched.sessionId);
         return;
@@ -517,6 +530,7 @@ async function fireFollowUp(sched: { sessionId: string; count: number; delaySec?
         window.dispatchEvent(new CustomEvent("followup-fired", { detail: { sessionId: session.id } }));
 
     } catch (error: any) {
+        if (isBackgroundGenerationCancelled(sched.sessionId)) return;
         console.error(`[FollowUp] Error:`, error);
         pushChatMessage({
             sessionId: sched.sessionId,
@@ -543,6 +557,7 @@ function pollIdleReconnect(now: number) {
     lastIdleReconnectPollAt = now;
 
     for (const rule of loadIdleReconnectRules()) {
+        if (isChatOfflineMode(rule.sessionId)) continue;
         if (idleReconnectFiringSet.has(rule.id)) continue;
         if (firingSet.has(rule.sessionId)) continue;
         // 追问链正在管这个会话时不叠加打扰
@@ -572,6 +587,7 @@ function pollIdleReconnect(now: number) {
 }
 
 async function fireIdleReconnect(rule: IdleReconnectRule, lastUserAt: number) {
+    if (isChatOfflineMode(rule.sessionId)) return;
     idleReconnectFiringSet.add(rule.id);
     try {
         const session = loadChatSessions().find(s => s.id === rule.sessionId);
@@ -628,6 +644,7 @@ async function fireIdleReconnect(rule: IdleReconnectRule, lastUserAt: number) {
 }
 
 async function fireTimedWake(sched: TimedWakeSchedule) {
+    if (isChatOfflineMode(sched.sessionId)) return;
     timedWakeFiringSet.add(sched.id);
     removeTimedWakeSchedule(sched.id);
     // 本地接手触发：撤销服务端兜底预约（生成中被杀由发送保险单接管）
@@ -677,6 +694,7 @@ async function fireTimedWake(sched: TimedWakeSchedule) {
 
         window.dispatchEvent(new CustomEvent("followup-fired", { detail: { sessionId: session.id } }));
     } catch (error: any) {
+        if (isBackgroundGenerationCancelled(sched.sessionId)) return;
         console.error("[TimedWake] Error:", error);
         const failureLabel = sched.source === "user" ? "定时主动消息" : "稍后主动联系";
         pushChatMessage({
@@ -697,6 +715,7 @@ async function fireMenstrualPeriodCare(input: {
     characterId: string;
     event: MenstrualPeriodCareEvent;
 }) {
+    if (isChatOfflineMode(input.sessionId)) return;
     const firingKey = `${input.characterId}:${input.event.cycleKey}`;
     periodCareFiringSet.add(firingKey);
 
@@ -747,6 +766,7 @@ async function fireMenstrualPeriodCare(input: {
 
         window.dispatchEvent(new CustomEvent("followup-fired", { detail: { sessionId: session.id } }));
     } catch (error: any) {
+        if (isBackgroundGenerationCancelled(input.sessionId)) return;
         console.error("[PeriodCare] Error:", error);
         pushChatMessage({
             sessionId: input.sessionId,

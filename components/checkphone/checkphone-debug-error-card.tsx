@@ -81,7 +81,7 @@ export function CheckPhoneDebugErrorCard({
 
   const dialog = open ? (
     <div className="modal-overlay" data-ui="modal" onClick={() => setOpen(false)}>
-      <div
+      <div data-adaptive-surface="card"
         className="modal-dialog cp-sync-error-dialog"
         data-ui="modal-dialog"
         onClick={(event) => event.stopPropagation()}

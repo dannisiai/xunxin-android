@@ -28,7 +28,7 @@ export function GeneratedImageErrorDialog({
                 onClose();
             }}
         >
-            <div
+            <div data-adaptive-surface="card"
                 className="modal-dialog chat-generated-image-error-dialog"
                 data-ui="modal-dialog"
                 onClick={e => e.stopPropagation()}

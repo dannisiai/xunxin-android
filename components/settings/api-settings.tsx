@@ -11,19 +11,19 @@ import { Toggle, Input } from "@/components/ui/form";
 import { Alert } from "@/components/ui/feedback";
 import { determineBaseUrl, simpleLLMCall } from "@/lib/api-helpers";
 
-const DEFAULT_CONFIGS: ApiConfig[] = [
-    {
-        id: "default-openai",
-        name: "OpenAI 官方",
-        provider: "OpenAI",
-        apiKey: "",
-        defaultModel: "gpt-4o",
-        enableNativeTools: true,
-        enableImageRecognition: true,
-        enableImageGeneration: true,
-        preventEmptyGenerateRambling: true,
-    }
-];
+/** Remove only the untouched example created by older versions. Keep user-edited plans. */
+function isUnusedLegacyDefault(config: ApiConfig): boolean {
+    return config.id === "default-openai"
+        && config.name === "OpenAI 官方"
+        && config.provider === "OpenAI"
+        && !config.apiKey?.trim()
+        && !config.baseUrl?.trim()
+        && config.defaultModel === "gpt-4o"
+        && config.enableNativeTools !== false
+        && config.enableImageRecognition === true
+        && config.enableImageGeneration === true
+        && config.preventEmptyGenerateRambling !== false;
+}
 
 function getNativeToolProtocolLabel(config: ApiConfig): string {
     if (config.provider === "Anthropic" && !config.baseUrl) return "Anthropic";
@@ -45,15 +45,15 @@ export function ApiSettings() {
     const [isTesting, setIsTesting] = useState<Record<string, boolean>>({});
     const [testResult, setTestResult] = useState<Record<string, { success: boolean; message: string }>>({});
 
-    // Load from localStorage on mount
+    // Start empty; migrate the unconfigured example without recreating it.
     useEffect(() => {
         const loaded = loadApiConfigs();
-        if (loaded.length > 0) {
-            setConfigs(loaded);
-        } else {
-            setConfigs(DEFAULT_CONFIGS);
-            saveApiConfigs(DEFAULT_CONFIGS);
+        const saved = loaded.filter(config => !isUnusedLegacyDefault(config));
+        if (saved.length !== loaded.length) {
+            saveApiConfigs(saved);
+            removeApiConfigReferences("default-openai");
         }
+        setConfigs(saved);
         setIsLoaded(true);
     }, []);
 

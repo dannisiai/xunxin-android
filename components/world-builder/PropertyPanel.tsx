@@ -81,7 +81,7 @@ export default function PropertyPanel({ selected, onUpdate, onDelete, onArray }:
   const axisLabels = ["X", "Y", "Z"] as const;
 
   return (
-    <div
+    <div data-adaptive-surface="card"
       ref={panelRef}
       className="wb-float-panel"
       style={{ transform: `translate(${offset.x}px, ${offset.y}px)` }}

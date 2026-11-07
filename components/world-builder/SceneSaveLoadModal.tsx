@@ -55,7 +55,7 @@ export default function SceneSaveLoadModal({ open, mode, currentObjects, onLoad,
 
   return (
     <div className="wb-modal-overlay" onClick={onClose}>
-      <div className="wb-modal" onClick={(e) => e.stopPropagation()}>
+      <div data-adaptive-surface="card" className="wb-modal" onClick={(e) => e.stopPropagation()}>
         <div className="wb-modal-header">
           <span>{mode === "save" ? "保存场景" : "加载场景"}</span>
           <button className="wb-float-close" onClick={onClose}>✕</button>

@@ -5,6 +5,7 @@
 
 import { isReadingDiscussMessage, isSystemInstructionMessage, loadChatSessions, loadChatMessages, type ChatMessage } from "./chat-storage";
 import { buildGroupAdminBracketText } from "./group-admin";
+import { getChatDocument, formatChatDocumentForPrompt } from "./chat-documents";
 import { loadMomentPosts, loadMomentComments } from "./moments-storage";
 import { loadCharacters } from "./character-storage";
 import { resolveUserIdentity } from "./settings-storage";
@@ -200,8 +201,11 @@ export function loadNativeTimeline(
             const msgLabel = formatPromptEventLabel(`群聊「${gs.groupName || "群聊"}」`, msg.createdAt, timeAware, timestampOptions);
             let content = stripStateAndInnerForPrompt(msg.content || "");
 
+            // Documents remain available to memory and cross-app conversations.
+            const document = getChatDocument(msg);
+            if (document) content = formatChatDocumentForPrompt(content, document.metadata);
             // Action notifications: group format with names
-            if (msg.mediaType === "accept_red_packet") content = `[${msg.mediaData?.claimer || ""}领取了${msg.mediaData?.owner || ""}的红包]`;
+            else if (msg.mediaType === "accept_red_packet") content = `[${msg.mediaData?.claimer || ""}领取了${msg.mediaData?.owner || ""}的红包]`;
             else if (msg.mediaType === "decline_red_packet") content = `[${msg.mediaData?.claimer || ""}退回了${msg.mediaData?.owner || ""}的红包]`;
             else if (msg.mediaType === "accept_transfer") content = `[${msg.mediaData?.claimer || ""}领取了${msg.mediaData?.owner || ""}的转账]`;
             else if (msg.mediaType === "decline_transfer") content = `[${msg.mediaData?.claimer || ""}退回了${msg.mediaData?.owner || ""}的转账]`;
@@ -322,8 +326,10 @@ export function loadNativeTimeline(
             const sender = msg.role === "user" ? userName : msg.role === "tool" ? "工具" : charName;
             let content = stripStateAndInnerForPrompt(msg.content || "");
 
+            const document = getChatDocument(msg);
+            if (document) content = formatChatDocumentForPrompt(content, document.metadata);
             // Action notifications: always override content to bracket format (stored content is natural language for UI)
-            if (msg.mediaType === "accept_red_packet") content = "[领取红包]";
+            else if (msg.mediaType === "accept_red_packet") content = "[领取红包]";
             else if (msg.mediaType === "decline_red_packet") content = "[拒收红包]";
             else if (msg.mediaType === "accept_transfer") content = "[领取转账]";
             else if (msg.mediaType === "decline_transfer") content = "[拒收转账]";

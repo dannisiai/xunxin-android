@@ -175,7 +175,7 @@ export function AccountGate({ children, onBack }: AccountGateProps) {
 
   if (status === "unreachable") {
     return (
-      <main className="app-root account-gate-root" style={gateRootFallbackStyle}>
+      <main data-adaptive-surface="content" className="app-root account-gate-root" style={gateRootFallbackStyle}>
         <section className="account-gate-card account-gate-loading" style={gatePanelFallbackStyle}>
           <span>网络连接不畅，账号校验失败</span>
           <button
@@ -192,7 +192,7 @@ export function AccountGate({ children, onBack }: AccountGateProps) {
 
   if (status === "checking") {
     return (
-      <main className="app-root account-gate-root" style={gateRootFallbackStyle}>
+      <main data-adaptive-surface="content" className="app-root account-gate-root" style={gateRootFallbackStyle}>
         <section className="account-gate-panel" aria-live="polite" style={gatePanelFallbackStyle}>
           <Loader2 className="account-gate-spinner" size={24} />
           <span>正在校验账号...</span>
@@ -210,12 +210,12 @@ export function AccountGate({ children, onBack }: AccountGateProps) {
   }
 
   return (
-    <main className="app-root splash-root">
+    <main data-adaptive-surface="content" className="app-root splash-root">
       <section className="phone-shell-wrap splash-shell-wrap" aria-label="寻信">
         <div className="phone-case"><div className="phone-frame"><div className="phone-shell splash-phone-screen">
           <SplashAnimation />
-          <div className="xunxin-auth-backdrop">
-            <section className="xunxin-auth-card" role="dialog" aria-modal="true" aria-labelledby="xunxin-auth-title">
+          <div data-adaptive-surface="overlay" className="xunxin-auth-backdrop">
+            <section data-adaptive-surface="card" className="xunxin-auth-card" role="dialog" aria-modal="true" aria-labelledby="xunxin-auth-title">
               <button type="button" className="xunxin-auth-close" onClick={onBack} disabled={busy} aria-label="返回启动页"><X size={19} /></button>
               <div className="xunxin-auth-eyebrow">XUNXIN · A LETTER FOR YOU</div>
               <h1 id="xunxin-auth-title">{mode === "register" ? "开启寻信" : "欢迎回来"}</h1>

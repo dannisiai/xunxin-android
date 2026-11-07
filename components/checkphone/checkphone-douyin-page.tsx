@@ -1362,7 +1362,7 @@ export function CheckPhoneDouyinPage({
           </div>
 
           {commentsOpen && (
-            <div className="cp-douyin-comment-sheet" role="dialog" aria-modal="true" aria-label="评论">
+            <div data-adaptive-surface="card" className="cp-douyin-comment-sheet" role="dialog" aria-modal="true" aria-label="评论">
               <div className="cp-douyin-comment-sheet-actions">
                 <button type="button" aria-label="全屏评论">
                   <Maximize2 size={18} strokeWidth={2.2} />

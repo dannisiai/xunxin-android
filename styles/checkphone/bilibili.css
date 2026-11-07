@@ -1,0 +1,307 @@
+/* ---------------- BILIBILI PAGE ---------------- */
+.cp-bilibili-module {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100%;
+  background: #f5f5f5;
+  color: #10243d;
+}
+
+.cp-bilibili-appbar {
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--cp-appbar-safe-top) + 10px) 20px 10px;
+  backdrop-filter: blur(14px);
+  background: linear-gradient(180deg, rgba(247, 250, 255, 0.96), rgba(247, 250, 255, 0.72));
+}
+
+.cp-bilibili-header-stack {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--cp-appbar-safe-top) + 10px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.cp-bilibili-header-title {
+  font-size: calc(18px*var(--app-text-scale,1));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #0f2236;
+}
+
+.cp-bilibili-header-subtitle {
+  max-width: 240px;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(16, 36, 61, 0.56);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cp-bilibili-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 10px 16px 24px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.cp-bilibili-body::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-bilibili-status {
+  display: flex;
+  min-height: 220px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  color: rgba(16, 36, 61, 0.68);
+}
+
+.cp-bilibili-status p {
+  margin: 0;
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 600;
+}
+
+.cp-bilibili-hint {
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: rgba(16, 36, 61, 0.5);
+}
+
+.cp-bilibili-profile-card,
+.cp-bilibili-detail-card {
+  border-radius: 24px;
+  border: 1px solid rgba(132, 165, 206, 0.18);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 22px 44px rgba(120, 153, 196, 0.14);
+}
+
+.cp-bilibili-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 18px 16px;
+}
+
+.cp-bilibili-profile-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cp-bilibili-profile-avatar {
+  display: grid;
+  height: 50px;
+  width: 50px;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(102, 181, 255, 0.92), rgba(80, 145, 255, 0.92));
+  color: #fff;
+  font-size: calc(22px*var(--app-text-scale,1));
+  font-weight: 700;
+}
+
+.cp-bilibili-profile-top h3 {
+  margin: 0;
+  font-size: calc(18px*var(--app-text-scale,1));
+  font-weight: 700;
+}
+
+.cp-bilibili-profile-top span,
+.cp-bilibili-profile-card time {
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: rgba(16, 36, 61, 0.58);
+}
+
+.cp-bilibili-profile-card p {
+  margin: 0;
+  line-height: 1.72;
+  color: rgba(16, 36, 61, 0.82);
+  white-space: pre-wrap;
+}
+
+.cp-bilibili-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cp-bilibili-tab {
+  border: 0;
+  border-radius: 16px;
+  background: rgba(230, 239, 252, 0.95);
+  padding: 12px 10px;
+  font-size: calc(13px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: rgba(16, 36, 61, 0.62);
+}
+
+.cp-bilibili-tab.is-active {
+  background: linear-gradient(180deg, rgba(102, 181, 255, 0.94), rgba(80, 145, 255, 0.94));
+  color: #fff;
+  box-shadow: 0 14px 24px rgba(78, 145, 255, 0.24);
+}
+
+.cp-bilibili-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cp-bilibili-card {
+  display: flex;
+  gap: 12px;
+  border: 0;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 15px 16px;
+  text-align: left;
+  box-shadow: 0 18px 34px rgba(130, 159, 196, 0.12);
+}
+
+.cp-bilibili-card-icon,
+.cp-bilibili-detail-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 18px;
+  background: rgba(225, 236, 255, 0.96);
+  color: #14345a;
+}
+
+.cp-bilibili-card-icon {
+  height: 54px;
+  width: 54px;
+  font-size: calc(24px*var(--app-text-scale,1));
+}
+
+.cp-bilibili-card-main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-bilibili-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cp-bilibili-card-head h4 {
+  margin: 0;
+  flex: 1;
+  font-size: calc(15px*var(--app-text-scale,1));
+  line-height: 1.5;
+  color: #10243d;
+}
+
+.cp-bilibili-card-head time,
+.cp-bilibili-card-meta {
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(16, 36, 61, 0.52);
+}
+
+.cp-bilibili-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cp-bilibili-card-main p {
+  margin: 0;
+  line-height: 1.7;
+  color: rgba(16, 36, 61, 0.74);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cp-bilibili-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-bilibili-detail-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 18px;
+}
+
+.cp-bilibili-detail-head {
+  display: flex;
+  gap: 14px;
+}
+
+.cp-bilibili-detail-icon {
+  height: 68px;
+  width: 68px;
+  font-size: calc(30px*var(--app-text-scale,1));
+}
+
+.cp-bilibili-detail-meta {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-bilibili-detail-meta h3 {
+  margin: 0;
+  font-size: calc(18px*var(--app-text-scale,1));
+  line-height: 1.45;
+  color: #10243d;
+}
+
+.cp-bilibili-detail-meta span,
+.cp-bilibili-detail-meta time {
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: rgba(16, 36, 61, 0.56);
+}
+
+.cp-bilibili-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-bilibili-section-title {
+  font-size: calc(11px*var(--app-text-scale,1));
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(16, 36, 61, 0.44);
+}
+
+.cp-bilibili-section p {
+  margin: 0;
+  line-height: 1.76;
+  color: rgba(16, 36, 61, 0.8);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---------------- BILIBILI PAGE END ---------------- */

@@ -55,7 +55,7 @@ export function WeixinSyncToast() {
 
     if (entries.length === 0) return null;
     return (
-        <div
+        <div data-adaptive-surface="content"
             style={{
                 position: "fixed",
                 left: "50%",

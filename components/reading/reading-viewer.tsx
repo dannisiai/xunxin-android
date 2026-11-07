@@ -163,7 +163,7 @@ function ReadingLoadingView({
     overlay?: boolean;
 }) {
     return (
-        <div
+        <div data-adaptive-surface="content"
             className={`reading-loading-view${compact ? " reading-loading-view--compact" : ""}${overlay ? " reading-loading-view--overlay" : ""}`}
             data-no-nav="true"
         >
@@ -2087,7 +2087,7 @@ export function ReadingViewer({ book, onBack }: Props) {
             {/* Page flip overlay */}
             {flipAnim && (
                 <>
-                    <div
+                    <div data-adaptive-surface="decoration"
                         className={`reading-flip-overlay reading-flip-overlay--${flipAnim.direction}`}
                         onAnimationEnd={() => setFlipAnim(null)}
                     >
@@ -2491,7 +2491,7 @@ export function ReadingViewer({ book, onBack }: Props) {
             )}
 
             {activeReadingMenuMessage && readingMessageMenu && (
-                <div
+                <div data-adaptive-surface="content"
                     className="ctx-menu chat-floating-ctx-menu reading-chat-context-menu flex py-[6px] px-0"
                     data-role={activeReadingMenuMessage.role}
                     style={getReadingMessageMenuStyle(readingMessageMenu)}
@@ -2752,8 +2752,8 @@ export function ReadingViewer({ book, onBack }: Props) {
             )}
             {showNavigationDialog && (
                 <>
-                    <div className="reading-nav-backdrop" onClick={() => setShowNavigationDialog(false)} />
-                    <aside className="reading-nav-drawer">
+                    <div data-adaptive-surface="decoration" className="reading-nav-backdrop" onClick={() => setShowNavigationDialog(false)} />
+                    <aside data-adaptive-surface="card" className="reading-nav-drawer">
                         <header className="reading-nav-header">
                             <span className="reading-nav-title">导航</span>
                             <button type="button" className="reading-nav-close" onClick={() => setShowNavigationDialog(false)} aria-label="关闭">

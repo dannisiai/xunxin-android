@@ -1,0 +1,419 @@
+/* ---------------- PHONE + MESSAGES MINIMAL SKIN START ---------------- */
+.cp-phone-module,
+.cp-messages-module {
+  background: #fdfdfc;
+  color: #171717;
+  font-family: Pretendard, "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+}
+
+.cp-phone-module::before,
+.cp-messages-module::before {
+  display: none;
+}
+
+.cp-phone-cyber-header,
+.cp-messages-appbar {
+  background: transparent;
+  border-bottom: none;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+}
+
+.cp-phone-tabbar {
+  background: #fdfdfc;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+  border-top: none;
+  box-shadow: none;
+}
+
+.cp-cyber-title {
+  color: #111111;
+  text-shadow: none;
+  font-weight: 700;
+}
+
+.cp-cyber-subtitle,
+.cp-cyber-mini-text,
+.cp-cyber-mini-col,
+.cp-cyber-deco {
+  color: #8d8d8a;
+}
+
+.cp-cyber-blink {
+  background: #111111;
+  box-shadow: none;
+  animation: none;
+}
+
+.cp-cyber-btn,
+.cp-messages-module .cp-float-back,
+.cp-messages-module .cp-float-refresh,
+.cp-messages-module .cp-float-clear {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  color: #3b3b42;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.cp-cyber-btn:hover,
+.cp-messages-module .cp-float-back:hover,
+.cp-messages-module .cp-float-refresh:hover,
+.cp-messages-module .cp-float-clear:hover {
+  background: #fafafa;
+  border-color: #e0e0e0;
+}
+
+.cp-cyber-btn:active,
+.cp-messages-module .cp-float-back:active,
+.cp-messages-module .cp-float-refresh:active,
+.cp-messages-module .cp-float-clear:active {
+  background: #eeeeec;
+}
+
+.cp-cyber-btn--danger,
+.cp-messages-module .cp-float-clear {
+  color: #2f2f2f;
+}
+
+.cp-phone-body {
+  background: transparent;
+}
+
+.cp-app-searchbar {
+  min-height: 30px;
+  border-radius: 0;
+  justify-content: center;
+  background: #111111;
+  border: none;
+  color: #fdfdfd;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.cp-app-searchbar:hover,
+.cp-app-searchbar:active {
+  background: #111111;
+  color: #fdfdfd;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+}
+
+.cp-app-searchbar-input::placeholder {
+  color: rgba(253, 253, 253, 0.62);
+}
+
+.cp-app-searchbar span,
+.cp-app-searchbar-input {
+  font-size: calc(11px*var(--app-text-scale,1));
+}
+
+.cp-app-searchbar-input {
+  flex: 0 1 auto;
+  width: auto;
+}
+
+.cp-phone-status,
+.cp-messages-status {
+  color: #8a8a87;
+}
+
+.cp-phone-status p,
+.cp-messages-status p {
+  color: #1f1f1f;
+}
+
+.cp-phone-hint,
+.cp-messages-hint {
+  color: #8d8d8a;
+}
+
+.cp-phone-list,
+.cp-phone-detail-list {
+  gap: 14px;
+}
+
+.cp-messages-thread-list {
+  gap: 14px;
+  padding: 10px 18px 24px;
+}
+
+.cp-accordion-wrapper,
+.cp-message-thread-card,
+.cp-phone-detail-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+}
+
+.cp-accordion-wrapper::before,
+.cp-message-thread-card::before,
+.cp-message-snowflake {
+  display: none;
+}
+
+.cp-accordion-wrapper.is-expanded {
+  background: #ffffff;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.1);
+}
+
+.cp-accordion-wrapper.is-expanded .cp-accordion-inner {
+  border-top-color: rgba(17, 17, 17, 0.07);
+}
+
+.cp-phone-call-card::after,
+.cp-phone-contact-card::after,
+.cp-phone-voicemail-card::after {
+  color: #b6b6b2;
+}
+
+.cp-phone-avatar {
+  background: #f0f0ee;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: none;
+  color: #2d2d2b;
+}
+
+.cp-phone-avatar--hero {
+  background: #f0f0ee;
+}
+
+.cp-phone-call-top strong,
+.cp-phone-detail-card h3,
+.cp-message-thread-sender {
+  color: #111111;
+  letter-spacing: 0.02em;
+}
+
+.cp-phone-call-top time,
+.cp-phone-detail-meta span,
+.cp-phone-detail-meta em,
+.cp-phone-call-mid span,
+.cp-phone-contact-tags span,
+.cp-phone-contact-tags em,
+.cp-phone-call-mid em,
+.cp-phone-detail-kicker,
+.cp-phone-section-title,
+.cp-message-thread-time {
+  color: #7f7f7b;
+}
+
+.cp-phone-call-mid.is-missed span,
+.cp-phone-call-mid.is-missed .cp-call-flow-icon {
+  color: #111111;
+}
+
+.cp-call-flow-icon {
+  color: #6f6f6b;
+}
+
+.cp-phone-call-card p,
+.cp-phone-contact-card p,
+.cp-phone-voicemail-card p,
+.cp-phone-detail-card p,
+.cp-message-thread-preview {
+  color: #575754;
+}
+
+.cp-phone-call-card p .cp-cyber-deco,
+.cp-phone-contact-card p .cp-cyber-deco,
+.cp-phone-voicemail-card p .cp-cyber-deco {
+  color: #9a9a96;
+}
+
+.cp-phone-detail-card p {
+  color: #444441;
+}
+
+.cp-phone-memo,
+.cp-phone-memo--thought,
+.cp-phone-memo--contact {
+  background: #fafafa;
+  border: 1px dashed rgba(17, 17, 17, 0.14);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+  animation: none;
+}
+
+.cp-memo-tape,
+.cp-memo-tape--thought {
+  background: rgba(255, 255, 255, 0.22);
+  border: 1px solid rgba(17, 17, 17, 0.06);
+  box-shadow: 0 2px 4px rgba(17, 17, 17, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(8px) saturate(110%);
+  -webkit-backdrop-filter: blur(8px) saturate(110%);
+}
+
+.cp-memo-title,
+.cp-memo-body,
+.cp-memo-body--italic {
+  color: #2f2f2d;
+}
+
+.cp-message-thread-card {
+  border-radius: 3px;
+  padding: 16px 20px;
+}
+
+.cp-message-thread-dot,
+.cp-message-thread-dot--service,
+.cp-message-thread-dot--verification,
+.cp-message-thread-dot--transaction,
+.cp-message-thread-dot--logistics,
+.cp-message-thread-dot--personal {
+  display: none;
+}
+
+.cp-message-thread-card {
+  grid-template-columns: 1fr auto;
+}
+
+.cp-message-thread-kind,
+.cp-message-thread-unread,
+.cp-message-thread-muted {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: #7f7f7b;
+  font-style: normal;
+}
+
+.cp-message-thread-meta::before {
+  content: 'TAG //';
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: calc(8.5px*var(--app-text-scale,1));
+  color: #8d8d8a;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.cp-message-thread-unread {
+  color: #7f7f7b;
+  background: transparent;
+  border: none;
+  font-weight: 400;
+}
+
+.cp-message-thread-arrow {
+  display: none;
+}
+
+.cp-message-thread-card::after {
+  content: '+';
+  position: absolute;
+  bottom: 8px;
+  right: 12px;
+  font-family: monospace;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: #b6b6b2;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cp-message-detail-threadhead {
+  background: #ffffff;
+  border: none;
+  border-radius: 3px;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.cp-message-detail-pill {
+  color: #111111;
+}
+
+.cp-message-detail-pill::after {
+  background: rgba(17, 17, 17, 0.16);
+}
+
+.cp-message-detail-stamp,
+.cp-message-time {
+  color: #8b8b87;
+}
+
+.cp-message-bubble {
+  border-radius: 3px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: none;
+}
+
+.cp-message-bubble::before,
+.cp-message-bubble::after {
+  display: none;
+}
+
+.cp-message-bubble--incoming {
+  background: #ffffff;
+  border: none;
+  color: #1f1f1f;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.1);
+}
+
+.cp-message-bubble--outgoing {
+  background: #1f1f1f;
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 12px 22px -8px rgba(0, 0, 0, 0.1);
+}
+
+.cp-message-bubble--incoming p {
+  color: #1f1f1f;
+}
+
+.cp-message-bubble--incoming .cp-bilingual--messages {
+  --cp-bilingual-translation: rgba(42, 42, 40, 0.78);
+  --cp-bilingual-divider: rgba(17, 17, 17, 0.12);
+}
+
+.cp-message-bubble .cp-bilingual--messages .cp-bilingual-translation {
+  font-size: 0.92em;
+}
+
+.cp-message-bubble--outgoing p {
+  color: #ffffff;
+}
+
+.cp-message-bubble--outgoing .cp-bilingual--messages {
+  --cp-bilingual-translation: rgba(255, 255, 255, 0.76);
+  --cp-bilingual-divider: rgba(255, 255, 255, 0.18);
+}
+
+.cp-phone-tab {
+  color: #8b8b87;
+}
+
+.cp-phone-tab:hover {
+  color: #444441;
+}
+
+.cp-phone-tab.is-active {
+  color: #111111;
+}
+
+.cp-phone-tab.is-active::after {
+  background: #111111;
+  box-shadow: none;
+}
+
+.cp-phone-module .cp-empty-copy,
+.cp-messages-module .cp-empty-copy {
+  color: #1f1f1f;
+}
+
+.cp-phone-module .cp-empty-copy span,
+.cp-messages-module .cp-empty-copy span {
+  color: #8b8b87;
+}
+/* ---------------- PHONE + MESSAGES MINIMAL SKIN END ---------------- */

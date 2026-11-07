@@ -1,0 +1,585 @@
+/* ----------------- PHOTOS SUB-APP ----------------- */
+.cp-photos-module {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: var(--screen-radius);
+  background: #ffffff;
+  color: #000000;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+}
+
+.cp-photos-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+
+.cp-photos-status {
+  padding: 80px 24px 0;
+  text-align: center;
+  color: #000000;
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-size: calc(14px*var(--app-text-scale,1));
+}
+
+.cp-photos-status p {
+  margin: 0 0 8px;
+  font-size: calc(16px*var(--app-text-scale,1));
+  color: #000000;
+}
+
+.cp-photos-hint {
+  display: block;
+  font-family: "Pretendard", sans-serif;
+  font-style: normal;
+  font-size: calc(11px*var(--app-text-scale,1));
+  letter-spacing: 0.05em;
+  color: #999999;
+}
+
+.cp-photos-scroll {
+  padding: 8px 20px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-photos-body::-webkit-scrollbar,
+.cp-photos-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-photo-section-title {
+  font-size: calc(10px*var(--app-text-scale,1));
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #333333;
+  margin-bottom: 4px;
+}
+
+.cp-photo-overview-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+}
+
+.cp-photo-overview-kicker {
+  font-size: calc(9px*var(--app-text-scale,1));
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #000000;
+}
+
+.cp-photo-overview-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-photo-overview-copy h2 {
+  margin: 0;
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-size: calc(38px*var(--app-text-scale,1));
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.cp-photo-overview-copy p {
+  margin: 0;
+  max-width: 280px;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.8;
+  color: #666666;
+}
+
+.cp-photo-overview-metrics {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 0;
+}
+
+.cp-photo-overview-metrics span {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #000000;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.cp-photo-overview-metrics span:not(:last-child)::after {
+  content: "/";
+  margin-left: 12px;
+  color: #cccccc;
+}
+
+.cp-photo-overview-metrics--compact {
+  margin-top: 4px;
+}
+
+.cp-photo-overview-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 0 8px;
+  margin-top: 0;
+}
+
+.cp-photo-overview-tab {
+  border: 1px solid #eeeeee;
+  background: #ffffff;
+  border-radius: 999px;
+  padding: 8px 16px;
+  color: #666666;
+  font-size: calc(10px*var(--app-text-scale,1));
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cp-photo-overview-tab.is-active {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+}
+
+.cp-photo-feature {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-photo-feature-frame {
+  position: relative;
+  min-height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  padding: 24px;
+  background: #f8f8f8;
+}
+
+.cp-photo-preview-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(42px*var(--app-text-scale,1));
+  line-height: 1;
+  z-index: 1;
+  filter: grayscale(100%) contrast(1.2);
+  pointer-events: none;
+}
+
+.cp-photo-preview-icon--large {
+  font-size: calc(80px*var(--app-text-scale,1));
+}
+
+.cp-photo-feature-frame::before,
+.cp-photo-album-cover,
+.cp-photo-grid-item,
+.cp-photo-detail-frame {
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+  transition: filter 0.4s ease;
+}
+
+.cp-photo-feature-frame:active::before,
+.cp-photo-album-card:active .cp-photo-album-cover,
+.cp-photo-grid-item:active {
+  filter: grayscale(100%) brightness(0.8);
+}
+
+.cp-photo-feature-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.cp-photo-feature-caption {
+  position: relative;
+  z-index: 2;
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 90%;
+}
+
+.cp-photo-feature-caption span {
+  font-size: calc(9px*var(--app-text-scale,1));
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  font-family: "Pretendard", sans-serif;
+}
+
+.cp-photo-feature-caption h3 {
+  margin: 0;
+  font-size: calc(32px*var(--app-text-scale,1));
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+.cp-photo-feature-caption p {
+  margin: 0;
+  font-size: calc(11px*var(--app-text-scale,1));
+  line-height: 1.6;
+  opacity: 0.9;
+  font-family: "Pretendard", sans-serif;
+}
+
+.cp-photo-feature-footnote {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0 0;
+  border-top: 1px solid #eeeeee;
+  color: #666666;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cp-photo-feature-footnote b {
+  color: #000000;
+  font-weight: 600;
+}
+
+.cp-photo-mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.cp-photo-mini-card {
+  position: relative;
+  min-height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background-position: center;
+  background-size: cover;
+  cursor: pointer;
+  filter: grayscale(100%);
+}
+
+.cp-photo-mini-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.05), rgba(0,0,0,0.4));
+}
+
+.cp-photo-mini-card span {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2;
+  color: #ffffff;
+  font-size: calc(10px*var(--app-text-scale,1));
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+.cp-photo-open-hit {
+  position: absolute;
+  inset: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.cp-photo-albums {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-photo-album-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-photo-album-card {
+  border: none;
+  width: 100%;
+  background: transparent;
+  border-radius: 0;
+  padding: 0 0 16px;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid #eeeeee;
+  touch-action: pan-y;
+}
+
+.cp-photo-album-card:last-child {
+  border-bottom: none;
+}
+
+.cp-photo-album-cover {
+  height: 140px;
+  border-radius: 12px;
+  position: relative;
+  filter: grayscale(100%);
+}
+
+.cp-photo-album-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  align-items: flex-start;
+  padding-top: 4px;
+}
+
+.cp-photo-album-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-size: calc(9px*var(--app-text-scale,1));
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #999999;
+}
+
+.cp-photo-album-meta h4 {
+  margin: 0 0 8px;
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-size: calc(20px*var(--app-text-scale,1));
+  font-weight: 400;
+  line-height: 1.2;
+  color: #000000;
+}
+
+.cp-photo-album-meta p {
+  margin: 0;
+  font-size: calc(11px*var(--app-text-scale,1));
+  line-height: 1.6;
+  color: #666666;
+}
+
+.cp-photo-album-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+.cp-photo-album-side span {
+  font-size: calc(9px*var(--app-text-scale,1));
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #999999;
+  margin-bottom: 4px;
+}
+
+.cp-photo-album-side b {
+  font-size: calc(24px*var(--app-text-scale,1));
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.cp-photo-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-photo-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.cp-photo-grid--editorial .cp-photo-grid-item.is-large {
+  grid-column: span 2;
+  min-height: 280px;
+}
+
+.cp-photo-grid-item {
+  min-height: 200px;
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  padding: 20px;
+  display: flex;
+  align-items: flex-end;
+  color: #ffffff;
+  touch-action: pan-y;
+  filter: grayscale(100%);
+}
+
+.cp-photo-grid-item::before,
+.cp-photo-detail-frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.cp-photo-grid-item span {
+  position: relative;
+  z-index: 2;
+  font-size: calc(11px*var(--app-text-scale,1));
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: 0.05em;
+}
+
+.cp-photo-album-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 12px 0 24px;
+  border-bottom: 1px solid #000000;
+}
+
+.cp-photo-album-hero h3 {
+  margin: 0;
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-size: calc(36px*var(--app-text-scale,1));
+  font-weight: 400;
+  line-height: 1.1;
+  color: #000000;
+}
+
+.cp-photo-album-hero p {
+  margin: 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: #666666;
+  line-height: 1.8;
+  max-width: 280px;
+}
+
+.cp-photo-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 16px;
+}
+
+.cp-photo-detail-frame {
+  min-height: 280px;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  filter: grayscale(100%);
+}
+
+.cp-photo-detail-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-photo-detail-kicker {
+  font-size: calc(9px*var(--app-text-scale,1));
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #999999;
+}
+
+.cp-photo-detail-meta h3 {
+  margin: 0;
+  font-family: "Playfair Display", "Nanum Myeongjo", serif;
+  font-size: calc(34px*var(--app-text-scale,1));
+  font-weight: 400;
+  line-height: 1.1;
+  color: #000000;
+}
+
+.cp-photo-detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
+  padding: 12px 0;
+}
+
+.cp-photo-detail-chips span {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #666666;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.cp-photo-detail-chips span:not(:last-child)::after {
+  content: "—";
+  margin-left: 12px;
+  color: #cccccc;
+}
+
+.cp-photo-detail-location {
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+.cp-photo-detail-meta p {
+  margin: 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 2;
+  color: #333333;
+  padding-top: 8px;
+}
+
+.cp-photo-thumb--silver {
+  background: #f4f5f7;
+}
+
+.cp-photo-thumb--graphite {
+  background: #e5e7eb;
+}
+
+.cp-photo-thumb--mist {
+  background: #fafafa;
+}
+
+.cp-photo-thumb--shadow {
+  background: #d1d5db;
+}

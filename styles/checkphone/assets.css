@@ -1,0 +1,579 @@
+/* ----------------- ASSETS SUB-APP ----------------- */
+.cp-assets-module {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  border-radius: var(--screen-radius);
+  background:
+    linear-gradient(180deg, rgba(20, 20, 22, 0.98) 0%, rgba(31, 32, 36, 0.98) 24%, #121316 100%);
+  color: #f3f3f4;
+}
+
+.cp-assets-appbar {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr 42px;
+  align-items: center;
+  gap: 10px;
+  padding: var(--cp-appbar-safe-top) 18px 10px;
+  z-index: 6;
+  flex-shrink: 0;
+}
+
+.cp-assets-header-stack {
+  text-align: center;
+  min-width: 0;
+}
+
+.cp-assets-header-title {
+  font-size: calc(17px*var(--app-text-scale,1));
+  letter-spacing: 0.02em;
+  color: #fafafc;
+}
+
+.cp-assets-header-subtitle {
+  margin-top: 4px;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.cp-assets-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cp-assets-body::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-assets-scroll {
+  padding: 14px 16px 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cp-assets-card-stack {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cp-assets-card-stack::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-assets-bank-card {
+  flex: 0 0 88%;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 28px;
+  padding: 20px 18px 18px;
+  color: #fbfbfc;
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 22px 40px rgba(0, 0, 0, 0.3);
+  scroll-snap-align: start;
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  opacity: 0.82;
+}
+
+.cp-assets-bank-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(130deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 26%, transparent 54%),
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+}
+
+.cp-assets-bank-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(115deg,
+      transparent 0px,
+      transparent 14px,
+      rgba(255, 255, 255, 0.025) 14px,
+      rgba(255, 255, 255, 0.025) 15px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.cp-assets-bank-card--obsidian {
+  background: linear-gradient(135deg, #26282d 0%, #111214 100%);
+}
+
+.cp-assets-bank-card--graphite {
+  background: linear-gradient(135deg, #3b3e45 0%, #1c1f24 100%);
+}
+
+.cp-assets-bank-card--silver {
+  background: linear-gradient(135deg, #c7c9ce 0%, #9ea2aa 100%);
+  color: #131418;
+}
+
+.cp-assets-bank-card--silver::before {
+  background:
+    linear-gradient(130deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.08) 24%, transparent 56%),
+    linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.06) 100%);
+}
+
+.cp-assets-bank-card--silver::after {
+  background:
+    repeating-linear-gradient(115deg,
+      transparent 0px,
+      transparent 14px,
+      rgba(255, 255, 255, 0.09) 14px,
+      rgba(255, 255, 255, 0.09) 15px);
+}
+
+.cp-assets-bank-card--focus {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 26px 46px rgba(0, 0, 0, 0.34);
+}
+
+.cp-assets-bank-card.is-active {
+  opacity: 1;
+  transform: translateY(-4px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 28px 50px rgba(0, 0, 0, 0.36);
+}
+
+.cp-assets-bank-card-top,
+.cp-assets-bank-card-bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.cp-assets-bank-card-top span {
+  font-size: calc(12px*var(--app-text-scale,1));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.cp-assets-bank-card-top em {
+  font-style: normal;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.54;
+}
+
+.cp-assets-bank-card-number,
+.cp-assets-bank-card-balance {
+  position: relative;
+  z-index: 1;
+}
+
+.cp-assets-bank-card-number {
+  margin-top: 28px;
+  font-size: calc(18px*var(--app-text-scale,1));
+  letter-spacing: 0.16em;
+}
+
+.cp-assets-bank-card-balance {
+  margin-top: 22px;
+  font-size: calc(31px*var(--app-text-scale,1));
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.cp-assets-bank-card-bottom {
+  margin-top: 18px;
+}
+
+.cp-assets-bank-card-bottom strong {
+  font-size: calc(13px*var(--app-text-scale,1));
+  font-weight: 500;
+}
+
+.cp-assets-bank-card-bottom span {
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.52;
+}
+
+.cp-assets-account-summary {
+  border-radius: 22px;
+  padding: 14px 14px 13px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.cp-assets-account-summary-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.cp-assets-account-summary-top span {
+  font-size: calc(14px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.cp-assets-account-summary-top em {
+  font-style: normal;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cp-assets-account-summary p {
+  margin: 10px 0 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.cp-assets-status {
+  padding: 120px 22px 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-assets-status p {
+  margin: 0;
+  font-size: calc(15px*var(--app-text-scale,1));
+  color: #f2f2f4;
+}
+
+.cp-assets-hint {
+  display: block;
+  color: rgba(255, 255, 255, 0.46);
+}
+
+.cp-assets-hero {
+  border-radius: 30px;
+  padding: 24px 22px 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 18%, rgba(255, 255, 255, 0.02) 100%),
+    linear-gradient(135deg, #26282d 0%, #111214 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 24px 48px rgba(0, 0, 0, 0.28);
+}
+
+.cp-assets-hero--compact {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.cp-assets-hero-kicker {
+  display: block;
+  font-size: calc(11px*var(--app-text-scale,1));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cp-assets-hero-amount {
+  margin-top: 14px;
+  font-size: calc(34px*var(--app-text-scale,1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+  color: #ffffff;
+}
+
+.cp-assets-hero-delta {
+  margin-top: 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: calc(12px*var(--app-text-scale,1));
+}
+
+.cp-assets-hero-delta b {
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 600;
+}
+
+.cp-assets-hero-delta em {
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.34);
+}
+
+.cp-assets-section-title {
+  font-size: calc(11px*var(--app-text-scale,1));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cp-assets-account-list,
+.cp-assets-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cp-assets-account-card {
+  width: 100%;
+  border: none;
+  text-align: left;
+  border-radius: 24px;
+  padding: 16px 16px 15px;
+  color: #f8f8f9;
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%),
+    rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.cp-assets-account-card--cash {
+  background:
+    linear-gradient(180deg, rgba(248, 248, 248, 0.08) 0%, rgba(248, 248, 248, 0.03) 100%),
+    linear-gradient(135deg, #2f3136 0%, #17181b 100%);
+}
+
+.cp-assets-account-card--savings {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0.03) 100%),
+    linear-gradient(135deg, #34363b 0%, #1e2024 100%);
+}
+
+.cp-assets-account-card--investment {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11) 0%, rgba(255, 255, 255, 0.03) 100%),
+    linear-gradient(135deg, #3b3d43 0%, #202227 100%);
+}
+
+.cp-assets-account-card--credit {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.02) 100%),
+    linear-gradient(135deg, #292b31 0%, #121316 100%);
+}
+
+.cp-assets-account-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.cp-assets-account-top span {
+  font-size: calc(13px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.cp-assets-account-top em {
+  font-style: normal;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cp-assets-account-balance {
+  margin-top: 12px;
+  font-size: calc(27px*var(--app-text-scale,1));
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.cp-assets-account-card p {
+  margin: 12px 0 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.cp-assets-account-kind {
+  margin-top: 14px;
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.34);
+}
+
+.cp-assets-activity-card {
+  width: 100%;
+  border: none;
+  border-radius: 22px;
+  padding: 14px 14px 13px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-align: left;
+  color: #f5f5f6;
+  cursor: pointer;
+}
+
+.cp-assets-activity-top,
+.cp-assets-activity-meta,
+.cp-assets-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.cp-assets-activity-top span {
+  font-size: calc(14px*var(--app-text-scale,1));
+}
+
+.cp-assets-activity-top b,
+.cp-assets-detail-amount {
+  font-size: calc(16px*var(--app-text-scale,1));
+  font-weight: 600;
+}
+
+.cp-assets-activity-meta {
+  margin-top: 6px;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cp-assets-activity-card p {
+  margin: 10px 0 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.cp-assets-account-focus {
+  border-radius: 30px;
+  padding: 24px 20px 22px;
+  color: #fbfbfc;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.cp-assets-account-focus--cash {
+  background: linear-gradient(135deg, #31343a 0%, #17181b 100%);
+}
+
+.cp-assets-account-focus--savings {
+  background: linear-gradient(135deg, #383a40 0%, #1c1e22 100%);
+}
+
+.cp-assets-account-focus--investment {
+  background: linear-gradient(135deg, #404249 0%, #202228 100%);
+}
+
+.cp-assets-account-focus--credit {
+  background: linear-gradient(135deg, #2a2c31 0%, #101113 100%);
+}
+
+.cp-assets-focus-kicker,
+.cp-assets-detail-kicker {
+  font-size: calc(10px*var(--app-text-scale,1));
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.cp-assets-account-focus h3,
+.cp-assets-detail-card h3 {
+  margin: 12px 0 0;
+  font-size: calc(24px*var(--app-text-scale,1));
+  line-height: 1.15;
+}
+
+.cp-assets-focus-balance {
+  margin-top: 14px;
+  font-size: calc(33px*var(--app-text-scale,1));
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.cp-assets-account-focus p {
+  margin: 14px 0 0;
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.cp-assets-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cp-assets-detail-card {
+  border-radius: 28px;
+  padding: 22px 18px 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%),
+    linear-gradient(135deg, #2f3238 0%, #16181b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cp-assets-detail-time {
+  margin-top: 12px;
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.cp-assets-detail-body {
+  border-radius: 24px;
+  padding: 16px 16px 14px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cp-assets-detail-row span {
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: rgba(255, 255, 255, 0.42);
+  flex-shrink: 0;
+}
+
+.cp-assets-detail-row b,
+.cp-assets-detail-row p {
+  margin: 0;
+  text-align: right;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.cp-assets-detail-row p {
+  font-size: calc(12px*var(--app-text-scale,1));
+  line-height: 1.65;
+  max-width: 68%;
+}
+
+.cp-assets-hero-delta .is-positive,
+.cp-assets-activity-top .is-positive,
+.cp-assets-detail-amount.is-positive {
+  color: #f6f6f6;
+}
+
+.cp-assets-hero-delta .is-negative,
+.cp-assets-activity-top .is-negative,
+.cp-assets-detail-amount.is-negative {
+  color: rgba(255, 255, 255, 0.72);
+}

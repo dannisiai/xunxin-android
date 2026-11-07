@@ -118,7 +118,7 @@ export function DesktopCustomizer({ draft, onDraftChange, onApply, onClose }: De
   const outlineOpacity = draft.cssOverrides["--desktop-outline-opacity"] || "1"
   const shadowOpacity = draft.cssOverrides["--desktop-global-shadow"] ?? "0.5"
   return (
-    <div 
+    <div data-adaptive-surface="card"
       className="absolute bottom-0 left-0 right-0 z-[9999] bg-white/90 backdrop-blur-2xl border-t border-gray-200/50 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] rounded-t-[32px] pb-6 overflow-hidden text-black customizer-drawer"
       onPointerDown={e => e.stopPropagation()} // Prevent closing edit mode
     >

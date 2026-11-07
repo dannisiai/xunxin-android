@@ -1,0 +1,440 @@
+/* ---------------- TAKEOUT PAGE ---------------- */
+/* ---------------- TAKEOUT PAGE (MEITUAN STYLE) ---------------- */
+.cp-takeout-module {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.cp-takeout-appbar {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: var(--cp-appbar-safe-top) 20px 10px;
+  z-index: 4;
+  background: #fff;
+}
+
+.cp-takeout-appbar.is-home {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: var(--cp-appbar-safe-top) 22px 10px;
+}
+
+.cp-takeout-appbar.is-home .cp-takeout-header-stack {
+  display: flex;
+}
+
+.cp-takeout-appbar .cp-float-back,
+.cp-takeout-appbar .cp-float-refresh,
+.cp-takeout-appbar .cp-float-clear {
+  background: transparent;
+  color: #333;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.cp-takeout-header-stack {
+  position: absolute;
+  left: 50%;
+  top: var(--cp-appbar-safe-top);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.cp-takeout-header-title {
+  font-size: calc(17px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+}
+
+.cp-takeout-header-subtitle {
+  display: none;
+}
+
+.cp-takeout-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 12px 22px;
+  margin-top: 0;
+}
+
+.cp-takeout-body::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-takeout-status {
+  display: flex;
+  min-height: 240px;
+  padding: 28px 18px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
+  color: #999;
+}
+
+.cp-takeout-status p {
+  margin: 0;
+  font-size: calc(14px*var(--app-text-scale,1));
+}
+
+.cp-takeout-hint {
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: #ccc;
+}
+
+.cp-takeout-hero {
+  position: relative;
+  min-height: auto;
+  border-radius: 0;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 10px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.cp-takeout-hero-copy {
+  display: none;
+}
+
+.cp-takeout-tabs {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 10px 4px 4px;
+  overflow-x: auto;
+}
+
+.cp-takeout-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-takeout-tab {
+  appearance: none;
+  border: 0;
+  min-width: 0;
+  padding: 4px 2px;
+  background: transparent;
+  color: #666;
+  font-size: calc(14px*var(--app-text-scale,1));
+  font-weight: 400;
+  white-space: nowrap;
+  box-shadow: none;
+  position: relative;
+}
+
+.cp-takeout-tab.is-active {
+  background: transparent;
+  color: #333;
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.cp-takeout-tab.is-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+  background: #fbd305;
+}
+
+.cp-takeout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.cp-takeout-order-card {
+  position: relative;
+  appearance: none;
+  width: 100%;
+  border: 0;
+  padding: 14px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  background: #fff;
+  box-shadow: none;
+}
+
+.cp-takeout-order-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cp-takeout-order-shop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cp-takeout-order-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(16px*var(--app-text-scale,1));
+  background: #f5f5f5;
+  color: #333;
+}
+
+.cp-takeout-order-shop strong {
+  font-size: calc(15px*var(--app-text-scale,1));
+  color: #333;
+  font-weight: 600;
+}
+
+.cp-takeout-order-status {
+  font-size: calc(13px*var(--app-text-scale,1));
+  color: #666;
+}
+
+.cp-takeout-order-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 36px;
+}
+
+.cp-takeout-order-content p {
+  margin: 0;
+  font-size: calc(13px*var(--app-text-scale,1));
+  color: #666;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cp-takeout-order-price {
+  font-size: calc(14px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.cp-takeout-order-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 36px;
+}
+
+.cp-takeout-order-time {
+  font-size: calc(11px*var(--app-text-scale,1));
+  color: #999;
+}
+
+.cp-takeout-order-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.cp-takeout-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: calc(12px*var(--app-text-scale,1));
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  color: #333;
+  cursor: pointer;
+}
+
+.cp-takeout-btn-primary {
+  border-color: #ffb000;
+  color: #ff6a00;
+}
+
+.cp-takeout-detail-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  background: #f5f5f5;
+  pointer-events: auto;
+}
+
+.cp-takeout-detail {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: #f5f5f5;
+  padding: 0;
+}
+
+.cp-takeout-detail::-webkit-scrollbar {
+  display: none;
+}
+
+.cp-takeout-detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--cp-appbar-safe-top) 16px 16px;
+  background: #f5f5f5;
+}
+
+.cp-takeout-detail-topbar button {
+  background: transparent;
+  border: none;
+  font-size: calc(20px*var(--app-text-scale,1));
+  color: #333;
+  padding: 0;
+}
+
+.cp-takeout-detail-status-header {
+  padding: 0 16px 16px;
+  font-size: calc(20px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+}
+
+.cp-takeout-detail-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+
+.cp-takeout-detail-actions .cp-takeout-btn {
+  flex: 1;
+}
+
+.cp-takeout-detail-card {
+  margin: 0 12px 20px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cp-takeout-detail-shop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.cp-takeout-detail-shop h3 {
+  margin: 0;
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+}
+
+.cp-takeout-detail-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cp-takeout-detail-item-img {
+  width: 48px;
+  height: 48px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(24px*var(--app-text-scale,1));
+}
+
+.cp-takeout-detail-item-info {
+  flex: 1;
+}
+
+.cp-takeout-detail-item-info h4 {
+  margin: 0 0 4px;
+  font-size: calc(14px*var(--app-text-scale,1));
+  font-weight: 500;
+  color: #333;
+}
+
+.cp-takeout-detail-item-qty {
+  font-size: calc(12px*var(--app-text-scale,1));
+  color: #999;
+}
+
+.cp-takeout-detail-item-price {
+  font-size: calc(14px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+}
+
+.cp-takeout-detail-fee {
+  display: flex;
+  justify-content: space-between;
+  font-size: calc(13px*var(--app-text-scale,1));
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.cp-takeout-detail-total {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+  font-size: calc(14px*var(--app-text-scale,1));
+  color: #333;
+}
+
+.cp-takeout-detail-total strong {
+  font-size: calc(18px*var(--app-text-scale,1));
+  margin-left: 4px;
+}
+
+.cp-takeout-detail-section {
+  margin: 0 12px 20px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.cp-takeout-detail-section h4 {
+  margin: 0 0 12px;
+  font-size: calc(15px*var(--app-text-scale,1));
+  font-weight: 600;
+  color: #333;
+}
+
+.cp-takeout-detail-section p {
+  margin: 0;
+  font-size: calc(13px*var(--app-text-scale,1));
+  color: #666;
+  line-height: 1.5;
+}
+
+/* ---------------- TAKEOUT PAGE END ---------------- */

@@ -2,7 +2,7 @@ import { jsonrepair } from "jsonrepair";
 
 import { loadCharacters } from "./character-storage";
 import type { Character } from "./character-types";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import type { UserIdentity } from "@/lib/settings-types";
 import { previewMessagesForApi, sendLLMRequest, ChatEngineError } from "./chat-engine";
 import { assemblePromptPayload, type LLMMessage } from "./llm-prompt-assembler";
 import { MacroEngine } from "./macro-engine";

@@ -3290,12 +3290,12 @@ export function GameHubApp({ onClose, autoOpenLocalId }: { onClose: () => void; 
       ) : null}
 
       {commentMenu ? (
-        <div
+        <div data-adaptive-surface="overlay"
           className="game-comment-menu-overlay"
           role="presentation"
           onPointerDown={() => setCommentMenu(null)}
         >
-          <div
+          <div data-adaptive-surface="card"
             className="game-comment-menu"
             role="menu"
             style={{ left: commentMenu.x, top: commentMenu.y }}

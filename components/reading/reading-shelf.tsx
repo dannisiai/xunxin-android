@@ -405,7 +405,7 @@ export function ReadingShelf({ onOpenBook, onClose, appearance, backgroundUrl, o
                 )}
                 {importError && (
                     <div className="modal-overlay" data-ui="modal" onClick={dismissImportError}>
-                        <div className="reading-import-error-card reading-import-error-dialog" onClick={(e) => e.stopPropagation()}>
+                        <div data-adaptive-surface="card" className="reading-import-error-card reading-import-error-dialog" onClick={(e) => e.stopPropagation()}>
                             <button type="button" className="reading-import-error-close" onClick={dismissImportError} aria-label="关闭">✕</button>
                             <div className="reading-import-error-kicker">IMPORT ERROR</div>
                             <div className="ts-13 font-medium" style={{ color: "#2f261f" }}>导入失败</div>

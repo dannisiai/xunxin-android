@@ -9,6 +9,20 @@ including presets, regex-based processing, and world/lore book concepts.
 SillyTavern: https://github.com/SillyTavern/SillyTavern
 SillyTavern is licensed under AGPL-3.0.
 
+Document attachments:
+
+- PDF page traversal and text normalization in lib/server/chat-document-parser.ts
+  are adapted from SillyTavern's extractTextFromPDF / postProcessText in
+  public/scripts/utils.js (AGPL-3.0, SillyTavern contributors).
+  https://github.com/SillyTavern/SillyTavern/blob/release/public/scripts/utils.js
+  These adaptations are distributed under this project's AGPL-3.0-only license.
+- PDF parsing uses unpdf (MIT), which bundles Mozilla PDF.js (Apache-2.0).
+  https://github.com/unjs/unpdf
+- Word DOC/DOCX parsing uses word-extractor (MIT), by Stuart Watt.
+  https://github.com/morungos/node-word-extractor
+
+See docs/document-attachments.md and each dependency's bundled license notices.
+
 Bundled fonts (public/fonts/):
 
 - ximai.woff2: 字制区喜脉喜欢体 (FontQu Smile), © 探火（深圳）品牌策划有限公司,

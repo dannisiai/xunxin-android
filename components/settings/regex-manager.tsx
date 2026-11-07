@@ -1,13 +1,27 @@
 "use client";
 
 import { useState, useEffect, useRef, useContext, useCallback, useMemo } from "react";
-import { Plus, Trash2, Download, Database, Play, Upload, ChevronLeft, AlertCircle, Maximize2, X, Replace, Copy, Check } from "lucide-react";
 import {
-    loadRegexes,
-    saveRegexes,
-    createRegexGroup,
-    parseRegexFromJson,
-    UNSUPPORTED_IMPORT_FORMAT,
+  Plus,
+  Trash2,
+  Download,
+  Database,
+  Play,
+  Upload,
+  ChevronLeft,
+  AlertCircle,
+  Maximize2,
+  X,
+  Replace,
+  Copy,
+  Check,
+} from "lucide-react";
+import {
+  loadRegexes,
+  saveRegexes,
+  createRegexGroup,
+  parseRegexFromJson,
+  UNSUPPORTED_IMPORT_FORMAT,
 } from "@/lib/settings-storage";
 import type { RegexConfig, RegexRule } from "@/lib/settings-types";
 import { testRegexRule } from "@/lib/llm-prompt-assembler";
@@ -20,24 +34,7 @@ import { SettingsContext } from "../phone-settings-app";
 import { BottomSheet, ConfirmDialog, TextExpandModal } from "@/components/ui/modal";
 import { SwipeActionRow, useSwipeActions } from "@/components/ui/swipe-actions";
 import { notifyMascotPageContext } from "@/lib/mascot-events";
-
-function copyTextToClipboard(text: string): void {
-    const fallbackCopy = () => {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0";
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        try { document.execCommand("copy"); } catch {}
-        document.body.removeChild(ta);
-    };
-    if (navigator.clipboard?.writeText) {
-        navigator.clipboard.writeText(text).catch(fallbackCopy);
-    } else {
-        fallbackCopy();
-    }
-}
+import { copyTextToClipboard } from "@/lib/browser/clipboard";
 
 /** 复制「起效后的代码」（正则替换结果）的小按钮：点击后短暂显示「已复制」。 */
 function CopyCodeButton({ text, className }: { text: string; className?: string }) {

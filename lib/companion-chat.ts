@@ -6,6 +6,7 @@ import {
 import { chatDb } from "@/lib/chat-db";
 import { cancelFollowUp, isBackgroundReplyGenerating, requestBackgroundChatReply } from "@/lib/follow-up-service";
 import { hydrateKvDb, kvGet, kvSetAsync } from "@/lib/kv-db";
+import { assertOnlineChatMode } from "@/lib/chat-mode";
 
 // Preserve the histories written by the earlier independent companion chat.
 const LEGACY_PREFIXES = ["companion_chat_v1_", "companion_chat_v2_"];
@@ -58,12 +59,15 @@ export function loadCompanionMessages(sessionId: string): ChatMessage[] {
   return loadChatMessages(sessionId);
 }
 
-export async function sendCompanionMessage(session: ChatSession, text: string): Promise<void> {
+export async function sendCompanionMessage(session: ChatSession, text: string, imageRef?: string): Promise<void> {
   const trimmed = text.trim();
   if (!trimmed) return;
+  assertOnlineChatMode(session.id);
   if (isCompanionReplyRunning(session.id)) throw new Error("对方正在回复，请稍后再发。");
   cancelFollowUp(session.id);
-  pushChatMessage({ sessionId: session.id, role: "user", content: trimmed });
+  pushChatMessage({ sessionId: session.id, role: "user", content: trimmed,
+    ...(imageRef ? { mediaType: "image" as const, mediaUrl: imageRef } : {}),
+  });
   window.dispatchEvent(new CustomEvent("chat-messages-updated", { detail: { sessionId: session.id } }));
   const detail: { sessionId: string; characterId: string; handled: boolean; busy?: boolean; completion?: Promise<void> } = {
     sessionId: session.id, characterId: session.contactId, handled: false,

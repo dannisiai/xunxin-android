@@ -1,46 +1,53 @@
 "use client";
 
-import { Component, memo, useCallback, useEffect, useInsertionEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ErrorInfo, type ReactNode } from "react";
+import {
+  Component,
+  useCallback,
+  useEffect,
+  useInsertionEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ErrorInfo,
+  type ReactNode,
+} from "react";
 
 import { updateStatusBarTone } from "@/lib/bg-tone";
 import { startDiaryEntryTimerService, stopDiaryEntryTimerService } from "@/lib/diary-entry-timer-service";
-import { startFollowUpService, stopFollowUpService } from "@/lib/follow-up-service";
+import {
+  startFollowUpService,
+  stopFollowUpService,
+  requestBackgroundChatReply,
+  scheduleFollowUp,
+} from "@/lib/follow-up-service";
 import { startMomentsService, stopMomentsService } from "@/lib/moments-engine";
 import { bgTimerCleanup } from "@/lib/bg-timer";
 import { PhoneThemeApp } from "@/components/phone-theme-app";
 import { PhoneCharacterApp } from "@/components/phone-character-app";
-import { PhoneSettingsApp } from "@/components/phone-settings-app";
+
 import { PhoneChatApp } from "@/components/chat/phone-chat-app";
-import { PhonePlaceholderApp } from "@/components/phone-placeholder-app";
-import MusicApp from "@/components/music/music-app";
-import MusicPlayer from "@/components/music/music-player";
-import MusicFloat from "@/components/music/music-float";
+
 import MiniAppWindow from "@/components/music/mini-app-window";
 import { DynamicIsland } from "./dynamic-island";
-import { PhoneCalendarApp } from "@/components/calendar-app";
-import { PhoneQaApp } from "@/components/phone-qa-app";
-import { ChatPluginPageBoundary } from "@/components/chat/chat-plugin-page-boundary";
-import { ResourceHubApp } from "@/components/resource-hub/resource-hub-app";
+
 import "@/lib/qa-error-log";
-import { RealityBridgeApp } from "@/components/reality-bridge-app";
+
 import { REALITY_BRIDGE_APP_EVENT_NAME, REALITY_BRIDGE_DATA_EVENT } from "@/lib/reality-bridge/types";
-import { DiaryApp } from "@/components/diary/diary-app";
-import { XiaohongshuApp } from "@/components/xiaohongshu/xiaohongshu-app";
-import { StoryApp } from "@/components/story/story-app";
-import { VnApp } from "@/components/vn/vn-app";
-import ReadingApp from "@/components/reading/reading-app";
-import MapApp from "@/components/map/map-app";
+
+
+import { launchActiveAndroidCompanion, listenForAndroidCompanion } from "@/lib/android-companion";
+import { isChatOfflineMode } from "@/lib/chat-mode";
+
 import { DwellingApp } from "@/components/dwelling/dwelling-app";
 import { MascotFloat } from "@/components/mascot/mascot-float";
 import { MascotPreviewHost } from "@/components/mascot/mascot-preview-host";
-import { useMusicControlsOptional } from "@/lib/music-context";
+
 import { PhoneResourcesApp, type ResourceSubPage } from "@/components/phone-resources-app";
-import { CheckPhoneApp } from "@/components/checkphone/checkphone-app";
+
 import { ShoppingApp } from "@/components/shopping/shopping-app";
-import { GameHubApp } from "@/components/game/game-hub-app";
-import { MixologyApp } from "@/components/mixology/mixology-app";
-import InterviewMagazineApp from "@/components/interview/interview-magazine-app";
-import { CoCreateApp } from "@/components/cocreate/cocreate-app";
+
 import { AppMarketApp } from "@/components/app-market/app-market-app";
 import { CustomAppRunner } from "@/components/app-market/custom-app-runner";
 import { CustomAppForegroundBoundary } from "@/components/app-market/custom-app-failure";
@@ -57,15 +64,13 @@ import {
   ICONS,
   PAGE_1_DEFAULT,
   PAGE_2_DEFAULT,
-  PAGE_3_DEFAULT,
   createFolderIconId,
   isFolderIconId,
   type DesktopIconId,
   type IconId,
-  type IconPosition
 } from "@/lib/desktop-config";
-import { customAppIdFromIconId, isCustomAppIconId, toCustomAppIconId } from "@/lib/custom-app-types";
-import type { InstalledCustomApp } from "@/lib/custom-app-types";
+import { customAppIdFromIconId, toCustomAppIconId, type InstalledCustomApp } from "@/lib/custom-app-types";
+
 import {
   registerCustomAppBackgroundToolExecutor,
   type CustomAppToolExecutorPayload,
@@ -90,27 +95,31 @@ import {
 } from "@/lib/custom-app-host-api";
 import { CustomAppGlyph, IconGlyph } from "@/components/icon-glyph";
 import { DesktopCustomizer } from "@/components/desktop-customizer";
-import {
-  collectThemeAssetIds,
-  getThemeAssetMap,
-  readThemeProfile,
-  writeThemeProfile
-} from "@/lib/theme-storage";
+import { collectThemeAssetIds, getThemeAssetMap, readThemeProfile, writeThemeProfile } from "@/lib/theme-storage";
 import { THEME_PACKAGE_INSTALLED_EVENT } from "@/lib/theme-package";
+import { DEFAULT_FONT_FAMILY, resolveActiveIconSkins, type ThemeProfile } from "@/lib/theme-types";
 import {
-  DEFAULT_THEME_PROFILE,
-  DEFAULT_FONT_FAMILY,
-  normalizeThemeProfile,
-  resolveActiveIconSkins,
-  type ThemeProfile
-} from "@/lib/theme-types";
-import { GRID_COLS, GRID_ROWS, WIDGET_SIZE_CELLS, WIDGET_CATALOG, type WidgetInstance, type WidgetType } from "@/lib/widget-types";
-import { buildOccupancyGrid, canPlaceWidget, placeWidget, createDefaultWidgets, loadWidgets, saveWidgets, loadDIYTemplates, saveDIYTemplates } from "@/lib/widget-storage";
+  GRID_COLS,
+  GRID_ROWS,
+  WIDGET_SIZE_CELLS,
+  WIDGET_CATALOG,
+  type WidgetInstance,
+  type WidgetType,
+  type DIYWidgetTemplate,
+} from "@/lib/widget-types";
+import {
+  buildOccupancyGrid,
+  canPlaceWidget,
+  placeWidget,
+  loadWidgets,
+  saveWidgets,
+  loadDIYTemplates,
+  saveDIYTemplates,
+} from "@/lib/widget-storage";
 import {
   createDefaultDesktopIconLayout,
   getDesktopIconLayoutItems,
   getDesktopPageKey,
-  getDesktopPageKeys,
   getDesktopPageNumber,
   loadDockLayout,
   normalizeDock,
@@ -120,20 +129,32 @@ import {
   DOCK_LAYOUT_STORAGE_KEY,
   DOCK_MAX,
   type DesktopFolderMap,
-  type DesktopIconLayout,
   type DesktopPageKey,
 } from "@/lib/desktop-layout-storage";
 import { WidgetRenderer } from "@/components/widgets/widget-renderer";
-import type { DIYWidgetTemplate } from "@/lib/widget-types";
+
 import { DebugPromptPanel } from "@/components/debug-prompt-panel";
 import { QuickActionFloat } from "@/components/quick-action-float";
-import { CHAT_MESSAGE_PUSHED_EVENT, CHAT_REQUEST_REPLY_EVENT, hydrateChatStorage, loadChatSessions, loadChatMessages, pushChatMessage, type ChatMessage, type ChatSession } from "@/lib/chat-storage";
+import {
+  CHAT_MESSAGE_PUSHED_EVENT,
+  CHAT_REQUEST_REPLY_EVENT,
+  hydrateChatStorage,
+  loadChatSessions,
+  loadChatMessages,
+  pushChatMessage,
+  type ChatMessage,
+  type ChatSession,
+} from "@/lib/chat-storage";
 import { ensureGlobalBindingDefaults, resolveUserIdentity } from "@/lib/settings-storage";
 import { loadCharacters } from "@/lib/character-storage";
 import { generateChatCompletion, flattenCompletionResult } from "@/lib/chat-engine";
 import { parseAIResponse } from "@/lib/rich-message-parser";
-import { requestBackgroundChatReply, scheduleFollowUp } from "@/lib/follow-up-service";
-import { CHAT_MESSAGE_NOTICE_EVENT, CHAT_OPEN_SESSION_EVENT, type ChatMessageNoticeDetail } from "@/lib/chat-notification-events";
+
+import {
+  CHAT_MESSAGE_NOTICE_EVENT,
+  CHAT_OPEN_SESSION_EVENT,
+  type ChatMessageNoticeDetail,
+} from "@/lib/chat-notification-events";
 import { startIncomingCallVibration } from "@/lib/call-vibration";
 import { setMascotContext } from "@/lib/mascot-context";
 import { DESKTOP_WIDGETS_CHANGED_EVENT } from "@/lib/mascot-events";
@@ -144,60 +165,49 @@ import { sendBrowserNotification } from "@/lib/browser-notification";
 import type { ChatSharePayload } from "@/lib/chat-share";
 import { completePendingMcpOAuthCallback } from "@/lib/tool-executor";
 import { LayoutGrid, LoaderCircle, RefreshCw } from "lucide-react";
+import {
+  ICON_LAYOUT_STORAGE_KEY,
+  ICON_LAYOUT_STORAGE_KEY_V1,
+  DOCK_PAGE_KEY,
+  DEFAULT_LAYOUT,
+  getDesktopPageKeysForState,
+  cloneDesktopLayout,
+  ensureDesktopPage,
+  trimEmptyTrailingPages,
+  getInstalledCustomIconIds,
+  migratePageV1,
+  normalizeLayout,
+  sanitizeDesktopFolders,
+  buildWidgetOccupancy,
+  computeIconPositions,
+  findNearestFreeCell,
+  displaceIconsForWidgets,
+  placeIconOnAvailablePage,
+  getGridGeometry,
+  pointerToGridCell,
+  sanitizeWidgetsForLayout,
+  sameWidgetOrder,
+  type DragPageKey,
+  type DesktopLayout,
+} from "@/lib/desktop/layout";
+import {
+  shouldBypassDesktopItemPointerCapture,
+  useAndroidCaretKeyboardLift,
+} from "@/components/desktop/use-android-caret-keyboard-lift";
+import {
+  parseColorAlpha,
+  buildRgbaColor,
+  toCssPx,
+  collectCssOverrides,
+  readInitialThemeProfile,
+} from "@/lib/desktop/theme";
+import { MusicShellOverlays, type MusicOverlayController } from "@/components/desktop/music-shell-overlays";
+import { ExternalMusicDialog } from "@/components/desktop/external-music-dialog";
+import { renderBuiltinDesktopApp } from "@/components/desktop/builtin-app-router";
 
 const EMOJI_FONTS = '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", "Twemoji Mozilla"';
-
-const ICON_LAYOUT_STORAGE_KEY = "ai_phone_icon_layout_v2";
-const ICON_LAYOUT_STORAGE_KEY_V1 = "ai_phone_icon_layout_v1";
-// Sentinel "page" used by the drag engine to mean "the dock". getDesktopPageNumber
-// returns 0 for it and getDesktopPageKeys filters it out, so page iteration never
-// treats the dock as a real page.
-const DOCK_PAGE_KEY = "dock" as const;
-type DragPageKey = DesktopPageKey | typeof DOCK_PAGE_KEY;
 const SWIPE_THRESHOLD_RATIO = 0.2;
 const SWIPE_MIN_THRESHOLD = 60;
-
-function parseColorAlpha(value: string): { hex: string; alpha: number } {
-  const rgbaMatch = value.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/);
-  if (rgbaMatch) {
-    const r = Number(rgbaMatch[1]);
-    const g = Number(rgbaMatch[2]);
-    const b = Number(rgbaMatch[3]);
-    const alpha = rgbaMatch[4] !== undefined ? Number(rgbaMatch[4]) : 1;
-    const hex = `#${[r, g, b].map(channel => channel.toString(16).padStart(2, "0")).join("")}`;
-    return { hex, alpha: Math.max(0, Math.min(1, alpha)) };
-  }
-
-  if (value.startsWith("#")) {
-    if (value.length === 9) {
-      const alpha = parseInt(value.slice(7, 9), 16) / 255;
-      return { hex: value.slice(0, 7), alpha: Math.max(0, Math.min(1, alpha)) };
-    }
-    if (value.length === 4) {
-      return {
-        hex: `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`,
-        alpha: 1
-      };
-    }
-    return { hex: value, alpha: 1 };
-  }
-
-  return { hex: "#000000", alpha: 1 };
-}
-
-function buildRgbaColor(hex: string, alpha: number): string {
-  const safeAlpha = Math.max(0, Math.min(1, alpha));
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  if (safeAlpha >= 1) return hex;
-  return `rgba(${r}, ${g}, ${b}, ${safeAlpha})`;
-}
-
-function toCssPx(value: string | undefined, fallback: string): string {
-  if (!value) return fallback;
-  return /[a-z%]/i.test(value) ? value : `${value}px`;
-}
 
 const TEXT = {
   ariaDesktopIcons: "\u684C\u9762\u56FE\u6807",
@@ -206,8 +216,6 @@ const TEXT = {
   placeholderBody:
     "\u8BE5\u5165\u53E3\u5DF2\u5728\u4EFF\u771F\u624B\u673A\u5185\u9884\u7559\uff0C\u540E\u7EED\u5F00\u53D1\u65F6\u4F1A\u5728\u624B\u673A\u754C\u9762\u5185\u5B8C\u6210\u529F\u80FD\u3002"
 };
-
-type DesktopLayout = DesktopIconLayout;
 
 type DesktopShellProps = {
   initialThemeProfile?: ThemeProfile | null;
@@ -354,252 +362,6 @@ function serializeCustomAppBackgroundMessage(message: ChatMessage): Record<strin
   };
 }
 
-/** Convert an IconId array into absolute positions (flow left-to-right, top-to-bottom) */
-function flowIconsToPositions(icons: IconId[]): IconPosition[] {
-  const result: IconPosition[] = [];
-  let idx = 0;
-  for (let r = 0; r < GRID_ROWS && idx < icons.length; r++) {
-    for (let c = 0; c < GRID_COLS && idx < icons.length; c++) {
-      result.push({ id: icons[idx], row: r + 1, col: c + 1 });
-      idx++;
-    }
-  }
-  return result;
-}
-
-const DEFAULT_LAYOUT: DesktopLayout = createDefaultDesktopIconLayout(createDefaultWidgets());
-
-function getDesktopPageKeysForState(layout: DesktopLayout, widgets: WidgetInstance[] = []): DesktopPageKey[] {
-  const maxPage = Math.max(
-    2,
-    ...getDesktopPageKeys(layout).map(getDesktopPageNumber),
-    ...widgets.map((widget) => widget.page).filter((page) => Number.isInteger(page) && page >= 1)
-  );
-  return Array.from({ length: maxPage }, (_, index) => getDesktopPageKey(index + 1));
-}
-
-function cloneDesktopLayout(layout: DesktopLayout, widgets: WidgetInstance[] = []): DesktopLayout {
-  const next = {} as DesktopLayout;
-  for (const pageKey of getDesktopPageKeysForState(layout, widgets)) {
-    next[pageKey] = [...(layout[pageKey] ?? [])];
-  }
-  return next;
-}
-
-function ensureDesktopPage(layout: DesktopLayout, pageKey: DesktopPageKey): void {
-  if (!layout[pageKey]) layout[pageKey] = [];
-}
-
-function trimEmptyTrailingPages(layout: DesktopLayout, widgets: WidgetInstance[]): DesktopLayout {
-  const next = cloneDesktopLayout(layout, widgets);
-  let maxPage = Math.max(2, ...getDesktopPageKeysForState(next, widgets).map(getDesktopPageNumber));
-  while (maxPage > 2) {
-    const pageKey = getDesktopPageKey(maxPage);
-    const hasIcons = (next[pageKey] ?? []).length > 0;
-    const hasWidgets = widgets.some((widget) => widget.page === maxPage);
-    if (hasIcons || hasWidgets) break;
-    delete next[pageKey];
-    maxPage -= 1;
-  }
-  return next;
-}
-
-function getInstalledCustomIconIds(): Set<string> {
-  return new Set(loadInstalledCustomApps().map(app => toCustomAppIconId(app.id)));
-}
-
-function migrateLegacyDesktopIconId(id: string, customIconIds = getInstalledCustomIconIds()): DesktopIconId | null {
-  if (id === "weibo") return "game";
-  if (id === "fortune") return "interview_magazine";
-  if (id === "forum") return "cocreate";
-  if (isCustomAppIconId(id) && customIconIds.has(id)) return id;
-  return id in ICONS ? id as IconId : null;
-}
-
-/** Validate an IconPosition[] page, dedup by id and position */
-function normalizePageV2(raw: unknown, pageWidgets: WidgetInstance[], folderIds: Set<string> = new Set()): IconPosition[] {
-  if (!Array.isArray(raw)) return [];
-
-  const allKnown = new Set<string>(Object.keys(ICONS));
-  const customIconIds = getInstalledCustomIconIds();
-  const seenIds = new Set<DesktopIconId>();
-  const seenCells = new Set<string>();
-  const widgetOcc = buildWidgetOccupancy(pageWidgets);
-  const result: IconPosition[] = [];
-
-  for (const item of raw) {
-    if (!item || typeof item !== "object") continue;
-    const { id, row, col } = item as { id: string; row: number; col: number };
-    if (typeof id !== "string" || typeof row !== "number" || typeof col !== "number") continue;
-    // 文件夹 tile：只认内容表里真实存在的文件夹，防止幽灵 tile
-    const iconId = isFolderIconId(id)
-      ? (folderIds.has(id) ? id : null)
-      : migrateLegacyDesktopIconId(id, customIconIds);
-    if (!iconId || (!isFolderIconId(iconId) && !allKnown.has(iconId) && !customIconIds.has(iconId))) continue;
-    if (seenIds.has(iconId)) continue;
-    if (row < 1 || row > GRID_ROWS || col < 1 || col > GRID_COLS) continue;
-    const cellKey = `${row},${col}`;
-    if (seenCells.has(cellKey)) continue;
-    if (widgetOcc[row - 1][col - 1]) continue;
-    seenIds.add(iconId);
-    seenCells.add(cellKey);
-    result.push({ id: iconId, row, col });
-  }
-
-  return result;
-}
-
-/** Migrate v1 (array of IconId|null) to v2 (IconPosition[]) */
-function migratePageV1(raw: unknown, defaults: IconId[], pageWidgets: WidgetInstance[]): IconPosition[] {
-  const allowed = new Set<IconId>(defaults);
-  const seen = new Set<IconId>();
-  const ordered: (IconId | null)[] = [];
-
-  const rawItems = Array.isArray(raw) ? raw : [];
-  for (const item of rawItems) {
-    if (item === null) { ordered.push(null); continue; }
-    if (typeof item !== "string") continue;
-    const id = migrateLegacyDesktopIconId(item);
-    if (!id || !(id in ICONS)) continue;
-    const builtinId = id as IconId;
-    if (!allowed.has(builtinId) || seen.has(builtinId)) continue;
-    seen.add(builtinId);
-    ordered.push(builtinId);
-  }
-  for (const id of defaults) {
-    if (!seen.has(id)) ordered.push(id);
-  }
-
-  // Flow into absolute positions (same as old computeIconPositions)
-  const widgetOcc = buildWidgetOccupancy(pageWidgets);
-  const freeCells: { row: number; col: number }[] = [];
-  for (let r = 0; r < GRID_ROWS; r++) {
-    for (let c = 0; c < GRID_COLS; c++) {
-      if (!widgetOcc[r][c]) freeCells.push({ row: r + 1, col: c + 1 });
-    }
-  }
-  const result: IconPosition[] = [];
-  let fi = 0;
-  for (const slot of ordered) {
-    if (fi >= freeCells.length) break;
-    if (slot === null) { fi++; continue; }
-    result.push({ id: slot, ...freeCells[fi] });
-    fi++;
-  }
-  return result;
-}
-
-function normalizeLayout(raw: unknown, widgets: WidgetInstance[], dockIds: Set<DesktopIconId> = new Set(), folders: DesktopFolderMap = {}): DesktopLayout {
-  if (!raw || typeof raw !== "object") return createDefaultDesktopIconLayout(widgets);
-  const candidate = raw as Record<string, unknown>;
-  const folderIds = new Set(Object.keys(folders));
-  const maxPage = Math.max(
-    2,
-    ...Object.keys(candidate).map(getDesktopPageNumber),
-    ...widgets.map((widget) => widget.page).filter((page) => Number.isInteger(page) && page >= 1)
-  );
-  const layout = {} as DesktopLayout;
-  for (let page = 1; page <= maxPage; page += 1) {
-    const pageKey = getDesktopPageKey(page);
-    // Icons that live in the dock must never also appear on a page.
-    layout[pageKey] = normalizePageV2(candidate[pageKey], widgets.filter(w => w.page === page), folderIds)
-      .filter((ic) => !dockIds.has(ic.id));
-  }
-
-  // Ensure all default icons exist somewhere across desktop pages (but not ones
-  // the user has moved into the dock). DOCK_DEFAULT 也纳入兜底：若某默认 dock
-  // 图标（如设置）既不在任何页面也不在 dock（如恢复默认/导入主题后 dock 未含它），
-  // 就近放回页面，防止图标彻底丢失。
-  // 「已放置」包括藏在文件夹里的图标，否则重启后文件夹成员会被兜底复制一份铺回桌面。
-  const allPlaced = new Set<DesktopIconId>(getDesktopIconLayoutItems(layout).map(ic => ic.id));
-  for (const folder of Object.values(folders)) {
-    for (const memberId of folder.icons) allPlaced.add(memberId);
-  }
-  const allDefaults = [...PAGE_1_DEFAULT, ...PAGE_2_DEFAULT, ...PAGE_3_DEFAULT, ...DOCK_DEFAULT];
-
-  for (const id of allDefaults) {
-    if (allPlaced.has(id) || dockIds.has(id)) continue;
-    const primaryPage = PAGE_1_DEFAULT.includes(id) ? 1 : PAGE_2_DEFAULT.includes(id) ? 2 : PAGE_3_DEFAULT.includes(id) ? 3 : 1;
-    // placeIconOnAvailablePage 页满会顺延到下一页乃至新开一页——
-    // 曾经这里只在现有页里找空格，页面被图标和组件占满时就静默放弃，
-    // 图标（如外观）从此永久丢失且每次重启都救不回
-    placeIconOnAvailablePage(layout, widgets, { id, row: 1, col: 1 }, primaryPage);
-    allPlaced.add(id);
-  }
-
-  return trimEmptyTrailingPages(layout, widgets);
-}
-
-/**
- * 文件夹与布局的一致性收拾：
- * - 成员若已经出现在页面/dock 上（以摆出来的为准），从文件夹里摘除；
- * - 卸载掉的自定义 APP 成员摘除（normalizeDesktopFolders 已管，这里兜底运行时变化）；
- * - 只剩 ≤1 个成员的文件夹解散：剩下的图标顶回 tile 原来的格子；
- * - 布局里指向不存在文件夹的 tile 由 normalizeLayout 过滤，这里不重复。
- * 返回新对象；changed=false 时引用原样返回，调用方可以跳过持久化。
- */
-function sanitizeDesktopFolders(
-  folders: DesktopFolderMap,
-  layout: DesktopLayout,
-  dock: DesktopIconId[],
-  widgets: WidgetInstance[],
-): { folders: DesktopFolderMap; layout: DesktopLayout; changed: boolean } {
-  const placedOutside = new Set<DesktopIconId>([
-    ...getDesktopIconLayoutItems(layout).map(ic => ic.id),
-    ...dock,
-  ]);
-  const customIconIds = getInstalledCustomIconIds();
-  let changed = false;
-  const nextFolders: DesktopFolderMap = {};
-  let nextLayout = layout;
-
-  const removeTile = (folderId: string): { pageKey: DesktopPageKey; row: number; col: number } | null => {
-    for (const pageKey of getDesktopPageKeysForState(nextLayout, widgets)) {
-      const tile = (nextLayout[pageKey] ?? []).find(ic => ic.id === folderId);
-      if (!tile) continue;
-      if (nextLayout === layout) nextLayout = cloneDesktopLayout(layout, widgets);
-      nextLayout[pageKey] = nextLayout[pageKey].filter(ic => ic.id !== folderId);
-      return { pageKey, row: tile.row, col: tile.col };
-    }
-    return null;
-  };
-
-  for (const [folderId, folder] of Object.entries(folders)) {
-    const members = folder.icons.filter(id =>
-      !placedOutside.has(id)
-      && !isFolderIconId(id)
-      && (id in ICONS || customIconIds.has(id)));
-    if (members.length !== folder.icons.length) changed = true;
-    if (members.length <= 1) {
-      // 解散：tile 换成剩下的那个图标（若有）
-      changed = true;
-      const spot = removeTile(folderId);
-      const remaining = members[0];
-      if (remaining) {
-        if (nextLayout === layout) nextLayout = cloneDesktopLayout(layout, widgets);
-        if (spot) {
-          nextLayout[spot.pageKey] = [...(nextLayout[spot.pageKey] ?? []), { id: remaining, row: spot.row, col: spot.col }];
-        } else {
-          placeIconOnAvailablePage(nextLayout, widgets, { id: remaining, row: 1, col: 1 }, 1);
-        }
-      }
-      continue;
-    }
-    nextFolders[folderId] = members.length === folder.icons.length ? folder : { ...folder, icons: members };
-    // 崩溃等意外可能造成"文件夹记录在、格子却不在任何页面"：成员被文件夹托管着，
-    // 桌面上却什么都不渲染，默认图标兜底又把成员算作"已放置"——图标就永久隐身了
-    //（用户表现：某图标凭空消失，恢复默认布局才回来）。这里把格子就近放回页面自愈。
-    const tilePlaced = getDesktopIconLayoutItems(nextLayout).some(ic => ic.id === folderId);
-    if (!tilePlaced) {
-      if (nextLayout === layout) nextLayout = cloneDesktopLayout(layout, widgets);
-      placeIconOnAvailablePage(nextLayout, widgets, { id: folderId as DesktopIconId, row: 1, col: 1 }, 1);
-      changed = true;
-    }
-  }
-  if (!changed) return { folders, layout, changed: false };
-  return { folders: nextFolders, layout: trimEmptyTrailingPages(nextLayout, widgets), changed: true };
-}
-
 function StatusClock() {
   const [label, setLabel] = useState("--:--");
 
@@ -616,429 +378,6 @@ function StatusClock() {
 
   return <span className="status-time">{label}</span>;
 }
-
-function collectCssOverrides(profile: ThemeProfile): Record<string, string> {
-  const overrides: Record<string, string> = {};
-  for (const [key, value] of Object.entries(profile.cssOverrides)) {
-    if (!key.startsWith("--")) continue;
-    const normalized = String(value ?? "").trim();
-    if (!normalized) continue;
-    overrides[key] = normalized;
-  }
-  return overrides;
-}
-
-function readInitialThemeProfile(): ThemeProfile {
-  if (typeof window === "undefined") {
-    return normalizeThemeProfile(DEFAULT_THEME_PROFILE);
-  }
-  return readThemeProfile();
-}
-
-/** Build a boolean grid marking cells occupied by widgets on one page */
-function buildWidgetOccupancy(pageWidgets: WidgetInstance[]): boolean[][] {
-  const grid: boolean[][] = Array.from({ length: GRID_ROWS }, () =>
-    Array.from({ length: GRID_COLS }, () => false)
-  );
-  for (const w of pageWidgets) {
-    const [rows, cols] = WIDGET_SIZE_CELLS[w.size];
-    for (let dr = 0; dr < rows; dr++) {
-      for (let dc = 0; dc < cols; dc++) {
-        const r = w.row - 1 + dr;
-        const c = w.col - 1 + dc;
-        if (r >= 0 && r < GRID_ROWS && c >= 0 && c < GRID_COLS) {
-          grid[r][c] = true;
-        }
-      }
-    }
-  }
-  return grid;
-}
-
-/** Convert IconPosition[] to the Map the renderer consumes */
-function computeIconPositions(
-  pageIcons: IconPosition[],
-  _pageWidgets: WidgetInstance[]
-): Map<DesktopIconId, { row: number; col: number }> {
-  const positions = new Map<DesktopIconId, { row: number; col: number }>();
-  for (const icon of pageIcons) {
-    positions.set(icon.id, { row: icon.row, col: icon.col });
-  }
-  return positions;
-}
-
-/** Find nearest free cell to (fromRow, fromCol). Returns 1-based coords. */
-function findNearestFreeCell(
-  fromRow: number, fromCol: number,
-  widgetOcc: boolean[][],
-  usedCells: Set<string>,
-): { row: number; col: number } | null {
-  let bestDist = Infinity;
-  let best: { row: number; col: number } | null = null;
-  for (let r = 0; r < GRID_ROWS; r++) {
-    for (let c = 0; c < GRID_COLS; c++) {
-      if (widgetOcc[r][c]) continue;
-      const key = `${r + 1},${c + 1}`;
-      if (usedCells.has(key)) continue;
-      const dist = Math.abs(r + 1 - fromRow) * GRID_COLS + Math.abs(c + 1 - fromCol);
-      if (dist < bestDist) { bestDist = dist; best = { row: r + 1, col: c + 1 }; }
-    }
-  }
-  return best;
-}
-
-/** Displace only icons that overlap with widgets. Others stay put.
- *  Returns { placed, overflow } — overflow icons had no room on this page. */
-function displaceIconsForWidgets(
-  icons: IconPosition[],
-  pageWidgets: WidgetInstance[],
-): { placed: IconPosition[]; overflow: IconPosition[] } {
-  const widgetOcc = buildWidgetOccupancy(pageWidgets);
-  const placed: IconPosition[] = [];
-  const usedCells = new Set<string>();
-  const displaced: IconPosition[] = [];
-
-  for (const icon of icons) {
-    if (widgetOcc[icon.row - 1]?.[icon.col - 1]) {
-      displaced.push(icon);
-    } else {
-      placed.push(icon);
-      usedCells.add(`${icon.row},${icon.col}`);
-    }
-  }
-
-  const overflow: IconPosition[] = [];
-  for (const icon of displaced) {
-    const free = findNearestFreeCell(icon.row, icon.col, widgetOcc, usedCells);
-    if (free) {
-      placed.push({ id: icon.id, row: free.row, col: free.col });
-      usedCells.add(`${free.row},${free.col}`);
-    } else {
-      overflow.push(icon);
-    }
-  }
-
-  return { placed, overflow };
-}
-
-function placeIconOnAvailablePage(
-  layout: DesktopLayout,
-  widgets: WidgetInstance[],
-  icon: IconPosition,
-  startPage: number,
-): void {
-  const maxPage = Math.max(
-    2,
-    startPage,
-    ...getDesktopPageKeysForState(layout, widgets).map(getDesktopPageNumber)
-  );
-  for (let page = Math.max(1, startPage); page <= maxPage + 1; page += 1) {
-    const pageKey = getDesktopPageKey(page);
-    ensureDesktopPage(layout, pageKey);
-    const widgetOcc = buildWidgetOccupancy(widgets.filter(w => w.page === page));
-    const usedCells = new Set(layout[pageKey].map(ic => `${ic.row},${ic.col}`));
-    const free = findNearestFreeCell(icon.row, icon.col, widgetOcc, usedCells);
-    if (!free) continue;
-    layout[pageKey] = [...layout[pageKey], { id: icon.id, row: free.row, col: free.col }];
-    return;
-  }
-}
-
-/** 网格几何：格子原点/步距/内容尺寸（屏幕像素）。指针→格子换算和
- *  图标矩形碰撞检测共用同一份，保证两套判定不会各说各话。 */
-type GridGeometry = {
-  originX: number;
-  originY: number;
-  colStep: number;
-  rowStep: number;
-  colWidth: number;
-  rowHeight: number;
-};
-
-function getGridGeometry(gridEl: HTMLElement): GridGeometry {
-  const rect = gridEl.getBoundingClientRect();
-  const computed = getComputedStyle(gridEl);
-  const colWidths = computed.gridTemplateColumns.split(/\s+/).map(parseFloat);
-  const colWidth = colWidths[0] || 66;
-  const colGap = parseFloat(computed.columnGap) || 20;
-  const rowGap = parseFloat(computed.rowGap) || 0;
-  /* rect 高度是 border-box（含 padding），网格行轨道只占内容盒。 */
-  const padY = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
-  const contentWidth = colWidths.length * colWidth + (colWidths.length - 1) * colGap;
-  const originX = rect.left + (rect.width - contentWidth) / 2;
-  const originY = rect.top + (parseFloat(computed.paddingTop) || 0);
-  const totalRowGap = (GRID_ROWS - 1) * rowGap;
-  const rowHeight = (rect.height - padY - totalRowGap) / GRID_ROWS;
-  return { originX, originY, colStep: colWidth + colGap, rowStep: rowHeight + rowGap, colWidth, rowHeight };
-}
-
-/** Convert pointer screen position to a grid cell (0-based) */
-function pointerToGridCell(
-  px: number,
-  py: number,
-  gridEl: HTMLElement
-): { row: number; col: number } | null {
-  const geom = getGridGeometry(gridEl);
-  const col = Math.floor((px - geom.originX) / geom.colStep);
-  const row = Math.floor((py - geom.originY) / geom.rowStep);
-  if (col < 0 || col >= GRID_COLS || row < 0 || row >= GRID_ROWS) return null;
-  return { row, col };
-}
-
-function sanitizeWidgetsForLayout(_layout: DesktopLayout, widgets: WidgetInstance[]): WidgetInstance[] {
-  const normalized: WidgetInstance[] = [];
-  const pageNumbers = getDesktopPageKeysForState(_layout, widgets).map(getDesktopPageNumber);
-
-  for (const page of pageNumbers) {
-    for (const w of widgets.filter((widget) => widget.page === page)) {
-      // Widget-only collision: pass empty icons so icons don't block widget placement
-      const grid = buildOccupancyGrid([], normalized, page);
-      if (canPlaceWidget(grid, w.size, w.row, w.col)) {
-        normalized.push(w);
-      }
-    }
-  }
-
-  return normalized;
-}
-
-function sameWidgetOrder(a: WidgetInstance[], b: WidgetInstance[]): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) {
-    const x = a[i];
-    const y = b[i];
-    if (
-      x.id !== y.id ||
-      x.page !== y.page ||
-      x.row !== y.row ||
-      x.col !== y.col ||
-      x.size !== y.size ||
-      x.type !== y.type
-    ) {
-      return false;
-    }
-  }
-  return true;
-}
-
-type KeyboardTargetRect = {
-  top: number;
-  bottom: number;
-};
-
-function isKeyboardEditableElement(element: EventTarget | null): element is HTMLElement {
-  if (!(element instanceof HTMLElement)) return false;
-  if (element.isContentEditable) return true;
-  if (element instanceof HTMLTextAreaElement) return true;
-  if (element instanceof HTMLSelectElement) return true;
-  if (!(element instanceof HTMLInputElement)) return false;
-
-  const type = element.type.toLowerCase();
-  return !["button", "checkbox", "color", "file", "hidden", "image", "radio", "range", "reset", "submit"].includes(type);
-}
-
-function shouldBypassDesktopItemPointerCapture(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.closest("[data-ui='modal'], .modal-overlay, .modal-dialog, .modal-sheet, .modal-expand")) return true;
-  return isKeyboardEditableElement(target);
-}
-
-function parseCssPixels(value: string, fallback: number) {
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function measureTextareaCaretRect(textarea: HTMLTextAreaElement): KeyboardTargetRect {
-  const selectionStart = textarea.selectionStart ?? textarea.value.length;
-  const computed = window.getComputedStyle(textarea);
-  const rect = textarea.getBoundingClientRect();
-  const mirror = document.createElement("div");
-  const marker = document.createElement("span");
-  const fontSize = parseCssPixels(computed.fontSize, 14);
-  const lineHeight = computed.lineHeight === "normal" ? fontSize * 1.2 : parseCssPixels(computed.lineHeight, fontSize * 1.2);
-  const mirrorProperties = [
-    "font-family",
-    "font-size",
-    "font-style",
-    "font-variant",
-    "font-weight",
-    "letter-spacing",
-    "text-align",
-    "text-indent",
-    "text-transform",
-    "word-spacing",
-    "tab-size",
-    "direction",
-    "padding-top",
-    "padding-right",
-    "padding-bottom",
-    "padding-left",
-  ];
-
-  for (const property of mirrorProperties) {
-    mirror.style.setProperty(property, computed.getPropertyValue(property));
-  }
-
-  mirror.style.position = "fixed";
-  mirror.style.visibility = "hidden";
-  mirror.style.pointerEvents = "none";
-  mirror.style.left = "-10000px";
-  mirror.style.top = "0";
-  mirror.style.width = `${textarea.clientWidth}px`;
-  mirror.style.boxSizing = "border-box";
-  mirror.style.whiteSpace = "pre-wrap";
-  mirror.style.overflowWrap = "break-word";
-  mirror.style.wordBreak = computed.getPropertyValue("word-break");
-  mirror.style.lineHeight = `${lineHeight}px`;
-  mirror.textContent = textarea.value.slice(0, selectionStart);
-  marker.textContent = "\u200b";
-  mirror.appendChild(marker);
-  document.body.appendChild(mirror);
-
-  const mirrorRect = mirror.getBoundingClientRect();
-  const markerRect = marker.getBoundingClientRect();
-  document.body.removeChild(mirror);
-
-  const top = rect.top + markerRect.top - mirrorRect.top - textarea.scrollTop;
-  return {
-    top,
-    bottom: top + lineHeight,
-  };
-}
-
-function getKeyboardTargetRect(element: HTMLElement): KeyboardTargetRect {
-  if (element instanceof HTMLTextAreaElement) {
-    return measureTextareaCaretRect(element);
-  }
-
-  const rect = element.getBoundingClientRect();
-  return {
-    top: rect.top,
-    bottom: rect.bottom,
-  };
-}
-
-function useAndroidCaretKeyboardLift() {
-  useEffect(() => {
-    if (typeof window === "undefined" || typeof document === "undefined") return;
-
-    const root = document.documentElement;
-    if (!/Android/i.test(navigator.userAgent)) {
-      root.style.removeProperty("--mobile-keyboard-lift");
-      return;
-    }
-
-    const mobileMq = window.matchMedia("(max-width: 500px) and (hover: none) and (pointer: coarse)");
-    const viewport = window.visualViewport;
-    let focusedElement: HTMLElement | null = null;
-    let raf = 0;
-    let currentLift = 0;
-
-    const applyLift = (nextLift: number) => {
-      const rounded = Math.max(0, Math.round(nextLift));
-      if (Math.abs(rounded - currentLift) < 2) return;
-      currentLift = rounded;
-      if (rounded > 0) {
-        root.style.setProperty("--mobile-keyboard-lift", `${rounded}px`);
-      } else {
-        root.style.removeProperty("--mobile-keyboard-lift");
-      }
-    };
-
-    const update = () => {
-      raf = 0;
-      const element = focusedElement;
-      if (!element || document.activeElement !== element || !mobileMq.matches || !viewport) {
-        applyLift(0);
-        return;
-      }
-
-      const keyboardTop = viewport.offsetTop + viewport.height;
-      const keyboardInset = Math.max(0, window.innerHeight - viewport.height - viewport.offsetTop);
-      const targetRect = getKeyboardTargetRect(element);
-      const gap = 36;
-
-      if (keyboardInset < 80) {
-        applyLift(0);
-        return;
-      }
-
-      const naturalBottom = targetRect.bottom + currentLift;
-      const neededLift = Math.max(0, naturalBottom + gap - keyboardTop);
-      applyLift(Math.min(keyboardInset, neededLift));
-    };
-
-    const requestUpdate = () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      raf = window.requestAnimationFrame(update);
-    };
-
-    const handleFocusIn = (event: FocusEvent) => {
-      const target = event.target;
-      if (!isKeyboardEditableElement(target)) return;
-      focusedElement = target;
-      requestUpdate();
-    };
-
-    const handleFocusOut = () => {
-      focusedElement = null;
-      applyLift(0);
-    };
-
-    const handleCaretMove = () => {
-      if (focusedElement) requestUpdate();
-    };
-
-    const handleViewportChange = () => {
-      if (focusedElement) requestUpdate();
-    };
-
-    document.addEventListener("focusin", handleFocusIn);
-    document.addEventListener("focusout", handleFocusOut);
-    document.addEventListener("click", handleCaretMove, true);
-    document.addEventListener("keyup", handleCaretMove, true);
-    document.addEventListener("input", handleCaretMove, true);
-    viewport?.addEventListener("resize", handleViewportChange);
-    viewport?.addEventListener("scroll", handleViewportChange);
-
-    return () => {
-      if (raf) window.cancelAnimationFrame(raf);
-      document.removeEventListener("focusin", handleFocusIn);
-      document.removeEventListener("focusout", handleFocusOut);
-      document.removeEventListener("click", handleCaretMove, true);
-      document.removeEventListener("keyup", handleCaretMove, true);
-      document.removeEventListener("input", handleCaretMove, true);
-      viewport?.removeEventListener("resize", handleViewportChange);
-      viewport?.removeEventListener("scroll", handleViewportChange);
-      root.style.removeProperty("--mobile-keyboard-lift");
-    };
-  }, []);
-}
-
-type MusicOverlayController = {
-  closeFullPlayer: () => void;
-};
-
-const MusicShellOverlays = memo(function MusicShellOverlays({
-  activeApp,
-  onControllerChange,
-}: {
-  activeApp: DesktopIconId | null;
-  onControllerChange: (controller: MusicOverlayController | null) => void;
-}) {
-  const musicPlayer = useMusicControlsOptional();
-
-  useEffect(() => {
-    onControllerChange(musicPlayer ? { closeFullPlayer: musicPlayer.closeFullPlayer } : null);
-  }, [musicPlayer?.closeFullPlayer, onControllerChange]);
-
-  return (
-    <>
-      {musicPlayer?.showFullPlayer && musicPlayer.currentTrack && <MusicPlayer />}
-      <MusicFloat hidden={activeApp === "music" || musicPlayer?.showFullPlayer} />
-    </>
-  );
-});
 
 export function DesktopShell({ initialThemeProfile, initialThemeAssets }: DesktopShellProps) {
   const musicOverlayControllerRef = useRef<MusicOverlayController | null>(null);
@@ -1060,6 +399,10 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
   const [glassPaintPass, setGlassPaintPass] = useState(0);
   const [notice, setNotice] = useState<string | null>(null);
   const [activeApp, setActiveApp] = useState<DesktopIconId | null>(null);
+  useLayoutEffect(() => {
+    document.documentElement.dataset.activeApp = activeApp || "home";
+  }, [activeApp]);
+  useEffect(() => () => { delete document.documentElement.dataset.activeApp; }, []);
   const [customApps, setCustomApps] = useState<InstalledCustomApp[]>([]);
   // 自定义 APP 桌面图标样式偏好（global = 忽略上传图标走全局效果）
   const [customAppIconStyles, setCustomAppIconStyles] = useState<Record<string, CustomAppIconStyle>>({});
@@ -1080,12 +423,9 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
   const pendingCustomAppBackgroundToolsRef = useRef<Map<string, PendingCustomAppBackgroundTool>>(new Map());
   const [resourcesInitialPage, setResourcesInitialPage] = useState<ResourceSubPage>("main");
   const [dwellingMounted, setDwellingMounted] = useState(false);
-  const [xiaohongshuMounted, setXiaohongshuMounted] = useState(false);
-  const [xiaohongshuBusy, setXiaohongshuBusy] = useState(false);
   const [shoppingMounted, setShoppingMounted] = useState(false);
   const [shoppingBusy, setShoppingBusy] = useState(false);
   if (activeApp === "dwelling" && !dwellingMounted) setDwellingMounted(true);
-  if (activeApp === "xiaohongshu" && !xiaohongshuMounted) setXiaohongshuMounted(true);
   if (activeApp === "shopping" && !shoppingMounted) setShoppingMounted(true);
   const [widgets, setWidgets] = useState<WidgetInstance[]>([]);
   const [incomingCall, setIncomingCall] = useState<{
@@ -1514,6 +854,8 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
     });
   }, []);
 
+  useEffect(() => listenForAndroidCompanion(), []);
+
   useEffect(() => {
     const refreshCustomApps = () => {
       const installed = loadInstalledCustomApps();
@@ -1870,7 +1212,7 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
       if (detail.__fromBar) return;
       const sessions = loadChatSessions();
       const session = sessions.find(s => s.id === detail.sessionId);
-      if (!session) return;
+      if (!session || isChatOfflineMode(session.id)) return;
       const chars = loadCharacters();
       const isGroup = !!session.isGroup;
       // Group chat: use characterName from event detail; 1:1: use session.contactId
@@ -2093,8 +1435,6 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
       window.clearTimeout(timer);
     };
   }, [desktopReady, iconEffect, widgetEffect, wallpaperDataUrl, dockSkinUrl]);
-
-
 
   // Enforce layout rules when icon layout changes (keeps old bad data from breaking grid).
   useEffect(() => {
@@ -2334,6 +1674,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       openWorldBuilder(meta.path);
       return;
     }
+    if ((builtinIconId === "xiaohongshu" || builtinIconId === "douyin") && launchActiveAndroidCompanion(builtinIconId)) return;
     if (builtinIconId === "resources") setResourcesInitialPage("main");
     if (builtinIconId === "chat") setChatInitSessionId(null);
     setActiveApp(builtinIconId);
@@ -2494,6 +1835,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       window.setTimeout(() => {
         if (detail.handled) return;
         detail.handled = true;
+        if (isChatOfflineMode(sessionId)) return;
         void requestBackgroundChatReply(sessionId);
       }, 0);
     };
@@ -2966,7 +2308,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       const topCol = cell.col - drag.grabCellCol;
       // Allow drop indicator as long as the widget bounds fit INSIDE the grid visually
       if (topRow < 0 || topCol < 0 || topRow + wRows > GRID_ROWS || topCol + wCols > GRID_COLS) return;
-      
+
       const key = `${pageKey}:${topRow}:${topCol}`;
       if (key === drag.lastTargetKey) return;
       drag.lastTargetKey = key;
@@ -3635,13 +2977,13 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       if (firstGlyph) {
         const glyphRect = firstGlyph.getBoundingClientRect();
         if (glyphRect.width > 0) {
-          const roundedIconWidth = Number(glyphRect.width.toFixed(2));
+          const roundedIconWidth = firstGlyph.offsetWidth;
           setSlotIconWidth((prev) =>
             prev !== null && Math.abs(prev - roundedIconWidth) < 0.1 ? prev : roundedIconWidth
           );
         }
         if (glyphRect.height > 0) {
-          const roundedIconHeight = Number(glyphRect.height.toFixed(2));
+          const roundedIconHeight = firstGlyph.offsetHeight;
           setSlotIconHeight((prev) =>
             prev !== null && Math.abs(prev - roundedIconHeight) < 0.1 ? prev : roundedIconHeight
           );
@@ -3656,8 +2998,9 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       const padY =
         (Number.parseFloat(computed.paddingTop || "0") || 0) +
         (Number.parseFloat(computed.paddingBottom || "0") || 0);
-      const gridHeight = gridEl.getBoundingClientRect().height - padY;
-      const rowHeight = (gridHeight - (GRID_ROWS - 1) * rowGap) / GRID_ROWS;
+      const gridHeight = gridEl.clientHeight - padY;
+      const rowHeight = Number.parseFloat(computed.gridTemplateRows.split(/\s+/)[0])
+        || (gridHeight - (GRID_ROWS - 1) * rowGap) / GRID_ROWS;
       const nextRowStep = rowHeight + rowGap;
       if (nextRowStep <= 0) {
         return;
@@ -3880,17 +3223,6 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     if (targetPageIndex !== page) setCurrentPageIndex(targetPageIndex);
   }, [editMode, getSwipePageWidth, pageCount, setSwipeDrag]);
 
-  const handleCloseXiaohongshu = useCallback((isBusy?: boolean) => {
-    const shouldKeepMounted = isBusy ?? xiaohongshuBusy;
-    setActiveApp(null);
-    if (shouldKeepMounted) {
-      setNotice("小红书正在后台生成，完成后会自动更新。");
-      return;
-    }
-    setXiaohongshuBusy(false);
-    setXiaohongshuMounted(false);
-  }, [xiaohongshuBusy]);
-
   const handleCloseShopping = useCallback((isBusy?: boolean) => {
     const shouldKeepMounted = isBusy ?? shoppingBusy;
     setActiveApp(null);
@@ -4034,15 +3366,6 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       );
     }
 
-    if (activeApp === "settings") {
-      return (
-        <PhoneSettingsApp
-          onClose={() => setActiveApp(null)}
-          onNotice={setNotice}
-        />
-      );
-    }
-
     if (activeApp === "resources") {
       return (
         <PhoneResourcesApp
@@ -4051,72 +3374,6 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
           initialPage={resourcesInitialPage}
         />
       );
-    }
-
-    if (activeApp === "music") {
-      return <MusicApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "calendar") {
-      return <PhoneCalendarApp onClose={() => setActiveApp(null)} onNotice={setNotice} />;
-    }
-    if (activeApp === "realitybridge") {
-      return <RealityBridgeApp onClose={() => setActiveApp(null)} onNotice={setNotice} />;
-    }
-    if (activeApp === "qa") {
-      return (
-        <ChatPluginPageBoundary page="工坊" onClose={() => setActiveApp(null)}>
-          <PhoneQaApp onClose={() => setActiveApp(null)} onNotice={setNotice} />
-        </ChatPluginPageBoundary>
-      );
-    }
-    if (activeApp === "resource_hub") {
-      return <ResourceHubApp onClose={() => setActiveApp(null)} onNotice={setNotice} />;
-    }
-
-    if (activeApp === "diary") {
-      return <DiaryApp onClose={() => setActiveApp(null)} onNotice={setNotice} />;
-    }
-
-    if (activeApp === "xiaohongshu") {
-      return null;
-    }
-
-    if (activeApp === "story") {
-      return <StoryApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "vnmode") {
-      return <VnApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "reading") {
-      return <ReadingApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "mapmode") {
-      return <MapApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "dwelling") {
-      // DwellingApp is rendered separately (kept alive) — see below
-      return null;
-    }
-
-    if (activeApp === "checkphone") {
-      return <CheckPhoneApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "shopping") {
-      return null;
-    }
-
-    if (activeApp === "game") {
-      return <GameHubApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "mixology") {
-      return <MixologyApp onClose={() => setActiveApp(null)} />;
     }
 
     if (activeApp === "appmarket") {
@@ -4137,17 +3394,10 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       );
     }
 
-    if (activeApp === "interview_magazine") {
-      return <InterviewMagazineApp onClose={() => setActiveApp(null)} />;
-    }
-
-    if (activeApp === "cocreate") {
-      return <CoCreateApp onClose={() => setActiveApp(null)} onNotice={setNotice} />;
-    }
-
-    return activeApp in ICONS
-      ? <PhonePlaceholderApp icon={ICONS[activeApp as IconId]} onClose={() => setActiveApp(null)} />
-      : null;
+    return renderBuiltinDesktopApp(activeApp, {
+      onClose: () => setActiveApp(null),
+      onNotice: setNotice,
+    });
   }
 
   return (
@@ -4274,7 +3524,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
               ) : null}
 
               {customAppBackgroundRuns.length > 0 || customAppBackgroundToolRuns.length > 0 ? (
-                <div
+                <div data-adaptive-surface="content"
                   aria-hidden
                   style={{
                     position: "fixed",
@@ -4362,6 +3612,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                       className="incoming-call-bar-btn incoming-call-bar-decline"
                       onClick={() => {
                         const call = incomingCall;
+                        if (isChatOfflineMode(call.sessionId)) { setIncomingCall(null); return; }
                         const callLabel = call.type === "voice" ? "语音通话" : "视频通话";
                         pushChatMessage({
                           sessionId: call.sessionId,
@@ -4377,7 +3628,9 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                           const sid = call.sessionId;
                           kvSet("chat-generating:" + sid, JSON.stringify({ startedAt: Date.now() }));
                           const msgs = loadChatMessages(sid);
-                          generateChatCompletion(sess, msgs, { appTags: ["chat", "text"] }).then(cr => { const text = flattenCompletionResult(cr);
+                          generateChatCompletion(sess, msgs, { appTags: ["chat", "text"] }).then(cr => {
+                            if (isChatOfflineMode(sid)) return;
+                            const text = flattenCompletionResult(cr);
                             const { parts, stateValues } = parseAIResponse(text, []);
                             for (const p of parts) {
                               if (p.mediaType === "voice_call" || p.mediaType === "video_call") continue;
@@ -4718,7 +3971,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                   </>
                 ) : (
                   <>
-                    <section className="phone-app-pane" style={activeApp === "dwelling" || activeApp === "xiaohongshu" || activeApp === "shopping" ? { display: "none" } : undefined}>
+                    <section className="phone-app-pane" style={activeApp === "dwelling" || activeApp === "shopping" ? { display: "none" } : undefined}>
                       {renderAppBody()}
                     </section>
                     {/* DwellingApp stays mounted while generating — auto-unmounts when idle */}
@@ -4732,22 +3985,6 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                       </section>
                     )}
                   </>
-                )}
-                {xiaohongshuMounted && (
-                  <section className="phone-app-pane" style={activeApp !== "xiaohongshu" ? { display: "none" } : undefined}>
-                    <XiaohongshuApp
-                      onClose={handleCloseXiaohongshu}
-                      onNotice={setNotice}
-                      visible={activeApp === "xiaohongshu"}
-                      onBusyChange={setXiaohongshuBusy}
-                      onIdle={() => {
-                        if (activeApp !== "xiaohongshu") {
-                          setXiaohongshuBusy(false);
-                          setXiaohongshuMounted(false);
-                        }
-                      }}
-                    />
-                  </section>
                 )}
                 {shoppingMounted && (
                   <section className="phone-app-pane" style={activeApp !== "shopping" ? { display: "none" } : undefined}>
@@ -4844,7 +4081,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
               {/* Widget Picker Bottom Sheet */}
               {showWidgetPicker && (
-                <div className="widget-picker-sheet" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="card" className="widget-picker-sheet" onClick={e => e.stopPropagation()}>
                   <div className="wm-header" style={{ position: 'relative', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span className="ts-16 font-medium text-[var(--c-text-title)] flex items-center gap-2">
                       <LayoutGrid size={18} /> 添加组件
@@ -4900,7 +4137,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                         </div>
                       );
                     })}
-                    
+
                     {widgetPickerTab === "freestyle" && mergedCatalog.filter(e => e.track === "freestyle").map(entry => {
                       const sizeClass = `wm-cat-size-${entry.size}`;
                       const dummyWidget: WidgetInstance = { id: `pick-${entry.type}`, type: entry.type, size: entry.size, page: 1, row: 1, col: 1 };
@@ -4962,7 +4199,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                 if (memberPages.length === 0) memberPages.push([]);
                 const boundedFolderPage = Math.min(folderPageIndex, memberPages.length - 1);
                 return (
-                  <div className="folder-overlay" onClick={() => setOpenFolderId(null)}>
+                  <div data-adaptive-surface="overlay" className="folder-overlay" onClick={() => setOpenFolderId(null)}>
                     <input
                       key={openFolderId}
                       className="folder-name-input"
@@ -4976,7 +4213,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                         if (e.key === "Enter") (e.target as HTMLInputElement).blur();
                       }}
                     />
-                    <div className="folder-panel" onClick={(e) => e.stopPropagation()}>
+                    <div data-adaptive-surface="card" className="folder-panel" onClick={(e) => e.stopPropagation()}>
                       <div
                         className="folder-pages"
                         onScroll={(e) => {
@@ -5059,162 +4296,14 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
           </div>
         </div>
       </section>
-      {/* 外部音乐唤醒与一起听弹窗 */}
+      {/* 外部音乐唤醒 */}
       {showExternalMusicModal && (
-        <div
-          className="fixed inset-0 z-[10030] flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label="外部音乐唤醒"
-          onClick={() => setShowExternalMusicModal(false)}
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl border border-[var(--c-panel-border)] bg-[var(--c-page-body-bg)] p-5 text-[var(--c-text)] shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-[var(--c-panel-border)] pb-3">
-              <div>
-                <h3 className="text-base font-bold text-[var(--c-text)] m-0">🎵 音乐播放与外部唤醒</h3>
-                <p className="mt-1 text-xs opacity-65 m-0">唤醒手机/电脑端主流音乐软件或使用内置播放器</p>
-              </div>
-              <button
-                type="button"
-                className="text-xs px-2 py-1 opacity-60 hover:opacity-100 rounded cursor-pointer"
-                onClick={() => setShowExternalMusicModal(false)}
-              >
-                关闭
-              </button>
-            </div>
-
-            <div className="mt-3 flex flex-col gap-2">
-              <button
-                type="button"
-                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--c-panel-border)] hover:bg-[var(--c-input)]/40 transition-colors text-left cursor-pointer"
-                onClick={() => {
-                  setShowExternalMusicModal(false);
-                  setActiveApp("music" as IconId);
-                }}
-              >
-                <div className="w-10 h-10 rounded-xl bg-blue-600/20 text-blue-500 flex items-center justify-center font-bold text-lg shrink-0">
-                  🎧
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-[var(--c-text)]">小手机内置播放器</div>
-                  <div className="text-xs opacity-60 truncate">灵动流光歌词、黑胶唱机与全沉浸视听</div>
-                </div>
-                <span className="text-xs text-blue-400 font-medium shrink-0">立即打开</span>
-              </button>
-
-              <div
-                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--c-panel-border)] hover:bg-[var(--c-input)]/40 transition-colors text-left cursor-pointer"
-                onClick={() => handleLaunchMusicApp("orpheus://", "https://music.163.com/")}
-              >
-                <div className="w-10 h-10 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center font-bold text-lg shrink-0">
-                  ☁️
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-[var(--c-text)]">网易云音乐</div>
-                  <div className="text-xs opacity-60 truncate">唤醒网易云客户端 (orpheus://)</div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    className="text-xs px-2 py-1 rounded-lg bg-[var(--c-input)] hover:bg-[var(--c-input)]/80 text-[var(--c-text)] opacity-75 hover:opacity-100 transition-all cursor-pointer border border-[var(--c-panel-border)]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenWebMusic("https://music.163.com/");
-                    }}
-                    title="在浏览器打开网易云音乐网页版"
-                  >
-                    网页版 ↗
-                  </button>
-                  <span className="text-xs text-red-400 font-semibold">唤醒</span>
-                </div>
-              </div>
-
-              <div
-                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--c-panel-border)] hover:bg-[var(--c-input)]/40 transition-colors text-left cursor-pointer"
-                onClick={() => handleLaunchMusicApp("qqmusic://", "https://y.qq.com/")}
-              >
-                <div className="w-10 h-10 rounded-xl bg-emerald-600/20 text-emerald-500 flex items-center justify-center font-bold text-lg shrink-0">
-                  🟢
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-[var(--c-text)]">QQ 音乐</div>
-                  <div className="text-xs opacity-60 truncate">唤醒 QQ音乐客户端 (qqmusic://)</div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    className="text-xs px-2 py-1 rounded-lg bg-[var(--c-input)] hover:bg-[var(--c-input)]/80 text-[var(--c-text)] opacity-75 hover:opacity-100 transition-all cursor-pointer border border-[var(--c-panel-border)]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenWebMusic("https://y.qq.com/");
-                    }}
-                    title="在浏览器打开QQ音乐网页版"
-                  >
-                    网页版 ↗
-                  </button>
-                  <span className="text-xs text-emerald-400 font-semibold">唤醒</span>
-                </div>
-              </div>
-
-              <div
-                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--c-panel-border)] hover:bg-[var(--c-input)]/40 transition-colors text-left cursor-pointer"
-                onClick={() => handleLaunchMusicApp("kugouURL://", "https://www.kugou.com/")}
-              >
-                <div className="w-10 h-10 rounded-xl bg-sky-600/20 text-sky-500 flex items-center justify-center font-bold text-lg shrink-0">
-                  🐶
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-[var(--c-text)]">酷狗音乐</div>
-                  <div className="text-xs opacity-60 truncate">唤醒酷狗音乐客户端 (kugouURL://)</div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    className="text-xs px-2 py-1 rounded-lg bg-[var(--c-input)] hover:bg-[var(--c-input)]/80 text-[var(--c-text)] opacity-75 hover:opacity-100 transition-all cursor-pointer border border-[var(--c-panel-border)]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenWebMusic("https://www.kugou.com/");
-                    }}
-                    title="在浏览器打开酷狗音乐网页版"
-                  >
-                    网页版 ↗
-                  </button>
-                  <span className="text-xs text-sky-400 font-semibold">唤醒</span>
-                </div>
-              </div>
-
-              <div
-                className="flex items-center gap-3 p-3 rounded-xl border border-[var(--c-panel-border)] hover:bg-[var(--c-input)]/40 transition-colors text-left cursor-pointer"
-                onClick={() => handleLaunchMusicApp("luna://", "https://music.douyin.com/")}
-              >
-                <div className="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-400 flex items-center justify-center font-bold text-lg shrink-0">
-                  🫧
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-sm font-semibold text-[var(--c-text)]">汽水音乐</div>
-                  <div className="text-xs opacity-60 truncate">唤醒汽水音乐客户端 (luna://)</div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <button
-                    type="button"
-                    className="text-xs px-2 py-1 rounded-lg bg-[var(--c-input)] hover:bg-[var(--c-input)]/80 text-[var(--c-text)] opacity-75 hover:opacity-100 transition-all cursor-pointer border border-[var(--c-panel-border)]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleOpenWebMusic("https://music.douyin.com/");
-                    }}
-                    title="在浏览器打开汽水音乐网页版"
-                  >
-                    网页版 ↗
-                  </button>
-                  <span className="text-xs text-purple-400 font-semibold">唤醒</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ExternalMusicDialog
+          onClose={() => setShowExternalMusicModal(false)}
+          onOpenPlayer={() => setActiveApp("music")}
+          onLaunchApp={handleLaunchMusicApp}
+          onOpenWeb={handleOpenWebMusic}
+        />
       )}
       {/* 微信云同步过程可视化：拉取/上传/运行包同步与失败都在这里冒 toast */}
       <WeixinSyncToast />

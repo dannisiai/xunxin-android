@@ -419,7 +419,7 @@ export function MomentPostCard({ post, onUpdate, onRequestDelete, onOpenCommentC
             )}
             {showPhotoPromptEditor && typeof document !== "undefined" && createPortal(
                 <div className="modal-overlay" data-ui="modal" onClick={() => setShowPhotoPromptEditor(false)}>
-                    <div className="modal-dialog feed-post-photo-prompt-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
+                    <div data-adaptive-surface="card" className="modal-dialog feed-post-photo-prompt-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
                         <div className="modal-header" data-ui="modal-header">
                             <h3 className="modal-title">重新生成图片</h3>
                         </div>
@@ -470,7 +470,7 @@ export function MomentPostCard({ post, onUpdate, onRequestDelete, onOpenCommentC
 
             {editingPostOpen && typeof document !== "undefined" && createPortal(
                 <div className="modal-overlay" data-ui="modal" onClick={() => setEditingPostOpen(false)}>
-                    <div className="modal-dialog feed-post-edit-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
+                    <div data-adaptive-surface="card" className="modal-dialog feed-post-edit-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
                         <div className="modal-header" data-ui="modal-header">
                             <h3 className="modal-title">编辑动态</h3>
                         </div>
@@ -523,7 +523,7 @@ export function MomentPostCard({ post, onUpdate, onRequestDelete, onOpenCommentC
 
             {editingComment && typeof document !== "undefined" && createPortal(
                 <div className="modal-overlay" data-ui="modal" onClick={() => setEditingComment(null)}>
-                    <div className="modal-dialog feed-post-edit-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
+                    <div data-adaptive-surface="card" className="modal-dialog feed-post-edit-dialog" data-ui="modal-dialog" onClick={e => e.stopPropagation()}>
                         <div className="modal-header" data-ui="modal-header">
                             <h3 className="modal-title">编辑评论</h3>
                         </div>

@@ -2025,8 +2025,8 @@ export function CustomAppRunner({
       ) : null}
 
       {menuOpen ? (
-        <div className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setMenuOpen(false)}>
-          <div className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="应用详情" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay app-market-drawer-overlay" role="presentation" onClick={() => setMenuOpen(false)}>
+          <div data-adaptive-surface="card" className="app-market-sheet app-market-detail-sheet" role="dialog" aria-modal="true" aria-label="应用详情" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>应用详情</strong>
               <button type="button" onClick={() => setMenuOpen(false)} aria-label="关闭">
@@ -2090,8 +2090,8 @@ export function CustomAppRunner({
       ) : null}
 
       {confirmDelete ? (
-        <div className="app-market-overlay" role="presentation" onClick={() => setConfirmDelete(false)}>
-          <div className="app-market-sheet" role="dialog" aria-modal="true" aria-label="卸载 APP" onClick={event => event.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="app-market-overlay" role="presentation" onClick={() => setConfirmDelete(false)}>
+          <div data-adaptive-surface="card" className="app-market-sheet" role="dialog" aria-modal="true" aria-label="卸载 APP" onClick={event => event.stopPropagation()}>
             <div className="app-market-sheet-head">
               <strong>卸载「{app.name}」？</strong>
               <button type="button" onClick={() => setConfirmDelete(false)} aria-label="关闭">

@@ -1,10 +1,17 @@
 // lib/llm-prompt-assembler.ts
 
 import { Character } from "./character-types";
-import { ChatMessage } from "./chat-storage";
-import type { StateValue } from "./chat-storage";
-import { PresetConfig, Prompt, PromptOrderEntry, WorldBookConfig, RegexConfig, WorldBookEntry } from "./settings-types";
-import type { UserIdentity } from "@/components/settings/user-identity";
+import { ChatMessage, type StateValue } from "./chat-storage";
+
+import {
+  PresetConfig,
+  Prompt,
+  PromptOrderEntry,
+  WorldBookConfig,
+  RegexConfig,
+  WorldBookEntry,
+} from "./settings-types";
+import type { UserIdentity } from "@/lib/settings-types";
 import { MacroEngine, postProcessTrim } from "./macro-engine";
 import type { RecentBlock, UnifiedRecentItem } from "./short-term-assembler";
 import { readDwellingLayoutCache } from "./dwelling-storage";
@@ -12,11 +19,17 @@ import { formatDwellingContext } from "./dwelling-engine";
 import { matchesActiveTags } from "./content-tag-utils";
 import { formatXiaohongshuShareForPrompt } from "./chat-share";
 import { stripStateAndInnerForPrompt } from "./prompt-sanitizer";
-import { formatPromptTimestamp, getPromptTimestampOptionsForTimeContext, resolvePromptTimeAware, type PromptTimestampOptions } from "./prompt-time";
+import {
+  formatPromptTimestamp,
+  getPromptTimestampOptionsForTimeContext,
+  resolvePromptTimeAware,
+  type PromptTimestampOptions,
+} from "./prompt-time";
 import { formatCharacterRelationsForPrompt } from "./character-world-storage";
 import { buildCharacterTimeContext, buildGroupTimeContext, type CharacterTimeContext } from "./character-time";
 import { formatShoppingPaymentRequestHistory } from "./shopping-payment-request";
 import { buildGroupAdminBracketText } from "./group-admin";
+import { getChatDocument, formatChatDocumentForPrompt } from "./chat-documents";
 
 export type LLMMessageRole = "system" | "user" | "assistant" | "tool";
 export type LLMToolCallPayload = { id: string; name: string; args: Record<string, unknown>; thoughtSignature?: string };
@@ -1172,11 +1185,14 @@ export function formatRichMediaForHistory(msg: ChatMessage, userName: string, ch
         }
         case "image":
             return formatPhotoDirective(msg);
-        case "media_file":
+        case "media_file": {
+            const document = getChatDocument(msg);
+            if (document) return formatChatDocumentForPrompt(msg.content, document.metadata);
             if (d?.fileType === "image" && isImageGenerationMediaMessage(msg)) {
                 return formatImageGenerationDirective(msg);
             }
             return msg.content;
+        }
         case "audio":
             return `[语音条:${d?.label ?? "语音消息"}]`;
         case "location":

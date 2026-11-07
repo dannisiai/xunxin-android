@@ -1135,7 +1135,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         </div>
 
         {confirmClear ? (
-          <div className="rb-modal-mask rb-menu-mask" onClick={() => setConfirmClear(false)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask rb-menu-mask" onClick={() => setConfirmClear(false)}>
             <div className="rb-modal rb-glass-modal" onClick={event => event.stopPropagation()}>
               <b className="rb-modal-title">清空接收记录？</b>
               <p className="rb-help">只删除本地流水列表；已执行的动作（写入的消息、记忆、日历）不受影响。</p>
@@ -1153,7 +1153,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         ) : null}
 
         {menuOpen ? (
-          <div className="rb-modal-mask rb-menu-mask" onClick={() => setMenuOpen(false)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask rb-menu-mask" onClick={() => setMenuOpen(false)}>
             <div className="rb-modal rb-glass-modal" onClick={event => event.stopPropagation()}>
               <b className="rb-modal-title">桥接设置</b>
               <div className="rb-main-row">
@@ -1199,7 +1199,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         ) : null}
 
         {editing ? (
-          <div className="rb-modal-mask" onClick={() => setEditing(null)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask" onClick={() => setEditing(null)}>
           <div className="rb-modal rb-editor" onClick={event => event.stopPropagation()}>
             <b className="rb-modal-title">{isExistingRule ? "编辑联动" : "新建联动"}</b>
 
@@ -1571,7 +1571,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         ) : null}
 
         {editingShortcut ? (
-          <div className="rb-modal-mask" onClick={() => setEditingShortcut(null)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask" onClick={() => setEditingShortcut(null)}>
             <div className="rb-modal rb-editor" onClick={event => event.stopPropagation()}>
               <b className="rb-modal-title">{isExistingShortcut ? "编辑快捷动作" : "新建快捷动作"}</b>
 
@@ -1853,7 +1853,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         ) : null}
 
         {editingItem ? (
-          <div className="rb-modal-mask" onClick={() => setEditingItem(null)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask" onClick={() => setEditingItem(null)}>
             <div className="rb-modal rb-editor" onClick={event => event.stopPropagation()}>
               <b className="rb-modal-title">{dataItems.some(item => item.id === editingItem.id) ? "编辑数据项" : "新建数据项"}</b>
 
@@ -1980,7 +1980,7 @@ export function RealityBridgeApp({ onClose, onNotice }: {
         ) : null}
 
         {editingScreenChat ? (
-          <div className="rb-modal-mask" onClick={() => setEditingScreenChat(null)}>
+          <div data-adaptive-surface="overlay" className="rb-modal-mask" onClick={() => setEditingScreenChat(null)}>
             <div className="rb-modal rb-editor" onClick={event => event.stopPropagation()}>
               <b className="rb-modal-title">配置屏幕速聊</b>
 

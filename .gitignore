@@ -29,3 +29,5 @@ tools/weixin-local-assistant/config.txt
 *.ts.net.key
 /public/models/world-builder/
 /.next-android/
+/android-shell/app/libnode/
+/android-shell/app/.node-runtime-*/

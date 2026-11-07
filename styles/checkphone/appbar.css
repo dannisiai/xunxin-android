@@ -1,0 +1,194 @@
+/* ---------------- UNIFIED CHECKPHONE APPBAR GEOMETRY START ---------------- */
+.cp-notes-appbar,
+.cp-messages-appbar,
+.cp-browser-unified-compact,
+.cp-phone-cyber-header--compact,
+.cp-shopping-appbar,
+.cp-fullscreen-inner .cp-shopping-module > header,
+.cp-fullscreen-inner .cp-shopping-module > div > header,
+.cp-assets-appbar,
+.cp-chat-appbar,
+.cp-xhs-appbar,
+.cp-xhs-thread-appbar,
+.cp-reading-appbar,
+.cp-weibo-appbar,
+.cp-email-md-appbar,
+.cp-email-detail-topbar,
+.cp-douban-appbar,
+.cp-telegram-list-appbar,
+.cp-douyin-appbar,
+.cp-takeout-appbar,
+.cp-takeout-detail-topbar,
+.cp-bilibili-appbar,
+.cp-youtube-appbar,
+.cp-x-appbar,
+.cp-reddit-empty-appbar,
+.cp-instagram-appbar,
+.cp-appbar-minimal {
+  box-sizing: border-box;
+  height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  padding-bottom: var(--cp-appbar-row-padding-y, 1px) !important;
+  align-items: center !important;
+  flex: 0 0 auto;
+}
+
+.cp-music-appbar,
+.cp-steam-appbar,
+.cp-takeout-appbar.is-home,
+.cp-telegram-chat-appbar,
+.cp-xhs-note-detail-header,
+.cp-xhs-video-detail-topbar,
+.cp-douyin-profile-topbar,
+.cp-douyin-detail-topbar {
+  box-sizing: border-box;
+  top: 0 !important;
+  height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+  min-height: 0 !important;
+  margin-top: 0 !important;
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  padding-bottom: var(--cp-appbar-row-padding-y, 1px) !important;
+  align-items: center !important;
+  flex: 0 0 auto;
+}
+
+.cp-xhs-profile-topbar {
+  box-sizing: border-box;
+  top: 0 !important;
+  height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+  margin-top: 0 !important;
+  margin-bottom: calc(-1 * (var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px))) !important;
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  padding-bottom: var(--cp-appbar-row-padding-y, 1px) !important;
+  align-items: center !important;
+}
+
+.cp-xhs-module .cp-xhs-profile-topbar {
+  height: calc(var(--cp-appbar-safe-top, 48px) + 48px) !important;
+  margin-bottom: calc(-1 * (var(--cp-appbar-safe-top, 48px) + 48px)) !important;
+  padding: calc(var(--cp-appbar-safe-top, 48px) + 8px) 14px 8px !important;
+}
+
+.cp-xhs-module .cp-xhs-profile-hero {
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + 76px) !important;
+}
+
+.cp-x-profile-nav,
+.cp-reddit-profile-nav {
+  box-sizing: border-box;
+  top: 0 !important;
+  height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+  margin-top: 0 !important;
+  margin-bottom: calc(-1 * (var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px))) !important;
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  padding-bottom: var(--cp-appbar-row-padding-y, 1px) !important;
+  align-items: center !important;
+}
+
+.cp-x-home-screen {
+  --cp-x-profile-nav-height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+}
+
+.cp-reddit-home-screen {
+  --cp-reddit-profile-nav-height: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+}
+
+/* The nav above uses a negative margin-bottom to overlay the hero, so the hero
+   must reserve the nav's height up top or the avatar tucks under the title bar. */
+.cp-reddit-hero {
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px) + 8px) !important;
+}
+
+/* Weibo's trending tab uses a tall orange hero banner; the global appbar
+   standardization above forces a fixed short height, which squashed it.
+   Restore the tall banner for this state (higher specificity + !important). */
+.cp-weibo-appbar.cp-weibo-appbar--hero {
+  height: auto !important;
+  min-height: 144px !important;
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + 10px) !important;
+  padding-bottom: 16px !important;
+}
+
+/* Decorative-only tabs / nav bars in the check-phone snapshots: they exist for
+   visual fidelity but do nothing. Dim them and kill click affordance so users
+   don't expect a response. Apply by adding the class to the dead element. */
+.cp-dead-tab {
+  opacity: 0.42;
+  cursor: default !important;
+}
+.cp-dead-tab * {
+  cursor: default !important;
+}
+.cp-dead-tab:active {
+  transform: none !important;
+}
+
+.cp-xhs-note-detail {
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+}
+
+.cp-xhs-video-moving-layer {
+  top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px)) !important;
+}
+
+.cp-steam-body {
+  padding-top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-height, 42px) + 16px) !important;
+}
+
+.cp-email-search-bar {
+  height: 40px !important;
+}
+
+.cp-reading-header-stack {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  height: calc(var(--cp-appbar-row-height, 42px) - var(--cp-appbar-row-padding-y, 1px) - var(--cp-appbar-row-padding-y, 1px)) !important;
+  transform: translateX(-50%) !important;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  pointer-events: none;
+  max-width: 200px;
+}
+
+.cp-reading-header-title {
+  font-size: calc(15px*var(--app-text-scale,1)) !important;
+  font-style: normal !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1.15 !important;
+}
+
+.cp-reading-header-subtitle {
+  display: none !important;
+}
+
+.cp-notes-header-title,
+.cp-messages-header-stack,
+.cp-shopping-header-stack,
+.cp-chat-header-stack,
+.cp-xhs-header-stack,
+.cp-music-header-stack,
+.cp-weibo-header-stack,
+.cp-douban-header-stack,
+.cp-douyin-header-stack,
+.cp-takeout-header-stack,
+.cp-steam-header-stack,
+.cp-bilibili-header-stack,
+.cp-instagram-header-stack,
+.cp-telegram-list-title,
+.cp-telegram-chat-title-pill,
+.cp-reddit-empty-title,
+.cp-x-appbar--empty .cp-x-header-stack {
+  top: calc(var(--cp-appbar-safe-top, 48px) + var(--cp-appbar-row-padding-y, 1px)) !important;
+  height: calc(var(--cp-appbar-row-height, 42px) - var(--cp-appbar-row-padding-y, 1px) - var(--cp-appbar-row-padding-y, 1px)) !important;
+  transform: translateX(-50%) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* ---------------- UNIFIED CHECKPHONE APPBAR GEOMETRY END ---------------- */

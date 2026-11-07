@@ -1,6 +1,7 @@
 // JNI entrypoint based on the Node.js Mobile native Android sample.
 #include <jni.h>
 #include <cstring>
+#include <cstdlib>
 #include <string>
 #include <vector>
 #include "node.h"
@@ -18,6 +19,10 @@ Java_app_floatphone_shell_LocalNodeRuntime_startNodeWithArguments(JNIEnv *env, j
         total += values.back().size() + 1;
         env->ReleaseStringUTFChars(arg, chars);
         env->DeleteLocalRef(arg);
+    }
+    // Android has no /tmp; set the app-private cache directory before Node bootstraps.
+    if (values.size() > 3 && ::setenv("TMPDIR", values[3].c_str(), 1) != 0) {
+        return 1;
     }
     std::vector<char> buffer(total);
     std::vector<char *> argv(count);

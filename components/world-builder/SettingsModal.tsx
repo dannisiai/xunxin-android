@@ -88,7 +88,7 @@ export default function SettingsModal({ open, settings, onUpdate, onClose }: Pro
 
   return (
     <div className="wb-modal-overlay" onClick={onClose}>
-      <div className="wb-modal" onClick={(e) => e.stopPropagation()}>
+      <div data-adaptive-surface="card" className="wb-modal" onClick={(e) => e.stopPropagation()}>
         <div className="wb-modal-header">
           <span>偏好设置</span>
           <button className="wb-float-close" onClick={onClose}>✕</button>

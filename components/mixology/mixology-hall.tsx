@@ -727,8 +727,8 @@ export function MixologyHall({
 
             {/* 官方出厂件详情：本地内容，无点赞/评论/入柜——吧台槽位里直接可选 */}
             {officialDetail ? inOverlay(
-                <div className="mix-sheet-mask" onClick={() => setOfficialDetail(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setOfficialDetail(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">
                                 {officialDetail.name}
@@ -751,10 +751,10 @@ export function MixologyHall({
 
             {/* 材料详情 */}
             {detailMaterial ? inOverlay(
-                <div className="mix-sheet-mask" onClick={() => setDetailMaterial(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setDetailMaterial(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         {detailMaterial.kind === "character" && detailMaterial.cover ? (
-                            <div className="mix-sheet-backdrop" style={{ backgroundImage: `url(${detailMaterial.cover})` }} />
+                            <div data-adaptive-surface="decoration" className="mix-sheet-backdrop" style={{ backgroundImage: `url(${detailMaterial.cover})` }} />
                         ) : null}
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">{detailMaterial.name}</div>
@@ -858,8 +858,8 @@ export function MixologyHall({
 
             {/* 配方详情 */}
             {detailRecipe ? inOverlay(
-                <div className="mix-sheet-mask" onClick={() => setDetailRecipe(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setDetailRecipe(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">{detailRecipe.name}</div>
                             {likeButton("recipe", detailRecipe)}

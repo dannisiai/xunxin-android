@@ -38,7 +38,7 @@ export default function ImportModal({ open, categories, onClose, onModelAdded }:
 
   return (
     <div className="wb-modal-overlay" onClick={reset}>
-      <div className="wb-modal" onClick={(e) => e.stopPropagation()}>
+      <div data-adaptive-surface="card" className="wb-modal" onClick={(e) => e.stopPropagation()}>
         <div className="wb-modal-header">
           <span>导入模型</span>
           <button className="wb-float-close" onClick={reset}>✕</button>

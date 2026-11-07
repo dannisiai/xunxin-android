@@ -42,7 +42,7 @@ object LocalNodeRuntime {
                         System.loadLibrary("xunxin_node")
                         started = true
                         thread(name = "xunxin-node") {
-                            val exit = startNodeWithArguments(arrayOf("node", File(runtime, "android-bootstrap.cjs").absolutePath, secretFile.absolutePath))
+                            val exit = startNodeWithArguments(arrayOf("node", File(runtime, "android-bootstrap.cjs").absolutePath, secretFile.absolutePath, app.cacheDir.absolutePath))
                             Log.e(TAG, "Local runtime stopped ($exit)")
                         }
                     }

@@ -46,7 +46,7 @@ export function ScreenEffectSettingsModal({ onClose }: { onClose: () => void }) 
 
     return (
         <div className="modal-overlay modal-overlay-bottom" onClick={onClose}>
-            <div className="modal-sheet screen-fx-sheet" onClick={e => e.stopPropagation()}>
+            <div data-adaptive-surface="card" className="modal-sheet screen-fx-sheet" onClick={e => e.stopPropagation()}>
                 <span className="screen-fx-grabber" aria-hidden="true" />
                 <div className="screen-fx-titles">
                     <h2 className="screen-fx-title">全屏特效</h2>

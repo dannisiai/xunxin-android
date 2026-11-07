@@ -367,7 +367,7 @@ export function CheckPhoneTakeoutPage({ character, onBack }: CheckPhoneTakeoutPa
         )}
 
         {activeOrder ? (
-          <div className="cp-takeout-detail-backdrop" onClick={() => setSelectedOrderId(null)}>
+          <div data-adaptive-surface="overlay" className="cp-takeout-detail-backdrop" onClick={() => setSelectedOrderId(null)}>
             <div className="cp-takeout-detail" onClick={(event) => event.stopPropagation()}>
               <div className="cp-takeout-detail-topbar" style={{ position: "sticky", top: 0, zIndex: 10, background: "#f5f5f5" }}>
                 <button type="button" onClick={() => setSelectedOrderId(null)} aria-label="返回">

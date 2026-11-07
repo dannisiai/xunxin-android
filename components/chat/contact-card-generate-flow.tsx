@@ -68,7 +68,7 @@ export function ContactCardGenerateFlow({
 
     return (
         <div className="modal-overlay" onClick={step === "generating" ? undefined : onClose}>
-            <div className="modal-dialog contact-card-flow-dialog" onClick={e => e.stopPropagation()}>
+            <div data-adaptive-surface="card" className="modal-dialog contact-card-flow-dialog" onClick={e => e.stopPropagation()}>
                 {step === "confirm" && (
                     <>
                         <div className="ts-16 font-semibold text-center text-[var(--c-text)]">生成角色档案</div>

@@ -19,7 +19,7 @@
 
 ## 运行要求
 
-- Node.js 20+（Next.js 15 要求 ≥ 18.18）
+- Node.js 24 LTS（当前固定 24.22.1，见 `.nvmrc`；项目依赖要求 `>=24.22.1 <25`）
 - 任意 OpenAI 兼容的 LLM API（OpenAI / DeepSeek / 中转站等），或 Anthropic / Google Gemini 官方 API
 
 ## 快速开始（本地运行）

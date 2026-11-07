@@ -945,10 +945,10 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
 
             {/* 材料详情 */}
             {detail ? (
-                <div className="mix-sheet-mask" onClick={() => setDetail(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setDetail(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         {detail.kind === "character" && detail.cover ? (
-                            <div className="mix-sheet-backdrop" style={{ backgroundImage: `url(${detail.cover})` }} />
+                            <div data-adaptive-surface="decoration" className="mix-sheet-backdrop" style={{ backgroundImage: `url(${detail.cover})` }} />
                         ) : null}
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">
@@ -1126,8 +1126,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
             {/* 创作者资料编辑 */}
             {connectorsOpen ? <MixConnectorSheet onClose={() => setConnectorsOpen(false)} onToast={showToast} /> : null}
             {profileOpen ? (
-                <div className="mix-sheet-mask" onClick={() => setProfileOpen(false)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setProfileOpen(false)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">创作者资料</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setProfileOpen(false)} aria-label="关闭"><X size={18} /></button>
@@ -1191,8 +1191,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
 
             {/* 编辑器 */}
             {editor ? (
-                <div className="mix-sheet-mask">
-                    <div className="mix-sheet" style={{ maxHeight: "92%" }}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask">
+                    <div data-adaptive-surface="card" className="mix-sheet" style={{ maxHeight: "92%" }}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">{editor.initial ? "编辑" : "自建"}{MIX_KIND_LABELS[editor.kind]}</div>
                             {/* 上传替换：改现成的件时先问一声，表单里已经有内容了 */}
@@ -1258,8 +1258,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
             ) : null}
 
             {slotPicker ? (
-                <div className="mix-sheet-mask" onClick={() => setSlotPicker(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setSlotPicker(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">挑一件{MIX_KIND_LABELS[slotPicker]}</div>
                             {slotPicker !== "character" && mixSlotEntries(barSlots, slotPicker).length ? (
@@ -1334,8 +1334,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
 
             {/* 命名并保存特调 */}
             {nameSheetOpen ? (
-                <div className="mix-sheet-mask" onClick={() => setNameSheetOpen(false)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setNameSheetOpen(false)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">给这杯特调命名</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setNameSheetOpen(false)} aria-label="关闭"><X size={18} /></button>
@@ -1359,8 +1359,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
 
             {/* 特调更多操作 */}
             {recipeMenu ? (
-                <div className="mix-sheet-mask" onClick={() => setRecipeMenu(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setRecipeMenu(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">{recipeMenu.name}</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setRecipeMenu(null)} aria-label="关闭"><X size={18} /></button>
@@ -1506,8 +1506,8 @@ export function MixologyApp({ onClose }: { onClose: () => void }) {
 
             {/* 开场白选择 */}
             {openingPicker && openingCard?.kind === "character" ? (
-                <div className="mix-sheet-mask" onClick={() => setOpeningPicker(null)}>
-                    <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={() => setOpeningPicker(null)}>
+                    <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                         <div className="mix-sheet-head">
                             <div className="mix-sheet-title">选一段开场</div>
                             <button type="button" className="mix-icon-btn" onClick={() => setOpeningPicker(null)} aria-label="关闭"><X size={18} /></button>

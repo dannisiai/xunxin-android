@@ -5,7 +5,7 @@ import type { WorldSkeleton, WorldSkeletonInput, EventScene, GameSave, WorldNPC,
 import { STAT_LABELS, ALL_STATS } from "./map-types";
 import { simpleLLMCall } from "./api-helpers";
 import { previewMessagesForApi, sendLLMRequest } from "./chat-engine";
-import type { ApiConfig } from "./settings-types";
+import type { ApiConfig, UserIdentity } from "./settings-types";
 import { loadCharacters } from "./character-storage";
 import { resolveBinding, loadBindingConfig, loadPresets, loadWorldBooks, loadRegexes, resolveUserIdentity, loadApiConfigs } from "./settings-storage";
 import { assemblePromptPayload, type LLMMessage } from "./llm-prompt-assembler";
@@ -931,7 +931,7 @@ export async function companionDeclare(
   characterId: string,
   _apiConfigFallback: ApiConfig,
   streamLog?: import("./map-types").StreamMessage[],
-  overrideUserIdentity?: import("../components/settings/user-identity").UserIdentity | null,
+  overrideUserIdentity?: UserIdentity | null,
   overrideAffinity?: number,
   options?: { instruction?: string },
 ): Promise<Declaration> {
@@ -990,7 +990,7 @@ async function buildCompanionDeclarePromptPayload(
   characterId: string,
   apiConfigFallback?: ApiConfig | null,
   streamLog?: import("./map-types").StreamMessage[],
-  overrideUserIdentity?: import("../components/settings/user-identity").UserIdentity | null,
+  overrideUserIdentity?: UserIdentity | null,
   overrideAffinity?: number,
   options?: { instruction?: string },
 ) {
@@ -1064,7 +1064,7 @@ async function buildCompanionDeclarePromptPayload(
 export async function previewAdventureCompanionPromptPayload(
   characterId: string,
   streamLog?: import("./map-types").StreamMessage[],
-  overrideUserIdentity?: import("../components/settings/user-identity").UserIdentity | null,
+  overrideUserIdentity?: UserIdentity | null,
   overrideAffinity?: number,
   options?: { instruction?: string },
 ): Promise<{ messages: LLMMessage[]; characterName: string; model: string; presetName: string }> {

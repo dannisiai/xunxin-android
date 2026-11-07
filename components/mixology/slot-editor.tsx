@@ -89,8 +89,8 @@ function ConditionSheet({
     const canSave = form !== "var" || Boolean(varName.trim() && varValue.trim());
 
     return (
-        <div className="mix-sheet-mask" onClick={onClose}>
-            <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={onClose}>
+            <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                 <div className="mix-sheet-head">
                     <div className="mix-sheet-title">什么时候出现</div>
                     <button type="button" className="mix-icon-btn" onClick={onClose} aria-label="关闭"><X size={18} /></button>
@@ -370,8 +370,8 @@ export function MixSlotEditor({
 
     return (
         <>
-            <div className="mix-sheet-mask" onClick={onClose}>
-                <div className="mix-sheet" onClick={(e) => e.stopPropagation()}>
+            <div data-adaptive-surface="overlay" className="mix-sheet-mask" onClick={onClose}>
+                <div data-adaptive-surface="card" className="mix-sheet" onClick={(e) => e.stopPropagation()}>
                     <div className="mix-sheet-head">
                         <div className="mix-sheet-title">这一格的{MIX_KIND_LABELS[kind]}</div>
                         {onCreate ? (

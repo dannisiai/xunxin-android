@@ -738,7 +738,7 @@ export function DiaryEntriesApp({ onBack, onNotice }: DiaryEntriesAppProps) {
       ) : null}
 
       {deleteCandidateEntry ? (
-        <div
+        <div data-adaptive-surface="overlay"
           className="nw-modal-backdrop"
           role="dialog"
           aria-modal="true"
@@ -772,7 +772,7 @@ export function DiaryEntriesApp({ onBack, onNotice }: DiaryEntriesAppProps) {
       </div>
 
       {entryDrag ? (
-        <div
+        <div data-adaptive-surface="decoration"
           className="diary-entry-card diary-entry-drag-ghost"
           style={{
             left: entryDrag.x,
@@ -899,7 +899,7 @@ function DiaryEntryFontPanel({
   onClose: () => void;
 }) {
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <section className="diary-font-panel" onClick={event => event.stopPropagation()}>
         <header>
           <div>
@@ -958,7 +958,7 @@ function DiaryEntryTimerSettingsPanel({ characters, settings, generatingCharacte
   };
 
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <section className="diary-entry-settings" onClick={event => event.stopPropagation()}>
         <header>
           <div>
@@ -1040,7 +1040,7 @@ function DiaryEntryWritePanel({ characters, generatingCharacterIds, onGenerateMa
   };
 
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <section className="diary-entry-settings diary-entry-write-panel" onClick={event => event.stopPropagation()}>
         <header>
           <div>
@@ -1116,7 +1116,7 @@ function CharacterAvatarGrid({ characters, selectedIds, busyIds, disabled, onTog
 function DiaryEntryDetail({ entry, onClose }: { entry: DiaryEntry; onClose: () => void }) {
   const markers = getEntryMarkers(entry);
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <article className="diary-entry-detail-paper" onClick={(event) => event.stopPropagation()}>
         <span className="diary-entry-paper-clip" aria-hidden="true">
           <span />

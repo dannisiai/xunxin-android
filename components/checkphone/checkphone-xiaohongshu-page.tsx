@@ -1161,8 +1161,8 @@ export function CheckPhoneXiaohongshuPage({ character, onBack }: CheckPhoneXiaoh
             </footer>
 
             {videoCommentsOpen ? (
-              <div className="cp-xhs-video-comments-backdrop" onClick={() => setVideoCommentsOpen(false)}>
-                <section className="cp-xhs-video-comments-sheet" onClick={(event) => event.stopPropagation()}>
+              <div data-adaptive-surface="overlay" className="cp-xhs-video-comments-backdrop" onClick={() => setVideoCommentsOpen(false)}>
+                <section data-adaptive-surface="card" className="cp-xhs-video-comments-sheet" onClick={(event) => event.stopPropagation()}>
                   <div className="cp-xhs-video-comments-handle" aria-hidden="true" />
                   <header>
                     <strong>评论 {formatCount(activeNoteEngagementCounts?.commentCount ?? activeNote.commentCount)}</strong>

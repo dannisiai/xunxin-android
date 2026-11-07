@@ -281,7 +281,7 @@ export default function MusicApp({ onClose }: Props) {
         <div className="music-app" style={appBgStyle(bgCfg)} {...(player.currentTrack ? { "data-nowbar": "" } : {})}>
             {customCss && <SessionCustomCSS css={customCss} scope=".music-app" />}
             {musicToast && (
-                <div className="music-toast-overlay">
+                <div data-adaptive-surface="content" className="music-toast-overlay">
                     <div className="music-toast-chip">
                         {musicToast === "加载音乐中..." ? (
                             <span className="ui-loading-toast-content">
@@ -486,8 +486,8 @@ export default function MusicApp({ onClose }: Props) {
 
             {/* Settings Modal */}
             {showSettings && (
-                <div className="music-settings-modal-overlay" onClick={() => setShowSettings(false)}>
-                    <div className="music-settings-modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="music-settings-modal-overlay" onClick={() => setShowSettings(false)}>
+                    <div data-adaptive-surface="card" className="music-settings-modal-dialog" onClick={(e) => e.stopPropagation()}>
                         <MusicSettingsTab onBack={() => setShowSettings(false)} onSaved={onSettingsSaved} />
                     </div>
                 </div>
@@ -495,8 +495,8 @@ export default function MusicApp({ onClose }: Props) {
 
             {/* CSS Editor Modal */}
             {showCssEditor && (
-                <div className="music-settings-modal-overlay" onClick={() => setShowCssEditor(false)}>
-                    <div className="music-settings-modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="music-settings-modal-overlay" onClick={() => setShowCssEditor(false)}>
+                    <div data-adaptive-surface="card" className="music-settings-modal-dialog" onClick={(e) => e.stopPropagation()}>
                         <MusicCssEditor onClose={() => setShowCssEditor(false)} onSave={setCustomCss} />
                     </div>
                 </div>
@@ -580,7 +580,7 @@ function RecommendTab({ formatTime, onPlayNetease, onPlayAll, onGoSearch, onOpen
                     {dailySongs.length > 0 && (
                         <div className="music-daily-card" onClick={() => onOpenDaily(dailySongs)}>
                             {dailyCover && <img src={dailyCover} alt="" className="music-daily-bg" />}
-                            <div className="music-daily-mask" />
+                            <div data-adaptive-surface="decoration" className="music-daily-mask" />
                             <div className="music-daily-inner">
                                 <span className="music-daily-date">每日推荐 · {today.getMonth() + 1} / {today.getDate()}</span>
                                 <div>
@@ -1166,7 +1166,7 @@ function SongList({ tracks, player, formatTime, onDelete, onPlay }: {
                                 </div>
                             )}
                             {isCurrent && player.isPlaying && (
-                                <div className="music-song-playing-overlay">
+                                <div data-adaptive-surface="decoration" className="music-song-playing-overlay">
                                     <div className="music-wave">{[0, 1, 2, 3].map(i => <span key={i} className="music-wave-bar" style={{ animationDelay: `${i * 0.15}s` }} />)}</div>
                                 </div>
                             )}
@@ -1189,8 +1189,8 @@ function SongList({ tracks, player, formatTime, onDelete, onPlay }: {
 
             {/* Delete confirm modal */}
             {deleteTarget && (
-                <div className="music-settings-modal-overlay" onClick={() => setDeleteTarget(null)}>
-                    <div className="music-settings-modal-dialog music-confirm-dialog" onClick={e => e.stopPropagation()}>
+                <div data-adaptive-surface="overlay" className="music-settings-modal-overlay" onClick={() => setDeleteTarget(null)}>
+                    <div data-adaptive-surface="card" className="music-settings-modal-dialog music-confirm-dialog" onClick={e => e.stopPropagation()}>
                         <div className="music-settings-header"><h2>删除确认</h2></div>
                         <div className="music-settings-body">
                             <div className="music-confirm-text">确定删除「{deleteTarget.title}」吗？</div>

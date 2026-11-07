@@ -1,0 +1,589 @@
+/* Chat-specific bilingual prompt settings. */
+.chat-bilingual-prompt-dialog {
+  width: min(520px, 88vw);
+  max-width: 520px;
+  align-items: stretch;
+}
+
+.chat-bilingual-prompt-textarea {
+  min-height: 260px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  line-height: 1.5;
+}
+
+.chat-bilingual-prompt-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: min(62vh, 620px);
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.chat-bilingual-prompt-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-bilingual-prompt-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chat-bilingual-prompt-title {
+  font-size: calc(12.5px*var(--app-text-scale,1));
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.chat-bilingual-prompt-desc {
+  margin-top: 2px;
+  font-size: calc(10.5px*var(--app-text-scale,1));
+  color: var(--c-muted);
+}
+
+.chat-bilingual-prompt-reset {
+  flex: 0 0 auto;
+  border: 0;
+  background: rgba(132, 160, 255, 0.12);
+  color: var(--c-action-blue);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: calc(10.5px*var(--app-text-scale,1));
+  font-weight: 700;
+}
+
+.chat-bilingual-prompt-textarea--split {
+  min-height: 150px;
+}
+
+/* ── Context menu role positioning ── */
+.ctx-menu[data-role="user"] {
+  left: auto;
+  right: 0;
+}
+.ctx-menu[data-role="assistant"] {
+  left: 0;
+  right: auto;
+}
+.ctx-menu[data-role="user"] .ctx-menu-triangle {
+  left: auto;
+  right: 20px;
+}
+.ctx-menu[data-role="assistant"] .ctx-menu-triangle {
+  left: 20px;
+  right: auto;
+}
+
+/* ── Emoji panel tabs ── */
+.emoji-tab {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: calc(11.7px*var(--app-text-scale,1));
+  background: transparent;
+  font-weight: 400;
+  color: var(--c-icon);
+  border-bottom: 2px solid transparent;
+}
+.emoji-tab[data-active] {
+  font-weight: 600;
+  color: var(--c-text-title);
+  border-bottom-color: var(--c-success);
+}
+
+/* ── Emoji category pill ── */
+.emoji-category-pill {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 16px;
+  font-size: calc(10.8px*var(--app-text-scale,1));
+  cursor: pointer;
+  white-space: nowrap;
+  background: transparent;
+  color: var(--c-text);
+}
+.emoji-category-pill[data-active] {
+  background: var(--c-page-body-bg);
+  color: var(--c-text-title);
+}
+
+/* ── Call subtitle bubble (shared by voice + video) ── */
+.call-subtitle .call-subtitle-bilingual,
+.gcall-subtitle-bubble .call-subtitle-bilingual {
+  gap: 4px;
+}
+.call-subtitle .call-subtitle-bilingual .chat-bilingual-toggle,
+.gcall-subtitle-bubble .call-subtitle-bilingual .chat-bilingual-toggle {
+  color: rgba(255,255,255,0.72);
+  text-decoration-color: rgba(255,255,255,0.22);
+}
+.call-subtitle .call-subtitle-bilingual .chat-bilingual-divider,
+.gcall-subtitle-bubble .call-subtitle-bilingual .chat-bilingual-divider {
+  border-top-color: rgba(255,255,255,0.22);
+}
+.call-subtitle .call-subtitle-bilingual .chat-bilingual-section-translation,
+.gcall-subtitle-bubble .call-subtitle-bilingual .chat-bilingual-section-translation {
+  font-size: 0.88em;
+  opacity: 0.86;
+}
+
+.call-stt-warning-dialog {
+  width: min(340px, 86vw);
+  max-width: 340px;
+  align-items: stretch;
+}
+
+.call-stt-warning-dialog .modal-body,
+.call-stt-warning-dialog .modal-body p {
+  text-align: left;
+}
+
+.call-stt-warning-dialog .modal-footer {
+  display: flex;
+}
+
+/* ── Voice call subtitle mask ── */
+.voicecall-subtitle-mask {
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+/* Bottom-align messages without `justify-content:flex-end`, which clips the
+   top of overflowing content and makes it impossible to scroll up. */
+.voicecall-subtitle-mask > :first-child {
+  margin-top: auto;
+}
+/* In text-input mode the input bar floats over the bottom of this area; reserve
+   space so the newest message isn't hidden behind it. */
+.voicecall-subtitle-mask[data-text-input] {
+  padding-bottom: 56px;
+}
+
+/* ── Voice call avatar ── */
+.voicecall-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255,255,255,0.3);
+  background: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.1);
+  transition: box-shadow 0.3s ease;
+}
+.voicecall-avatar[data-speaking] {
+  box-shadow: 0 0 0 8px rgba(255,255,255,0.15), 0 0 0 16px rgba(255,255,255,0.08);
+  animation: voicecall-avatar-pulse 1s ease-in-out infinite;
+}
+
+/* ── Call background ── */
+.call-bg-default {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+.call-overlay {
+  background: transparent;
+}
+.call-overlay[data-has-image] {
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Video call series ── */
+.videocall-bg-blur {
+  position: absolute;
+  inset: 0;
+  transform: scale(1.15);
+  background-size: cover;
+  background-position: center;
+  filter: blur(20px) brightness(0.4);
+}
+.videocall-self-cam {
+  position: absolute;
+  right: 16px;
+  width: 90px;
+  height: 120px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-page-body-bg) 20%, black);
+  z-index: 10;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  top: max(50px, env(safe-area-inset-top));
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--c-overlay) 60%, transparent);
+  border: 2px solid color-mix(in srgb, var(--c-card-border) 25%, transparent);
+}
+.call-subtitle {
+  padding: 6px 14px;
+  border-radius: 8px;
+  max-width: 80%;
+  font-size: calc(12.6px*var(--app-text-scale,1));
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--c-overlay) 50%, transparent);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  word-break: break-word;
+  line-height: 1.5;
+}
+.call-subtitle-sender {
+  font-size: calc(9.9px*var(--app-text-scale,1));
+  opacity: 0.72;
+  margin-bottom: 2px;
+}
+.call-subtitle[data-role="user"] {
+  align-self: flex-end;
+  background: color-mix(in srgb, var(--c-success) 70%, transparent);
+}
+.call-subtitle[data-role="assistant"] {
+  align-self: flex-start;
+  background: color-mix(in srgb, var(--c-overlay) 70%, transparent);
+}
+.call-subtitle[data-interim] {
+  align-self: flex-end;
+  opacity: 0.7;
+  background: color-mix(in srgb, var(--c-success) 50%, transparent);
+}
+
+.call-text-input-panel {
+  z-index: 14;
+  width: 100%;
+  padding: 0 18px 8px;
+  flex-shrink: 0;
+}
+
+.call-text-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.call-text-input-row .call-text-input-shell {
+  flex: 1;
+  width: auto;
+}
+
+.call-regenerate-btn {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(20, 20, 24, 0.34);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.call-regenerate-btn:disabled {
+  opacity: 0.36;
+  cursor: default;
+}
+
+/* ── 左上角返回键（缩小通话为悬浮窗） ── */
+.call-back-btn {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  left: 14px;
+  z-index: 20;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.call-back-btn:active {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* ── 缩小后的悬浮通话窗口（左侧，仅背景+名字） ── */
+.call-mini-window {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 90;
+  width: 84px;
+  height: 112px;
+  padding: 0;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  overflow: hidden;
+  background-color: #1a1a2e;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: flex-end;
+  cursor: pointer;
+}
+.call-mini-window-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0) 55%);
+}
+.call-mini-window-name {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 6px 6px;
+  color: #fff;
+  font-size: calc(11.7px * var(--app-text-scale, 1));
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.call-keyboard-shift {
+  transform: translateY(calc(var(--call-keyboard-offset, 0px) * -1));
+  transition: transform 180ms ease;
+  will-change: transform;
+}
+
+.videocall-text-input-panel {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: calc(max(30px, env(safe-area-inset-bottom, 0px)) + 152px);
+  width: auto;
+  padding: 0;
+}
+
+.gcall-video-text-input-panel {
+  bottom: calc(max(30px, env(safe-area-inset-bottom, 0px)) + 96px);
+}
+
+/* 安卓单聊视频只有一排按钮（iOS 是两排），输入框相应放低 */
+.videocall-text-input-panel-android {
+  bottom: calc(max(30px, env(safe-area-inset-bottom, 0px)) + 92px);
+}
+
+.voicecall-text-input-panel {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 112px);
+  width: auto;
+  padding: 0;
+}
+
+.gcall-root[data-text-input] .gcall-text-input-panel {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 132px);
+}
+
+.call-text-input-shell {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px 7px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(20, 20, 24, 0.34);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.call-text-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+  font-size: calc(13.5px*var(--app-text-scale,1));
+  line-height: 1.35;
+}
+
+.call-text-input::placeholder {
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.call-text-input:disabled {
+  opacity: 0.62;
+}
+
+.call-text-send-btn {
+  width: 32px;
+  height: 28px;
+  border: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.call-text-send-btn:disabled {
+  opacity: 0.36;
+  cursor: default;
+}
+
+.videocall-controls-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  padding: 20px;
+  padding-bottom: max(30px, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, color-mix(in srgb, var(--c-overlay) 70%, transparent) 0%, transparent 100%);
+}
+.videocall-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  grid-auto-rows: auto;
+  justify-content: center;
+  justify-items: center;
+  align-items: center;
+  gap: 18px 36px;
+}
+.call-subtitles-log {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(max(30px, env(safe-area-inset-bottom, 0px)) + 172px);
+  max-height: min(38dvh, 300px);
+  z-index: 10;
+  padding: 22px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  mask-image: none;
+  -webkit-mask-image: none;
+}
+.call-subtitles-log-video {
+  bottom: calc(max(30px, env(safe-area-inset-bottom, 0px)) + 170px);
+}
+.call-subtitles-log::-webkit-scrollbar {
+  width: 4px;
+}
+.call-subtitles-log::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+.videocall-toast {
+  position: absolute;
+  bottom: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.78);
+  color: rgba(255, 255, 255, 0.92);
+  font-size: calc(12.5px*var(--app-text-scale,1));
+  letter-spacing: 0.3px;
+  pointer-events: none;
+  animation: videocall-toast-in 200ms ease-out;
+}
+@keyframes videocall-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+.videocall-name {
+  text-shadow: 0 1px 4px color-mix(in srgb, var(--c-overlay) 60%, transparent);
+}
+
+/* ── Group video grid tiles ── */
+.gcall-video-root {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.gcall-video-root > .grid[data-cols="1"] { grid-template-columns: 1fr; }
+.gcall-video-root > .grid[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
+.gcall-video-root > .grid[data-cols="3"] { grid-template-columns: repeat(3, 1fr); }
+.gcall-video-root > .grid { grid-auto-rows: 1fr; background: black; }
+.gcall-video-tile {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c-page-body-bg) 10%, black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gcall-video-tile-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--c-page-body-bg), color-mix(in srgb, var(--c-page-body-bg) 30%, black));
+}
+.gcall-video-tile-self {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--c-page-body-bg) 15%, black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gcall-video-tile-name {
+  position: absolute;
+  bottom: 4px;
+  left: 6px;
+  font-size: calc(9.9px*var(--app-text-scale,1));
+  padding: 1px 6px 2px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--c-overlay) 50%, transparent);
+}
+.gcall-video-speaking-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--c-success);
+  pointer-events: none;
+  animation: voicecall-pulse 1.5s ease-in-out infinite;
+}
+.gcall-video-avatar-dim {
+  opacity: 0.4;
+}
+.gcall-video-avatar-bright {
+  opacity: 0.9;
+}

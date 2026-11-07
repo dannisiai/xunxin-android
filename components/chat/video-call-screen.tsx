@@ -636,7 +636,7 @@ export function VideoCallScreen({ session, character, onEnd, onConnect, initiato
                 aria-label={`返回与${character.name}的视频通话`}
                 title="点击返回通话"
             >
-                <span className="call-mini-window-overlay" />
+                <span data-adaptive-surface="decoration" className="call-mini-window-overlay" />
                 <span className="call-mini-window-name">{character.name}</span>
             </button>
         );

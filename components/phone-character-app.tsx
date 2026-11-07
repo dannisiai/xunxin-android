@@ -454,7 +454,7 @@ function FlipTransitionOverlay({ transit }: { transit: TransitionState }) {
   const duration = isStart ? "0s" : "0.4s";
 
   return (
-    <div
+    <div data-adaptive-surface="content"
       className="char-flipper-container fixed"
       style={{
         top: currentTop,
@@ -2873,8 +2873,8 @@ function CharArchiveView({
       {archiveFrame}
 
       {showSaveVersionConfirm && (
-        <div className="fixed inset-0 z-[10020] flex items-center justify-center bg-black/45 px-5" role="dialog" aria-modal="true" aria-label="保存角色卡">
-          <div className="w-full max-w-sm rounded-2xl border border-[var(--c-panel-border)] bg-[var(--c-page-body-bg)] p-5 text-[var(--c-text)] shadow-2xl">
+        <div data-adaptive-surface="overlay" className="fixed inset-0 z-[10020] flex items-center justify-center bg-black/45 px-5" role="dialog" aria-modal="true" aria-label="保存角色卡">
+          <div data-adaptive-surface="card" className="w-full max-w-sm rounded-2xl border border-[var(--c-panel-border)] bg-[var(--c-page-body-bg)] p-5 text-[var(--c-text)] shadow-2xl">
             <div className="text-base font-bold">保存角色卡</div>
             <p className="mt-2 ts-12 leading-relaxed opacity-75">
               当前是 V{getCharacterCurrentVersion(char.id)}。你可以先保存修改前的旧卡，也可以覆盖当前版本。
@@ -2913,7 +2913,7 @@ function CharArchiveView({
       )}
 
       {showVersions && (
-        <div
+        <div data-adaptive-surface="overlay"
           className="fixed inset-0 z-[10020] flex items-end justify-center bg-black/45 sm:items-center sm:px-5"
           role="dialog"
           aria-modal="true"
@@ -2922,7 +2922,7 @@ function CharArchiveView({
             if (event.target === event.currentTarget) setShowVersions(false);
           }}
         >
-          <div className="max-h-[78vh] w-full max-w-md overflow-hidden rounded-t-2xl border border-[var(--c-panel-border)] bg-[var(--c-page-body-bg)] text-[var(--c-text)] shadow-2xl sm:rounded-2xl">
+          <div data-adaptive-surface="card" className="max-h-[78vh] w-full max-w-md overflow-hidden rounded-t-2xl border border-[var(--c-panel-border)] bg-[var(--c-page-body-bg)] text-[var(--c-text)] shadow-2xl sm:rounded-2xl">
             <div className="flex items-center justify-between border-b border-[var(--c-panel-border)] px-5 py-4">
               <div>
                 <div className="font-bold">历史版本</div>
@@ -3013,13 +3013,13 @@ function CharArchiveView({
       )}
 
       {isEditing && showTimeZonePicker && (
-        <div
+        <div data-adaptive-surface="overlay"
           className="char-timezone-sheet-backdrop"
           onPointerDown={e => {
             if (e.target === e.currentTarget) closeTimeZonePicker();
           }}
         >
-          <div className="char-timezone-sheet" role="dialog" aria-modal="true" aria-label="时区选择">
+          <div data-adaptive-surface="card" className="char-timezone-sheet" role="dialog" aria-modal="true" aria-label="时区选择">
             <div className="char-timezone-sheet-header">
               <span>角色时区</span>
               <button type="button" onClick={closeTimeZonePicker}>关闭</button>

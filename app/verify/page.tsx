@@ -117,7 +117,7 @@ export default function VerifyPage() {
   }
 
   return (
-    <main className="vr-root">
+    <main data-adaptive-surface="content" className="vr-root">
       <div className="vr-brand">Float</div>
       <div className="vr-brand-sub">内测资格申请 · Adult Verification</div>
 

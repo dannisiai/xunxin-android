@@ -178,7 +178,7 @@ function CameraFrameWidget({ config, widgetId, onConfigChange, preview }: any) {
         className="wg-cf-bg" 
         style={bgUrl ? { backgroundImage: `url(${bgUrl})` } : { backgroundColor: 'transparent' }}
       />
-      <div 
+      <div data-adaptive-surface="decoration" 
         className="wg-cf-overlay" 
         style={{ backgroundImage: `url('/widgets/19老橙子素材.png')` }}
       />
@@ -2076,7 +2076,7 @@ function PostcardWidget({ config, widgetId, onConfigChange, preview }: any) {
       style={bgUrl ? { backgroundImage: `url(${bgUrl})` } : {}}
     >
       {input}
-      <div 
+      <div data-adaptive-surface="decoration" 
         className="wg-pc-overlay"
         onClick={preview ? undefined : () => triggerUpload()} 
         title="点击更换全画幅底图"

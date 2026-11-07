@@ -66,17 +66,23 @@ base64 -w0 shell.keystore   # 得到一长串 base64
    代价。不想看到可以长按它 → 把「后台连接」这个通知渠道关掉显示，
    **不要关「角色消息」渠道**。
 
-### 真实小红书透明外框
+### AI 伴侣一起刷小红书 / 抖音
 
-此功能需要安装包含该功能的新版本安卓壳，以及手机内已安装的小红书 App。
-进入小手机「小红书」→「浏览真实小红书网页」→「用透明外框打开小红书 App」。
-首次使用时，系统会要求允许小手机显示在其他应用上层；授权后返回即可继续。
-真实小红书仍是独立 App，外框中心透明，操作会落到下方 App；点击右上角的 ×
-或通知栏中的「关闭外框」可关闭。外框不会把下方 App 的内容缩放到框里。
-显示和触摸效果可能因 Android 版本、厂商或应用的悬浮窗限制而不同。
+需要包含此功能的 1.2.0 或更新版安卓壳，手机中安装对应 App，并给角色配置支持识图的模型。
+点击桌面「小红书」或「抖音」，会带当前已召唤的角色直接打开真实 App；尚未召唤角色时，
+先在入口选择角色。抖音图标会通过原有桌面布局补全机制加入已有用户的桌面。
 
-透明层窗口参数改编自 [Floating Ghost Image](https://github.com/rvoidex7/floating-ghost-image)
-（MIT，版权及完整许可见 `third-party/FloatingGhostImage-LICENSE.txt`，同时包含在 APK assets 中）。
+首次启动陪伴需允许悬浮窗和系统屏幕共享。开启后显示角色头像，拖动可移动位置，
+点击会临时隐藏自己的悬浮窗，再截取当前屏幕交给原有角色聊天链路生成回复。
+回复在原 App 上方的小面板显示，也同步保留在该角色原有聊天记录中；可以继续输入文字，
+或点「看看当前屏幕」重新读取。截图发往用户自己配置的模型 API，受保护的页面无法读取。
+点击面板「收起」可继续浏览，点击 ×、通知栏「关闭陪伴」或系统停止共享均可结束陪伴。
+若小手机被系统关闭，需返回重新启动陪伴。网页版入口会提示使用新版安卓 App。
+
+截图取帧和行填充处理复用并改编自 [ScreenSeek](https://github.com/hashierholmes/ScreenSeek)
+的 `ScreenCaptureService.java`（MIT，完整许可见 `third-party/ScreenSeek-LICENSE.txt`，同时包含在 APK assets 中）。
+保留同一个 MediaProjection / VirtualDisplay，仅在用户点击时连接截图 Surface，
+以适配 Android 14 起的单次授权使用规则。角色、人设、API、聊天和记忆均沿用现有应用实现。
 
 设置 → 离线推送里点「测试」：杀掉后台，约 6 秒后应收到系统通知即为连通。
 
@@ -121,3 +127,16 @@ android-shell/
 - `supabase/functions/push-generate/index.ts` 需要是包含 shellpush 广播的最新版
   （改动后需重新部署边缘函数）。
 - Realtime 广播用 service key 直接调 HTTP API，无需额外建表或改配置。
+
+## 独立安卓版的 Node 运行时
+
+独立 APK 的网页服务在手机内运行 Node.js Mobile；线上 WebView 壳不启动 Node。本项目固定使用 Node.js **24.22.1**，对应安卓完整包 **24.22.1-0**，主项目与安卓打包副本采用相同配置。
+
+- `.nvmrc` 固定构建机 Node 版本；`package.json` 和锁文件声明 Node 24 范围。
+- `node-runtime.json` 固定完整运行时下载地址、SHA-256、ABI、NDK r27d 与 CMake 版本。
+- 构建前运行 `python3 scripts/install-android-node.py --install-toolchain`，下载并安装匹配的运行时及原生工具链。安装器先核对 SHA-256、头文件版本和目标 ABI，再替换 `app/libnode`。
+- 本地已有完整 ZIP 时，可在项目根目录运行 `python scripts/install-android-node.py --archive <完整包路径>`，只安装该运行时，不构建应用。
+- APK 保留 `arm64-v8a` 和 `x86_64`；JNI 使用 C++20、共享 C++ 标准库及 16 KB 链接对齐；Node 启动前设置应用私有缓存目录为 `TMPDIR`。
+- 上游 `fogtape/nodejs-mobile` 将 24.22.1-0 标记为预发布版。此次只完成版本配置、文件安装和静态核对，没有运行测试、构建或生成新 APK，不能视为真机兼容性验证。
+
+参考：[移动端发布包](https://github.com/fogtape/nodejs-mobile/releases/tag/v24.22.1-0)、[原生嵌入说明](https://github.com/fogtape/nodejs-mobile/blob/recipe/docs/EMBEDDING.md)、[Android 16 KB 对齐](https://developer.android.com/guide/practices/page-sizes)。

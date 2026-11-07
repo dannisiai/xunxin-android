@@ -552,7 +552,7 @@ export function PhoneCalendarApp({
           />
         )}
 
-        {fabMenuOpen ? <div className="calendar-fab-backdrop" onClick={() => setFabMenuOpen(false)} /> : null}
+        {fabMenuOpen ? <div data-adaptive-surface="decoration" className="calendar-fab-backdrop" onClick={() => setFabMenuOpen(false)} /> : null}
         <div className="calendar-fab-stack">
           {fabMenuOpen && selectedOwner?.ownerType === "character" ? (
             <div className="calendar-fab-menu" role="menu">
@@ -862,7 +862,7 @@ export function PhoneCalendarApp({
 
       {showGenerateConfirm && selectedOwner && (
         <div className="modal-overlay calendar-edit-modal-overlay" onClick={() => setShowGenerateConfirm(false)}>
-          <div className="calendar-edit-modal calendar-confirm-dialog" onClick={e => e.stopPropagation()}>
+          <div data-adaptive-surface="card" className="calendar-edit-modal calendar-confirm-dialog" onClick={e => e.stopPropagation()}>
             <Wand2 size={26} className="calendar-confirm-icon" />
             <div className="calendar-confirm-title">确认生成日程？</div>
             <div className="calendar-confirm-desc">
@@ -888,7 +888,7 @@ export function PhoneCalendarApp({
 
       {showAutoConfirm && selectedOwner && (
         <div className="modal-overlay calendar-edit-modal-overlay" onClick={() => setShowAutoConfirm(false)}>
-          <div className="calendar-edit-modal calendar-confirm-dialog" onClick={e => e.stopPropagation()}>
+          <div data-adaptive-surface="card" className="calendar-edit-modal calendar-confirm-dialog" onClick={e => e.stopPropagation()}>
             <Bot size={26} className="calendar-confirm-icon" />
             <div className="calendar-confirm-title">
               {autoGenerateEnabled ? "关闭自动生成？" : "开启自动生成？"}

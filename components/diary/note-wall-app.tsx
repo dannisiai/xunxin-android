@@ -1117,7 +1117,7 @@ export function NoteWallApp({ onBack, onNotice }: NoteWallAppProps) {
       </div>
 
       {noteDrag ? (
-        <div
+        <div data-adaptive-surface="decoration"
           className="note-card note-card-drag-ghost"
           data-paper={noteDrag.note.paper}
           data-tape={noteDrag.note.tape}
@@ -1184,7 +1184,7 @@ export function NoteWallApp({ onBack, onNotice }: NoteWallAppProps) {
       ) : null}
 
       {deleteCandidateNote ? (
-        <div
+        <div data-adaptive-surface="overlay"
           className="nw-modal-backdrop"
           role="dialog"
           aria-modal="true"
@@ -1218,7 +1218,7 @@ export function NoteWallApp({ onBack, onNotice }: NoteWallAppProps) {
       ) : null}
 
       {deleteCandidateComment ? (
-        <div
+        <div data-adaptive-surface="overlay"
           className="nw-modal-backdrop"
           role="dialog"
           aria-modal="true"
@@ -1358,7 +1358,7 @@ function NoteComposer({ draft, userName, submitting, onChange, onClose, onSubmit
   const previewDate = formatCardDate(new Date().toISOString());
 
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true">
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true">
       <section className="nw-composer">
         <header>
           <h2>{draft.id ? "编辑便签" : "写新便签"}</h2>
@@ -1535,7 +1535,7 @@ function NoteDetail({ note, actorId, userName, onNotice, onClose }: {
   const hasComments = comments.length > 0;
 
   return (
-    <div className="nw-modal-backdrop nw-detail-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop nw-detail-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <article className="nw-detail" data-font={note.font} style={fontStyle(note.font)} onClick={event => event.stopPropagation()}>
         <header>
           <span>{note.authorType === "character" ? "角色便签" : "用户便签"}</span>
@@ -1660,7 +1660,7 @@ function TimerSettingsPanel({ characters, settings, generatingCharacterIds, repl
   };
 
   return (
-    <div className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="nw-modal-backdrop" role="dialog" aria-modal="true" onClick={onClose}>
       <section className="nw-timer-panel" onClick={event => event.stopPropagation()}>
         <header>
           <div>

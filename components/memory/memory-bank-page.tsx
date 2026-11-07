@@ -585,7 +585,7 @@ export function MemoryBankPage({ view, selectedCharId, onSelectChar, onNotice }:
                     </div>
                 )}
                 {entryMenuId && (
-                    <button
+                    <button data-adaptive-surface="decoration"
                         className="mem-entry-menu-backdrop"
                         aria-label="关闭菜单"
                         onClick={() => setEntryMenuId(null)}
@@ -630,7 +630,7 @@ export function MemoryBankPage({ view, selectedCharId, onSelectChar, onNotice }:
                                             <MoreHorizontal size={18} />
                                         </button>
                                         {entryMenuId === entry.id && (
-                                            <div className="mem-entry-menu" onClick={event => event.stopPropagation()}>
+                                            <div data-adaptive-surface="card" className="mem-entry-menu" onClick={event => event.stopPropagation()}>
                                                 <button onClick={() => openEditMemoryEditor(entry)}>
                                                     <Edit3 size={13} />
                                                     <span>编辑</span>
@@ -740,7 +740,7 @@ export function MemoryBankPage({ view, selectedCharId, onSelectChar, onNotice }:
                     const overLimit = contentLength > MANUAL_MEMORY_CONTENT_LIMIT;
                     return (
                         <div className="modal-overlay modal-overlay-bottom" data-ui="modal" onClick={() => savingMemory ? undefined : setMemoryEditor(null)}>
-                            <div className="modal-sheet mem-edit-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
+                            <div data-adaptive-surface="card" className="modal-sheet mem-edit-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
                                 <div className="modal-header" data-ui="modal-header">
                                     <button
                                         className="modal-header-btn modal-header-btn-muted"
@@ -919,7 +919,7 @@ export function MemoryBankPage({ view, selectedCharId, onSelectChar, onNotice }:
 
                 {sourcePickerOpen ? (
                     <div className="modal-overlay modal-overlay-bottom" data-ui="modal" onClick={() => setSourcePickerOpen(false)}>
-                        <div className="modal-sheet memory-source-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
+                        <div data-adaptive-surface="card" className="modal-sheet memory-source-sheet" data-ui="modal-sheet" onClick={event => event.stopPropagation()}>
                             <div className="modal-header" data-ui="modal-header">
                                 <span style={{ width: 28 }} />
                                 <h3 className="modal-title">记忆来源</h3>

@@ -348,7 +348,7 @@ export function CheckPhoneReadingPage({ character, onBack }: CheckPhoneReadingPa
       </div>
 
       {payload && activeBook && (
-        <div
+        <div data-adaptive-surface="overlay"
           className="cp-reading-book-modal-backdrop"
           role="presentation"
           onClick={() => setSelectedBookId(null)}

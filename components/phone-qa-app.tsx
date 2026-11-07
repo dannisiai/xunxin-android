@@ -461,7 +461,7 @@ function QaSessionDrawer({
   }, [sessions]);
 
   return (
-    <aside className="qa-drawer">
+    <aside data-adaptive-surface="card" className="qa-drawer">
       <div className="qa-drawer-head">
         <span className="qa-drawer-title">对话记录</span>
       </div>
@@ -611,7 +611,7 @@ function QaSettingsSheet({ onClose, onNotice }: { onClose: () => void; onNotice?
   };
 
   return (
-    <div className="qa-devnotice-backdrop" onClick={onClose}>
+    <div data-adaptive-surface="overlay" className="qa-devnotice-backdrop" onClick={onClose}>
       <div className="qa-devnotice" role="dialog" aria-label="工坊配置" onClick={(e) => e.stopPropagation()}>
         <div className="qa-devnotice-title">工坊配置</div>
         <label className="qa-settings-field">
@@ -731,8 +731,8 @@ function QaRepoSheet({ onClose, onSaved }: { onClose: () => void; onSaved: () =>
   }, [onSaved, onClose]);
 
   return (
-    <div className="qa-sheet-backdrop" onClick={onClose}>
-      <div className="qa-sheet" onClick={(e) => e.stopPropagation()}>
+    <div data-adaptive-surface="overlay" className="qa-sheet-backdrop" onClick={onClose}>
+      <div data-adaptive-surface="card" className="qa-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="qa-sheet-head">
           <span className="qa-sheet-title">
             <Github size={16} /> 连接 GitHub 仓库
@@ -1314,8 +1314,8 @@ export function PhoneQaApp({ onClose, onNotice }: PhoneQaAppProps) {
       </div>
 
       {renameTarget && (
-        <div className="qa-rename-backdrop" role="presentation" onClick={() => setRenameTarget(null)}>
-          <form
+        <div data-adaptive-surface="overlay" className="qa-rename-backdrop" role="presentation" onClick={() => setRenameTarget(null)}>
+          <form data-adaptive-surface="card"
             className="qa-rename-dialog"
             role="dialog"
             aria-modal="true"
@@ -1348,7 +1348,7 @@ export function PhoneQaApp({ onClose, onNotice }: PhoneQaAppProps) {
       )}
 
       {clearToolsOpen && (
-        <div className="qa-devnotice-backdrop" onClick={() => setClearToolsOpen(false)}>
+        <div data-adaptive-surface="overlay" className="qa-devnotice-backdrop" onClick={() => setClearToolsOpen(false)}>
           <div className="qa-devnotice" role="alertdialog" aria-label="清理工具历史确认" onClick={(e) => e.stopPropagation()}>
             <div className="qa-devnotice-title">清理工具调用历史？</div>
             <div className="qa-devnotice-text">
@@ -1367,8 +1367,8 @@ export function PhoneQaApp({ onClose, onNotice }: PhoneQaAppProps) {
       )}
 
       {viewerImage && (
-        <div className="qa-image-viewer" role="presentation" onClick={() => setViewerImage(null)}>
-          <img src={viewerImage} alt="" />
+        <div data-adaptive-surface="overlay" className="qa-image-viewer" role="presentation" onClick={() => setViewerImage(null)}>
+          <img data-adaptive-surface="card" src={viewerImage} alt="" />
           <button type="button" className="qa-image-viewer-close" aria-label="关闭" onClick={() => setViewerImage(null)}>
             <X size={20} />
           </button>
@@ -1376,8 +1376,8 @@ export function PhoneQaApp({ onClose, onNotice }: PhoneQaAppProps) {
       )}
 
       {editingMsg && (
-        <div className="qa-edit-backdrop" onClick={() => setEditingMsg(null)}>
-          <div className="qa-edit-dialog" role="dialog" aria-label="修改消息" onClick={(e) => e.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="qa-edit-backdrop" onClick={() => setEditingMsg(null)}>
+          <div data-adaptive-surface="card" className="qa-edit-dialog" role="dialog" aria-label="修改消息" onClick={(e) => e.stopPropagation()}>
             <div className="qa-edit-head">
               <span className="qa-edit-title">修改消息（原始内容）</span>
               <button type="button" className="qa-icon-btn" onClick={() => setEditingMsg(null)} aria-label="关闭">
@@ -1528,8 +1528,8 @@ export function PhoneQaApp({ onClose, onNotice }: PhoneQaAppProps) {
       )}
 
       {previewOpen && !previewItem && (
-        <div className="qa-sheet-backdrop" onClick={() => setPreviewOpen(false)}>
-          <div className="qa-sheet qa-preview-sheet" onClick={(e) => e.stopPropagation()}>
+        <div data-adaptive-surface="overlay" className="qa-sheet-backdrop" onClick={() => setPreviewOpen(false)}>
+          <div data-adaptive-surface="card" className="qa-sheet qa-preview-sheet" onClick={(e) => e.stopPropagation()}>
             <div className="qa-sheet-head">
               <span className="qa-sheet-title">
                 <Play size={16} /> 预览本轮创建
@@ -1617,8 +1617,8 @@ function QaApiLogSheet({ onClose, onNotice }: { onClose: () => void; onNotice?: 
   };
 
   return (
-    <div className="qa-sheet-backdrop" onClick={onClose}>
-      <div className="qa-sheet" onClick={(e) => e.stopPropagation()}>
+    <div data-adaptive-surface="overlay" className="qa-sheet-backdrop" onClick={onClose}>
+      <div data-adaptive-surface="card" className="qa-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="qa-sheet-head">
           <span className="qa-sheet-title">
             <FileCode2 size={16} /> 调用记录

@@ -405,14 +405,14 @@ export function MomentsFeed({ onCloseApp }: MomentsFeedProps) {
                     onPublished={handlePublished}
                 />
             ) : activeComposer ? (
-                <div className="feed-comment-modal-layer" data-ui="modal">
-                    <button
+                <div data-adaptive-surface="overlay" className="feed-comment-modal-layer" data-ui="modal">
+                    <button data-adaptive-surface="decoration"
                         type="button"
                         className="feed-comment-modal-backdrop"
                         aria-label="关闭评论输入"
                         onClick={closeComposer}
                     />
-                    <div
+                    <div data-adaptive-surface="card"
                         className="feed-comment-modal-dialog"
                         data-ui="modal-dialog"
                         role="dialog"

@@ -202,7 +202,7 @@ export function MixConfirm({
     onCancel: () => void;
 }) {
     return (
-        <div className="mix-confirm-mask" onClick={onCancel}>
+        <div data-adaptive-surface="overlay" className="mix-confirm-mask" onClick={onCancel}>
             <div className="mix-confirm" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={title}>
                 <div className="mix-confirm-title">{title}</div>
                 {body ? <div className="mix-confirm-body">{body}</div> : null}
