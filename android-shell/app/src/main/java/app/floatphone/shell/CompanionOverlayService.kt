@@ -388,6 +388,7 @@ class CompanionOverlayService : Service() {
     }
 
     private fun desktopIntent() = Intent(this, MainActivity::class.java)
+        .setAction("$packageName.RETURN_FROM_COMPANION")
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         .putExtra(MainActivity.EXTRA_RETURN_TO_DESKTOP, true)
 
