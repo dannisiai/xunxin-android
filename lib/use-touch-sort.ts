@@ -1,4 +1,5 @@
 import { useRef, useCallback, useEffect } from "react";
+import { DEVICE_ADAPTATION_WILL_CHANGE_EVENT } from "./device-adaptation";
 
 /**
  * Touch-based long-press drag-to-reorder hook.
@@ -25,8 +26,6 @@ interface DragState {
         touchAction: string;
         scrollTop: number;
     } | null;
-    bodyOverflow: string;
-    bodyTouchAction: string;
     reducedMotion: boolean;
 }
 
@@ -34,7 +33,7 @@ const INITIAL: DragState = {
     active: false, index: -1, currentIndex: -1, dragIndices: [], dragIndexSet: new Set(),
     startY: 0, startX: 0, latestY: 0, items: [], gap: 0, timer: null,
     autoScrollFrame: null,
-    scrollLock: null, bodyOverflow: "", bodyTouchAction: "", reducedMotion: false,
+    scrollLock: null, reducedMotion: false,
 };
 
 const AUTO_SCROLL_EDGE = 56;
@@ -59,7 +58,8 @@ export function useTouchSort(
 
         const preventScrollDuringDrag = (event: TouchEvent) => {
             const d = dragRef.current;
-            if (!d.active) return;
+            const container = containerRef.current;
+            if (!d.active || event.touches.length !== 1 || !(event.target instanceof Node) || !container?.contains(event.target)) return;
             if (event.cancelable) event.preventDefault();
         };
 
@@ -71,6 +71,7 @@ export function useTouchSort(
 
     const cleanup = useCallback(() => {
         const d = dragRef.current;
+        d.active = false;
         if (d.timer) { clearTimeout(d.timer); d.timer = null; }
         if (d.autoScrollFrame !== null) {
             cancelAnimationFrame(d.autoScrollFrame);
@@ -90,10 +91,10 @@ export function useTouchSort(
             d.scrollLock.el.style.touchAction = d.scrollLock.touchAction;
             d.scrollLock = null;
         }
-        document.body.style.overflow = d.bodyOverflow;
-        document.body.style.touchAction = d.bodyTouchAction;
         stopPreventingDocumentScroll();
-        d.active = false;
+        d.items = [];
+        d.index = -1;
+        d.currentIndex = -1;
         d.dragIndices = [];
         d.dragIndexSet.clear();
     }, [stopPreventingDocumentScroll]);
@@ -112,11 +113,8 @@ export function useTouchSort(
             touchAction: scrollEl.style.touchAction,
             scrollTop: scrollEl.scrollTop,
         };
-        d.bodyOverflow = document.body.style.overflow;
-        d.bodyTouchAction = document.body.style.touchAction;
-
+        // The active touchmove listener owns this gesture; do not lock unrelated pages via body.
         scrollEl.style.touchAction = "none";
-        document.body.style.touchAction = "none";
     }, []);
 
     const getScrollDelta = useCallback((d: DragState) => (
@@ -185,6 +183,10 @@ export function useTouchSort(
         const step = () => {
             const d = dragRef.current;
             const lock = d.scrollLock;
+            if (!containerRef.current?.isConnected) {
+                cleanup();
+                return;
+            }
             if (!d.active || !lock) {
                 d.autoScrollFrame = null;
                 return;
@@ -217,36 +219,56 @@ export function useTouchSort(
 
         const d = dragRef.current;
         if (d.autoScrollFrame === null) d.autoScrollFrame = requestAnimationFrame(step);
-    }, [applyDragPosition, getScrollViewport]);
+    }, [applyDragPosition, cleanup, getScrollViewport]);
 
     const finishDrag = useCallback(() => {
         const d = dragRef.current;
-        if (d.timer) { clearTimeout(d.timer); d.timer = null; }
-        if (!d.active) return;
-
+        const wasActive = d.active;
         const from = d.index;
         const to = d.currentIndex;
         cleanup();
 
-        if (from !== to) onReorder(from, to);
+        if (wasActive && from !== to) onReorder(from, to);
     }, [onReorder, cleanup]);
 
     useEffect(() => {
-        const handleTouchEnd = () => finishDrag();
+        const handleTouchEnd = (event: TouchEvent) => {
+            if (event.touches.length === 0) finishDrag();
+        };
 
         window.addEventListener("touchend", handleTouchEnd);
-        window.addEventListener("touchcancel", handleTouchEnd);
         return () => {
             window.removeEventListener("touchend", handleTouchEnd);
-            window.removeEventListener("touchcancel", handleTouchEnd);
-            stopPreventingDocumentScroll();
         };
-    }, [finishDrag, stopPreventingDocumentScroll]);
+    }, [finishDrag]);
+
+    // Keep teardown independent of onReorder identity so rerenders do not unlock an active drag.
+    useEffect(() => {
+        const cancel = () => cleanup();
+        const onVisibilityChange = () => { if (document.hidden) cleanup(); };
+        const onTouchStart = (event: TouchEvent) => { if (event.touches.length > 1) cleanup(); };
+        window.addEventListener("touchcancel", cancel, true);
+        window.addEventListener("touchstart", onTouchStart, true);
+        window.addEventListener("blur", cancel);
+        window.addEventListener("pagehide", cancel);
+        window.addEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancel);
+        document.addEventListener("visibilitychange", onVisibilityChange);
+        return () => {
+            window.removeEventListener("touchcancel", cancel, true);
+            window.removeEventListener("touchstart", onTouchStart, true);
+            window.removeEventListener("blur", cancel);
+            window.removeEventListener("pagehide", cancel);
+            window.removeEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancel);
+            document.removeEventListener("visibilitychange", onVisibilityChange);
+            cleanup();
+        };
+    }, [cleanup]);
 
     const beginDrag = useCallback((index: number) => {
         const d = dragRef.current;
         const container = containerRef.current;
-        if (!container) return;
+        if (!container?.isConnected || d.active) return;
+        d.timer = null;
 
         const children = Array.from(container.children) as HTMLElement[];
         if (!children[index]) return;
@@ -289,8 +311,9 @@ export function useTouchSort(
     }, [getDragIndices, lockScroll, startAutoScroll, startPreventingDocumentScroll]);
 
     const onTouchStart = useCallback((index: number, e: React.TouchEvent) => {
+        if (e.touches.length !== 1) { cleanup(); return; }
         const d = dragRef.current;
-        if (d.timer) clearTimeout(d.timer);
+        cleanup();
 
         const touch = e.touches[0];
         d.startY = touch.clientY;
@@ -306,9 +329,10 @@ export function useTouchSort(
         }
 
         d.timer = setTimeout(() => beginDrag(index), longPressMs);
-    }, [longPressMs, beginDrag]);
+    }, [longPressMs, beginDrag, cleanup]);
 
     const onTouchMove = useCallback((e: React.TouchEvent) => {
+        if (e.touches.length !== 1) { cleanup(); return; }
         const d = dragRef.current;
         const touch = e.touches[0];
 
@@ -326,9 +350,12 @@ export function useTouchSort(
         if (e.cancelable) e.preventDefault();
         d.latestY = touch.clientY;
         applyDragPosition(touch.clientY);
-    }, [applyDragPosition]);
+    }, [applyDragPosition, cleanup]);
 
-    const onTouchEnd = useCallback(() => finishDrag(), [finishDrag]);
+    const onTouchEnd = useCallback((event: React.TouchEvent) => {
+        if (event.type === "touchcancel") cleanup();
+        else if (event.touches.length === 0) finishDrag();
+    }, [cleanup, finishDrag]);
 
     return { containerRef, onTouchStart, onTouchMove, onTouchEnd };
 }

@@ -83,6 +83,14 @@ html[data-adaptive-window="true"] .icon-grid {
   overflow-x: hidden;
   overscroll-behavior: contain;
 }
+/* Apply gesture ownership on the actual desktop scrollers and clipped icon/widget surfaces.
+   A pan-y value on their outer workspace alone stops at an inner scroll container. */
+html[data-adaptive-window="true"] .phone-workspace:not(.app-open) :is(.icon-grid, .icon-item, .icon-glyph-box, .icon-skin-layer, .widget-glass) {
+  touch-action: pan-y;
+}
+html[data-adaptive-window="true"] .phone-workspace.edit-mode :is(.icon-grid, .icon-item, .icon-glyph-box, .icon-skin-layer, .widget-glass) {
+  touch-action: none;
+}
 html[data-adaptive-window="true"] .dock {
   --slot-size: clamp(44px, calc((var(--phone-screen-width) - 72px) / 4), 88px);
   --slot-gap-x: clamp(10px, calc(var(--phone-screen-width) * .035), 32px);

@@ -1808,11 +1808,26 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     }
   } : undefined);
   useEffect(() => {
+    const onVisibilityChange = () => { if (document.hidden) cancelDesktopDrag(); };
     window.addEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancelDesktopDrag);
-    return () => window.removeEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancelDesktopDrag);
+    window.addEventListener("blur", cancelDesktopDrag);
+    window.addEventListener("pagehide", cancelDesktopDrag);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () => {
+      window.removeEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancelDesktopDrag);
+      window.removeEventListener("blur", cancelDesktopDrag);
+      window.removeEventListener("pagehide", cancelDesktopDrag);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      cancelDesktopDrag();
+    };
     // Drag cancellation reads its transaction from refs, independent of the current page spread.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (activeApp) cancelDesktopDrag();
+    // Navigation must not leave the desktop's document touchmove blocker active.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeApp]);
   const handleLaunchMusicApp = useCallback((scheme: string, webUrl?: string) => {
     setShowExternalMusicModal(false);
     try {
@@ -2008,12 +2023,25 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
   function cancelDesktopDrag() {
     cancelLongPress();
+    cancelFolderIconPress();
     const drag = editDragRef.current;
-    if (!drag) return;
-    drag.targetPage = null;
-    drag.mergeArmed = false;
-    if (ghostRef.current) ghostRef.current.style.display = "none";
-    commitDrop();
+    const pointerId = drag?.pointerId ?? swipeRef.current.pointerId;
+    swipeRef.current.pointerId = null;
+    swipeRef.current.deltaX = 0;
+    swipeRef.current.locked = null;
+    editTapRef.current = null;
+    swipeLayerRef.current?.classList.remove("phone-swipe-dragging");
+    swipeLayerRef.current?.style.setProperty("--swipe-drag", "0px");
+    if (drag) {
+      drag.targetPage = null;
+      drag.mergeArmed = false;
+      if (ghostRef.current) ghostRef.current.style.display = "none";
+      commitDrop();
+    }
+    const workspace = workspaceRef.current;
+    if (pointerId !== null && workspace?.hasPointerCapture(pointerId)) {
+      try { workspace.releasePointerCapture(pointerId); } catch { /* Already released by the browser. */ }
+    }
   }
 
   /** 文件夹只剩 ≤1 个成员就地解散：剩下的图标顶回 tile 的格子 */
@@ -2110,7 +2138,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
   // non-passive touchmove 阻止默认行为，浏览器就无法启动滚动接管。iOS 不受影响。
   useEffect(() => {
     const blockScrollWhileDragging = (event: TouchEvent) => {
-      if (editDragRef.current?.active && event.cancelable) event.preventDefault();
+      if (editDragRef.current?.active && !workspaceRef.current?.classList.contains("app-open") && event.cancelable) event.preventDefault();
     };
     document.addEventListener("touchmove", blockScrollWhileDragging, { passive: false });
     return () => document.removeEventListener("touchmove", blockScrollWhileDragging);
@@ -2810,6 +2838,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     itemId: string,
     page: DragPageKey
   ) {
+    if (!e.isPrimary || e.button !== 0) return;
     if (shouldBypassDesktopItemPointerCapture(e.target)) return;
 
     let el = e.currentTarget as HTMLElement;
@@ -3096,6 +3125,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
   const handleSwipeStart = useCallback((e: React.PointerEvent) => {
     if (activeApp) return;
+    if (!e.isPrimary || e.button !== 0) { cancelDesktopDrag(); return; }
     if (editMode && editDragRef.current) return;
     // Track tap on empty for "exit edit" detection
     if (editMode) {
@@ -3152,6 +3182,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
   ]);
 
   const handleSwipeMove = useCallback((e: React.PointerEvent) => {
+    if (activeApp) return;
     // ── Long-press cancellation ──
     const lp = longPressRef.current;
     if (lp && lp.pointerId === e.pointerId) {
@@ -3199,7 +3230,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       if (Math.abs(dx) > 6 || Math.abs(dy) > 6) {
         s.locked = Math.abs(dx) >= Math.abs(dy) ? "x" : "y";
         if (s.locked === "x") {
-          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* Gesture already cancelled. */ }
         }
       } else {
         return;
@@ -3220,9 +3251,11 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
     s.deltaX = dx;
     setSwipeDrag(translateX + page * pageWidth);
-  }, [editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
+  }, [activeApp, editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
 
   const handleSwipeEnd = useCallback((e: React.PointerEvent) => {
+    if (activeApp) return;
+    if (e.type === "pointercancel") { cancelDesktopDrag(); return; }
     // Clear long-press
     cancelLongPress();
     // Pointer is up → never keep the transition suppressed, whatever branch we take.
@@ -3270,7 +3303,13 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     swipeLayerRef.current?.classList.remove("phone-swipe-dragging");
     setSwipeDrag(0);
     if (targetPageIndex !== page) setCurrentPageIndex(targetPageIndex);
-  }, [editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
+  }, [activeApp, editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
+
+  function handleSwipeCaptureLost(event: React.PointerEvent) {
+    // A child's implicit capture may be transferred to the workspace during a drag.
+    if (event.target !== event.currentTarget) return;
+    if (event.pointerId === (editDragRef.current?.pointerId ?? swipeRef.current.pointerId)) cancelDesktopDrag();
+  }
 
   const handleCloseShopping = useCallback((isBusy?: boolean) => {
     const shouldKeepMounted = isBusy ?? shoppingBusy;
@@ -3797,6 +3836,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                 onPointerMove={handleSwipeMove}
                 onPointerUp={handleSwipeEnd}
                 onPointerCancel={handleSwipeEnd}
+                onLostPointerCapture={handleSwipeCaptureLost}
               >
                 {/* Edit mode Done button */}
                 {editMode && !activeApp && (

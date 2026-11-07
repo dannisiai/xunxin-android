@@ -99,9 +99,18 @@
 
 后续只读检查发现的两处遗漏已补齐：角色侧栏退出通过编辑器注册的离开守卫处理，不在父级猜测是否有未保存内容；阅读悬浮窗关闭／收起／发送、日历小按钮及角色画布菜单按钮使用至少 48×48 CSS px 的实际按钮区域。该尺寸规则不依赖 600 px 容器断点，窄分屏和折叠屏段同样生效；SVG 图标保持原尺寸。
 
-本轮仅做静态标记扫描、受影响 TS/TSX 文件的语法／类型分析、CSS 解析及镜像核对，不运行测试、应用或模拟器，也不下载文件。**本轮页面重排尚未重新打包，之前发布的 1.2.1 APK 不包含本节后续修改。** 真机上的 ZUI 任务栏／分屏、不同字体倍率、窗口连续缩放以及第三方自定义 CSS／iframe 仍需实际验收；不能宣称所有设备已达到官方 Tier 2。
+页面重排、角色退出确认和 48×48 触摸区域已随 1.2.2（versionCode 5）云端构建发布。下节追加的滑动修复尚未重新打包。只做静态标记扫描、受影响 TS/TSX 文件的语法／类型分析、CSS 解析及镜像核对，不运行测试、应用或模拟器，也不下载文件。真机上的 ZUI 任务栏／分屏、不同字体倍率、窗口连续缩放以及第三方自定义 CSS／iframe 仍需实际验收；不能宣称所有设备已达到官方 Tier 2。
 
 参考：[Android Adaptive optimized](https://developer.android.com/docs/quality-guidelines/adaptive-app-quality/tier-2)、[列表与详情布局](https://developer.android.com/develop/ui/compose/layouts/adaptive/list-detail)、[多窗口支持](https://developer.android.com/develop/ui/views/layout/support-multi-window-mode)。
+
+## 滑动与拖拽退出修复
+
+- 桌面网格和有裁剪的图标／组件表面直接声明 `touch-action: pan-y`，正常模式让浏览器处理上下滚动，由桌面处理左右翻页；编辑模式在这些表面使用 `none`。不向应用内容区施加桌面的手势限制。
+- 桌面的 `pointercancel`、捕获丢失、失焦、切后台、应用导航和窗口几何变化均取消当前操作、清除翻页偏移和长按计时，并回滚未完成的拖拽预览，不将取消误当作成功落位或翻页。
+- `useTouchSort` 只修改所属滚动容器，不再写入 `body` 的滚动／触摸样式。触摸取消、多指介入、失焦、切后台、窗口变化、列表移除或组件卸载时清除计时器、动画帧、临时样式和触摸拦截，并恢复局部滚动状态。取消不提交排序；回调更新不打断正在进行的排序。
+- 本次仅做静态检查与源码镜像核对，未运行测试、浏览器、应用或模拟器；仍需在出现问题的平板上确认上下滚动和左右翻页的实际体验。已发布的 1.2.2 APK 不包含本节修复。
+
+手势依据：[W3C Pointer Events：手势与最近滚动容器](https://www.w3.org/TR/pointerevents3/#determining-supported-direct-manipulation-behavior)。
 
 ## 主要代码
 
