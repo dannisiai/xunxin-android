@@ -41,6 +41,8 @@ import {
 } from "@/lib/stream-preview";
 
 import { parseStateValues, mergeStateValues } from "@/lib/state-value-parser";
+import { positionAnchoredMenu } from "@/lib/anchored-menu";
+import { DEVICE_ADAPTATION_CHANGED_EVENT } from "@/lib/device-adaptation";
 import { parseAIResponse, type ParsedMessagePart } from "@/lib/rich-message-parser";
 import { isKnownStickerLabel } from "@/lib/sticker-data";
 import { translateReasoningText } from "@/lib/reasoning-translate";
@@ -779,25 +781,12 @@ export function ChatRoom({ session, onBack, onDeleted }: ChatRoomProps) {
 
     const positionFloatingContextMenu = (el: HTMLDivElement | null) => {
         if (!el || !contextMenuAnchor) return;
-        const margin = 8;
-        const gap = 12;
-        const anchor = contextMenuAnchor;
-        const menuW = el.offsetWidth;
-        const menuH = el.offsetHeight;
-        const viewportW = window.innerWidth;
-        const viewportH = window.innerHeight;
-        let left = anchor.x - menuW / 2;
-        left = Math.max(margin, Math.min(left, viewportW - menuW - margin));
-        const placeBelow = anchor.y - menuH - gap < margin;
-        let top = placeBelow ? anchor.y + gap : anchor.y - menuH - gap;
-        top = Math.max(margin, Math.min(top, viewportH - menuH - margin));
-        el.style.left = `${left}px`;
-        el.style.top = `${top}px`;
-        el.style.right = "auto";
-        el.style.bottom = "auto";
+        const placement = positionAnchoredMenu(el, contextMenuAnchor);
+        if (!placement) return;
+        const { left, width: menuW, anchorX, placeBelow } = placement;
         const tri = el.querySelector("[data-menu-triangle]") as HTMLElement | null;
         if (tri) {
-            const triLeft = Math.max(14, Math.min(anchor.x - left, menuW - 14));
+            const triLeft = Math.max(14, Math.min(anchorX - left, menuW - 14));
             tri.style.left = `${triLeft}px`;
             tri.style.right = "auto";
             tri.style.transform = "translateX(-50%)";
@@ -814,6 +803,12 @@ export function ChatRoom({ session, onBack, onDeleted }: ChatRoomProps) {
             }
         }
     };
+
+    useEffect(() => {
+        const dismiss = () => { setActiveMessageId(null); setActiveOfflineTarget(null); setContextMenuAnchor(null); };
+        window.addEventListener(DEVICE_ADAPTATION_CHANGED_EVENT, dismiss);
+        return () => window.removeEventListener(DEVICE_ADAPTATION_CHANGED_EVENT, dismiss);
+    }, []);
 
     // --- Music action queue: send music operations as system messages ---
     useEffect(() => {

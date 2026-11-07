@@ -31,7 +31,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -53,7 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         val SITE_URL: String = BuildConfig.SITE_URL
-        const val VERSION = "1.2.0"
+        const val VERSION = "1.2.1"
         var companionHost: WeakReference<MainActivity> = WeakReference(null)
         @Volatile var currentFoldInfo: JSONObject? = null
         @Volatile var currentOverlayFold: OverlayFoldSnapshot? = null
@@ -63,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private var latestWindowLayout: OverlayFoldObservation? = null
     private lateinit var webView: WebView
+    private lateinit var webViewWindow: WebViewWindowController
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var pendingCompanion: Bundle? = null
     private var pendingDocumentExport: String? = null
@@ -155,7 +155,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         companionHost = WeakReference(this)
         pendingCompanion = savedInstanceState?.getBundle("pendingCompanion")
-        WindowCompat.setDecorFitsSystemWindows(window, true)
         // 音量键默认调媒体流：WebView 里的语音条/TTS 都走媒体流播放，
         // 不设的话短音频没在播时按键调的是铃声，用户感觉"音量键无效、声音巨大"
         volumeControlStream = AudioManager.STREAM_MUSIC
@@ -171,15 +170,18 @@ class MainActivity : AppCompatActivity() {
             if (BuildConfig.LOCAL_BUNDLE) addView(loading, FrameLayout.LayoutParams(-1, -1))
         }
         setContentView(container)
+        webViewWindow = WebViewWindowController(this, container, webView) { isTrustedPage() }
+        webViewWindow.install()
         webView.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
             if (left != oldLeft || top != oldTop || right != oldRight || bottom != oldBottom) {
+                webViewWindow.viewportChanged()
                 latestWindowLayout?.let { updateFoldState(it) }
             }
         }
 
         webView.settings.apply {
             useWideViewPort = true
-            loadWithOverviewMode = true
+            loadWithOverviewMode = false
             javaScriptEnabled = true
             domStorageEnabled = true
             databaseEnabled = true
@@ -199,6 +201,7 @@ class MainActivity : AppCompatActivity() {
                 val site = Uri.parse(SITE_URL)
                 if (current?.scheme == site.scheme && current?.host == site.host && current?.port == site.port) {
                     view.evaluateJavascript("document.documentElement.dataset.androidShell='1'", null)
+                    webViewWindow.viewportChanged(force = true)
                     currentFoldInfo?.let { fold ->
                         view.evaluateJavascript("window.__updateDeviceFoldInfo && window.__updateDeviceFoldInfo($fold)", null)
                     }
@@ -519,5 +522,13 @@ class MainActivity : AppCompatActivity() {
         /** 返回折叠屏铰链/折痕几何与状态信息 */
         @JavascriptInterface
         fun getFoldInfo(): String = currentFoldInfo?.toString() ?: "{\"hasFold\":false}"
+
+        @JavascriptInterface
+        fun getDeviceWindowInfo(): String = webViewWindow.snapshot()
+
+        @JavascriptInterface
+        fun setSystemBarAppearance(useDarkIcons: Boolean) {
+            runOnUiThread { if (isTrustedPage()) webViewWindow.applyBarAppearance(useDarkIcons) }
+        }
     }
 }

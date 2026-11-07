@@ -1,4 +1,5 @@
 /* Final device layer: shell, persistent chat panes, safe overlays and compact windows. */
+:root { --desktop-user-text-scale: var(--app-text-scale, 1); }
 html[data-adaptive-window="true"] {
   --phone-screen-width: var(--app-pane-width, 100vw) !important;
   --phone-screen-height: var(--app-pane-height, 100dvh) !important;
@@ -98,6 +99,100 @@ html[data-fold-separating="true"] {
   --page-header-safe-top: env(safe-area-inset-top, 0px);
   --home-grid-top-offset: max(16px, env(safe-area-inset-top, 0px));
 }
+/* The native window draws edge to edge; only interactive content consumes its insets.
+   The wallpaper must use the untrimmed display segment, otherwise the old white band returns. */
+html[data-adaptive-window="true"][data-native-window="true"] {
+  --phone-screen-width: var(--display-pane-width) !important;
+  --phone-screen-height: var(--display-pane-height) !important;
+  --app-content-left: var(--display-pane-left);
+  --app-content-top: var(--display-pane-top);
+}
+html[data-native-window="true"] .phone-shell-wrap {
+  --native-pane-left: max(0px, calc(var(--native-safe-left) - var(--app-content-left)));
+  --native-pane-top: max(0px, calc(var(--native-safe-top) - var(--app-content-top)));
+  --native-pane-right: max(0px, calc(var(--native-safe-right) - (var(--app-window-width) - var(--app-content-left) - var(--phone-screen-width))));
+  --native-pane-bottom: max(0px, calc(var(--native-safe-bottom) - (var(--app-window-height) - var(--app-content-top) - var(--phone-screen-height))));
+  --native-island-space: 44px;
+}
+html[data-native-window="true"] .phone-shell-wrap[data-hide-top-bar="1"],
+html[data-native-window="true"][data-fold-separating="true"] .phone-shell-wrap { --native-island-space: 0px; }
+html[data-native-window="true"] .phone-status-bar {
+  top: calc(var(--native-pane-top) + 4px);
+  grid-template-columns: 1fr;
+  justify-items: center;
+  pointer-events: none;
+}
+html[data-native-window="true"] .phone-status-bar > :is(.status-island, [data-adaptive-surface]) { pointer-events: auto; }
+html[data-native-window="true"] .phone-status-bar > :is(.status-time, .status-right) { display: none; }
+html[data-native-window="true"] .phone-shell-wrap[data-hide-top-bar="1"] .phone-status-bar { display: none; }
+html[data-native-window="true"] .phone-workspace:not(.app-open) {
+  margin-top: calc(var(--native-pane-top) + max(var(--native-island-space), 12px));
+  padding-inline: var(--native-pane-left) var(--native-pane-right);
+}
+html[data-native-window="true"] .dock {
+  margin-bottom: calc(var(--native-pane-bottom) + max(6px, var(--home-dock-lift)));
+}
+html[data-native-window="true"] .phone-shell.app-open-shell {
+  padding: 0;
+  background: var(--native-system-bar-background, var(--c-header-bg));
+}
+html[data-native-window="true"] .phone-workspace.app-open {
+  padding: calc(var(--native-pane-top) + var(--native-island-space)) var(--native-pane-right) var(--native-pane-bottom) var(--native-pane-left);
+  box-sizing: border-box;
+}
+html[data-native-window="true"] :is(.phone-app-pane, .wb-layout, .vr-root, .ama-root, body > .page-frame) {
+  --safe-area-top: 0px;
+  --safe-area-bottom: 0px;
+  --safe-area-left: 0px;
+  --safe-area-right: 0px;
+  --phone-titlebar-safe-top: 0px;
+  --page-header-safe-top: 0px;
+}
+/* 12.7-inch tablets (including Xiaoxin Pad Pro): size by the available CSS window,
+   never by a model name, physical resolution or global page zoom. Keep saved 4 x 6 cells. */
+html[data-device-type="tablet"]:not([data-window-size="compact"]) :is(.icon-grid, .dock) {
+  --slot-gap-x: var(--tablet-grid-gap);
+  --slot-size: calc((var(--tablet-grid-width) - 3 * var(--slot-gap-x)) / 4);
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-grid {
+  --slot-icon-width: min(var(--tablet-icon-size), var(--slot-size)) !important;
+  --slot-icon-height: min(var(--tablet-icon-size), var(--slot-size)) !important;
+  --adaptive-grid-row-min: calc(var(--tablet-icon-size) + 32px);
+  --home-grid-bottom-trim: 24px;
+  --slot-gap-y: 12px;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) :is(.icon-grid, .dock) .icon-glyph-box {
+  width: min(var(--tablet-icon-size), var(--slot-size));
+  height: min(var(--tablet-icon-size), var(--slot-size));
+  border-radius: 24%;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) :is(.icon-grid, .dock) .icon-glyph {
+  width: 52%;
+  height: 52%;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-label {
+  font-size: calc(16px * var(--app-text-scale, 1));
+  line-height: 1.35;
+  padding-top: 5px;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .dock {
+  min-height: calc(var(--tablet-icon-size) + 28px);
+  margin-top: 16px;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-grid .widget-wrap {
+  --app-text-scale: calc(var(--desktop-user-text-scale) * var(--tablet-widget-text-scale));
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-grid .widget-label {
+  font-size: calc(12px * var(--desktop-user-text-scale));
+  line-height: 1.4;
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-grid .wg-ms-avatar {
+  width: clamp(85px, var(--tablet-icon-size), 112px);
+  height: clamp(85px, var(--tablet-icon-size), 112px);
+}
+html[data-device-type="tablet"]:not([data-window-size="compact"]) :is(.phone-app-pane, .wb-layout, .vr-root, .ama-root) {
+  --app-text-scale: calc(var(--desktop-user-text-scale) * 1.15);
+}
 /* Only the chat master/detail surface spans both screens. Other apps use a safe segment. */
 html[data-active-app="chat"][data-split-layout="true"][data-adaptive-window="true"] {
   --phone-screen-width: var(--app-window-width) !important;
@@ -130,18 +225,18 @@ html[data-active-app="chat"][data-fold-separating="true"] .phone-shell.app-open-
   border: 0;
 }
 .chat-app[data-dual-screen="true"] > .chat-split-master {
-  left: var(--viewport-segment-left-0);
-  top: var(--viewport-segment-top-0);
+  left: calc(var(--viewport-segment-left-0) - var(--native-safe-left, 0px));
+  top: calc(var(--viewport-segment-top-0) - var(--native-safe-top, 0px));
   width: var(--viewport-segment-width-0);
   height: var(--viewport-segment-height-0);
 }
 .chat-app[data-dual-screen="true"] > .chat-split-detail {
-  left: var(--viewport-segment-left-1);
-  top: var(--viewport-segment-top-1);
+  left: calc(var(--viewport-segment-left-1) - var(--native-safe-left, 0px));
+  top: calc(var(--viewport-segment-top-1) - var(--native-safe-top, 0px));
   width: var(--viewport-segment-width-1);
   height: var(--viewport-segment-height-1);
 }
-.chat-app[data-dual-screen="true"] > .chat-split-seam { display: block; position: absolute; left: var(--hinge-left); top: var(--hinge-top); width: var(--hinge-width); height: var(--hinge-height); }
+.chat-app[data-dual-screen="true"] > .chat-split-seam { display: block; position: absolute; left: calc(var(--hinge-left) - var(--native-safe-left, 0px)); top: calc(var(--hinge-top) - var(--native-safe-top, 0px)); width: var(--hinge-width); height: var(--hinge-height); }
 .chat-app[data-dual-screen="true"] .chat-split-master .page-header-content { padding-left: max(14px, env(safe-area-inset-left, 0px)); }
 .chat-app[data-dual-screen="true"] .chat-split-detail .page-header-content { padding-right: max(14px, env(safe-area-inset-right, 0px)); }
 /* Shared layout primitives cover settings, reader, games and other built-in app hosts. */
@@ -154,6 +249,11 @@ html[data-adaptive-window="true"] :is(pre, .chat-document-info, .chat-document-i
 html[data-adaptive-window="true"] pre { overflow-x: auto; }
 html[data-adaptive-window="true"] :is(.settings-main-menu, .appearance-main-menu) { width: min(100%, 960px); margin-inline: auto; }
 html[data-adaptive-window="true"] .reading-scroll-content { width: min(100%, 80ch); margin-inline: auto; }
+html[data-adaptive-window="true"] :is(.reading-chat-float, .reading-chat-launch) {
+  max-width: var(--reading-float-max-width, calc(100% - 24px));
+  max-height: var(--reading-float-max-height, calc(100% - 54px));
+}
+html[data-adaptive-window="true"] .reading-chat-float-expanded { max-height: min(380px, 55%, var(--reading-float-max-height, 100%)); }
 html[data-adaptive-window="true"] :is(.ui-btn, .page-back-btn) { min-height: 44px; }
 html[data-adaptive-window="true"] :is(.ui-input, .ui-textarea, .chat-input-textarea) { font-size: max(16px, calc(14px * var(--app-text-scale, 1))); }
 html[data-adaptive-window="true"] :is(.modal-dialog, .modal-sheet, .modal-expand) { box-sizing: border-box; min-width: 0; max-height: calc(100% - 24px); overflow: auto; }
@@ -183,6 +283,15 @@ html[data-adaptive-window="true"] .wb-float-panel { top: min(120px, 20%); max-wi
   .page-body > div > .grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
   .page-header-content { padding-inline: 8px; gap: 4px; }
   .menu-item { gap: 8px; }
+}
+@container app-pane (min-width: 600px) {
+  .page-header-content { min-height: 52px; padding-inline: 24px; }
+  .music-playlist-grid { grid-template-columns: repeat(auto-fill, minmax(156px, 1fr)); gap: 20px; }
+  .music-chart-grid { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .reading-book-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; padding-inline: 24px; }
+  .reading-list-item { min-width: 0; }
+  :is(.reading-shelf-back, .reading-shelf-action-btn, .music-header-action, .music-song-action-btn) { min-width: 44px; min-height: 44px; }
+  html[data-adaptive-window="true"] .reading-chat-float-expanded { width: min(420px, calc(100% - 24px)); max-height: min(520px, 60%, var(--reading-float-max-height, 100%)); }
 }
 [data-adaptive-overlay="true"] {
   margin: 0 !important;

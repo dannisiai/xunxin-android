@@ -30,6 +30,8 @@ import { decodeTxtArrayBuffer, parsePdfPageRange, PDF_PAGES_PER_CHAPTER, parseTx
 import type { Book, BookChapter, ReadingAnnotation, ReadingProgress } from "@/lib/reading-types";
 import type { Character } from "@/lib/character-types";
 import { splitBilingualText } from "@/lib/bilingual-text";
+import { DEVICE_ADAPTATION_CHANGED_EVENT, getElementViewportSegments } from "@/lib/device-adaptation";
+import { positionAnchoredMenu } from "@/lib/anchored-menu";
 
 type TxtPageItem =
     | { kind: "line"; text: string; chapterIndex: number; paragraphIndex: number; indent?: boolean; segEnd?: boolean }
@@ -257,6 +259,8 @@ export function ReadingViewer({ book, onBack }: Props) {
         setTimeout(() => { setShowCharPicker(false); setCharPickerClosing(false); }, 180);
     }, [showCharPicker, charPickerClosing]);
     const [showChat, setShowChat] = useState(false);
+    const surfaceRef = useRef<HTMLDivElement>(null);
+    const chatFloatRef = useRef<HTMLElement>(null);
     const [chatExpanded, setChatExpanded] = useState(false);
     const [chatOffset, setChatOffset] = useState<{ x: number; y: number }>(() => {
         try {
@@ -1033,26 +1037,6 @@ export function ReadingViewer({ book, onBack }: Props) {
         if (dx > 10 || dy > 10) cancelReadingMessageLongPress();
     }, [cancelReadingMessageLongPress]);
 
-    const getReadingMessageMenuStyle = useCallback((menu: { x: number; y: number }): React.CSSProperties => {
-        const margin = 12;
-        const estimatedWidth = 168;
-        const estimatedHeight = 42;
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const left = Math.min(
-            Math.max(menu.x - estimatedWidth / 2, margin),
-            Math.max(margin, viewportWidth - estimatedWidth - margin),
-        );
-        const top = menu.y > viewportHeight - estimatedHeight - 24
-            ? Math.max(margin, menu.y - estimatedHeight - 12)
-            : Math.min(menu.y + 12, viewportHeight - estimatedHeight - margin);
-
-        return {
-            left,
-            top,
-        };
-    }, []);
-
     const handleEditDiscussMessageStart = useCallback((msg: ChatMessage) => {
         setEditingDiscussMessage(msg);
         setEditingDiscussContent(msg.content);
@@ -1570,26 +1554,34 @@ export function ReadingViewer({ book, onBack }: Props) {
         }
     };
 
-    // 悬浮元素尺寸（按当前形态估算，用于边界约束/贴边吸附）
+    const getChatFloatBounds = () => {
+        const root = surfaceRef.current;
+        if (!root) return { left: 0, top: 0, width: 390, height: 844 };
+        return getElementViewportSegments(root, true).sort((a, b) => b.width * b.height - a.width * a.height)[0]
+            || { left: 0, top: 0, width: root.clientWidth, height: root.clientHeight };
+    };
+
+    // Measure the current form, including tablet container rules, rather than guessing from the whole screen.
     const getChatFloatSize = () => {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        if (!showChat) return { width: 56, height: 56 };                                    // 悬浮球
-        if (!chatExpanded) return { width: Math.min(280, w - CHAT_FLOAT_MARGIN * 2), height: 56 }; // 悬浮条
-        return { width: Math.min(300, w - CHAT_FLOAT_MARGIN * 2), height: Math.min(380, h * 0.55) }; // 悬浮窗
+        const measured = chatFloatRef.current;
+        if (measured?.offsetWidth && measured.offsetHeight) return { width: measured.offsetWidth, height: measured.offsetHeight };
+        const bounds = getChatFloatBounds();
+        if (!showChat) return { width: 56, height: 56 };
+        return { width: Math.min(chatExpanded ? 300 : 280, bounds.width - 24), height: chatExpanded ? Math.min(380, bounds.height * .55) : 56 };
     };
 
     // 把偏移量约束在可视范围内。CSS 基础位置为 left:12px / bottom:12px，
     // 偏移是相对该基础位置的 translate3d，正 Y 向下。
     const clampChatOffset = (offset: { x: number; y: number }): { x: number; y: number } => {
         const { width, height } = getChatFloatSize();
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        const maxX = w - CHAT_FLOAT_MARGIN * 2 - width;
-        const maxY = height + CHAT_FLOAT_MARGIN * 2 - h; // 允许向上拖到接近顶边（负值表示可上移）
+        const bounds = getChatFloatBounds();
+        const h = surfaceRef.current?.clientHeight || bounds.height;
+        const maxX = Math.max(bounds.left, bounds.left + bounds.width - CHAT_FLOAT_MARGIN * 2 - width);
+        const minY = bounds.top + height + CHAT_FLOAT_MARGIN * 2 + (chatExpanded ? 30 : 0) - h;
+        const maxY = Math.max(minY, bounds.top + bounds.height - h);
         return {
-            x: Math.max(0, Math.min(maxX, offset.x)),
-            y: Math.max(maxY, Math.min(0, offset.y)),
+            x: Math.max(bounds.left, Math.min(maxX, offset.x)),
+            y: Math.max(minY, Math.min(maxY, offset.y)),
         };
     };
 
@@ -1617,10 +1609,15 @@ export function ReadingViewer({ book, onBack }: Props) {
     // 窗口尺寸变化（旋转/分屏）后把悬浮元素约束回屏幕内；书架设置里的「重置位置」事件
     useEffect(() => {
         const onResize = () => {
+            const bounds = getChatFloatBounds();
+            const root = surfaceRef.current;
+            root?.style.setProperty("--reading-float-max-width", `${Math.max(1, bounds.width - 24)}px`);
+            root?.style.setProperty("--reading-float-max-height", `${Math.max(1, bounds.height - 54)}px`);
             setChatOffset((prev) => {
                 const clamped = clampChatOffsetRef.current(prev);
                 return clamped.x === prev.x && clamped.y === prev.y ? prev : clamped;
             });
+            setReadingMessageMenu(null);
         };
         const onResetPos = () => {
             setChatOffset({ x: 0, y: 0 });
@@ -1631,12 +1628,29 @@ export function ReadingViewer({ book, onBack }: Props) {
             }
         };
         window.addEventListener("resize", onResize);
+        window.addEventListener(DEVICE_ADAPTATION_CHANGED_EVENT, onResize);
+        window.visualViewport?.addEventListener("resize", onResize);
         window.addEventListener("reading-chat-float-reset", onResetPos);
+        const observer = new ResizeObserver(onResize);
+        const floatObserver = new ResizeObserver(() => {
+            setChatOffset(prev => {
+                const clamped = clampChatOffsetRef.current(prev);
+                return clamped.x === prev.x && clamped.y === prev.y ? prev : clamped;
+            });
+        });
+        if (surfaceRef.current) observer.observe(surfaceRef.current);
+        // The envelope height also changes when replies arrive or its form expands.
+        if (chatFloatRef.current) floatObserver.observe(chatFloatRef.current);
+        onResize();
         return () => {
             window.removeEventListener("resize", onResize);
+            window.removeEventListener(DEVICE_ADAPTATION_CHANGED_EVENT, onResize);
+            window.visualViewport?.removeEventListener("resize", onResize);
             window.removeEventListener("reading-chat-float-reset", onResetPos);
+            observer.disconnect();
+            floatObserver.disconnect();
         };
-    }, []);
+    }, [showChat, chatExpanded]);
 
     const handleChatDragEnd = (e: React.PointerEvent<HTMLElement>) => {
         const drag = chatDragRef.current;
@@ -1656,10 +1670,11 @@ export function ReadingViewer({ book, onBack }: Props) {
         if (!chatExpanded) {
             // 悬浮球/悬浮条：横向吸附到最近的边缘（贴左或贴右）
             const { width } = getChatFloatSize();
-            const maxX = window.innerWidth - CHAT_FLOAT_MARGIN * 2 - width;
-            const leftDist = target.x;
+            const bounds = getChatFloatBounds();
+            const maxX = Math.max(bounds.left, bounds.left + bounds.width - CHAT_FLOAT_MARGIN * 2 - width);
+            const leftDist = target.x - bounds.left;
             const rightDist = maxX - target.x;
-            target = { x: leftDist <= rightDist ? 0 : maxX, y: target.y };
+            target = { x: leftDist <= rightDist ? bounds.left : maxX, y: target.y };
         }
         setChatOffset(target);
         persistChatFloatPos(target);
@@ -2083,7 +2098,7 @@ export function ReadingViewer({ book, onBack }: Props) {
     };
 
     return (
-        <div className="reading-app-surface absolute inset-0 z-[100] flex flex-col bg-[var(--c-page-body-bg)]" data-immersive={immersive} style={{ paddingTop: "var(--page-header-safe-top, 48px)" }}>
+        <div ref={surfaceRef} className="reading-app-surface absolute inset-0 z-[100] flex flex-col bg-[var(--c-page-body-bg)]" data-immersive={immersive} style={{ paddingTop: "var(--page-header-safe-top, 48px)" }}>
             {/* Page flip overlay */}
             {flipAnim && (
                 <>
@@ -2351,6 +2366,7 @@ export function ReadingViewer({ book, onBack }: Props) {
 
             {!showChat && (
                 <button
+                    ref={node => { chatFloatRef.current = node; }}
                     onClick={handleChatLaunchClick}
                     className="reading-chat-launch"
                     aria-label="打开聊天悬浮窗"
@@ -2371,6 +2387,7 @@ export function ReadingViewer({ book, onBack }: Props) {
 
             {showChat && (
                 <div
+                    ref={node => { chatFloatRef.current = node; }}
                     className={`reading-chat-float ${chatExpanded ? "reading-chat-float-expanded" : ""}${chatClosing ? " reading-chat-float--closing" : ""}`}
                     style={chatFloatingStyle}
                     onPointerDown={handleChatDragStart}
@@ -2494,7 +2511,7 @@ export function ReadingViewer({ book, onBack }: Props) {
                 <div data-adaptive-surface="content"
                     className="ctx-menu chat-floating-ctx-menu reading-chat-context-menu flex py-[6px] px-0"
                     data-role={activeReadingMenuMessage.role}
-                    style={getReadingMessageMenuStyle(readingMessageMenu)}
+                    ref={node => { if (node) positionAnchoredMenu(node, readingMessageMenu, true); }}
                     onPointerDown={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
                 >

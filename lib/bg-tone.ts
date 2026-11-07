@@ -327,6 +327,11 @@ export async function updateStatusBarTone(shell: HTMLElement, activeApp: string 
     "--status-bar-color",
     tone === "dark" ? "rgba(255,255,255,0.9)" : "#1a1a1a"
   );
+  shell.style.setProperty("--native-system-bar-background", toHex(resolvedColor));
+  const native = (window as Window & {
+    AndroidShell?: { setSystemBarAppearance?: (darkIcons: boolean) => void };
+  }).AndroidShell;
+  try { native?.setSystemBarAppearance?.(tone === "light"); } catch { /* Older shells keep their default appearance. */ }
 
   // Drive the browser/PWA status-bar background to follow the actual page color.
   // Chrome/Edge use this meta tag for the Android status bar in standalone/minimal-ui.

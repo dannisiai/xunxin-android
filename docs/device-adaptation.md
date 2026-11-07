@@ -58,6 +58,20 @@
 
 本轮只运行上述静态源码规则、语法解析和镜像内容核对，没有运行应用/几何测试、完整类型检查、浏览器、Gradle 或 APK 构建。旋转/斜切/透视与键盘组合、空回调与姿态切换仍须后续真机验证。
 
+## 小新 Pad Pro 12.7 与原生系统栏（2026-11-07）
+
+手机截图中的顶部留白对应原生 `setDecorFitsSystemWindows(true)` 预留的系统栏区域，网页还绘制模拟时间/电池行。先前适配主要覆盖 Web 内容，不能据此认为原生窗口也已全面适配。平板桌面的格子上限为 88 px，实际图标仍被 58 px 规则限制，文字也沿用手机尺寸，导致大屏内容过小、空隙过大。截图外侧的视频播放器黑边和进度条不属于本应用。
+
+复用已有 AndroidX Activity `enableEdgeToEdge`、Core `WindowInsetsCompat` / `WindowInsetsControllerCompat` 和 Window `WindowMetricsCalculator`；不新增依赖。`WebViewWindowController` 统一维护真实系统栏、刘海、平板任务栏、窗口标题栏及 IME；仅扣除系统尚未执行的键盘缩小量，避免与 `adjustResize` 重复缩小。原生通过缓存快照及事件发送 WebView 局部像素尺寸和安全边距，网页按当前 CSS 视口分别换算横纵坐标。壁纸覆盖完整窗口，应用内容避开系统栏；模拟时间和电池隐藏，保留用户开启的音乐灵动岛。系统图标明暗复用现有背景取色，进入音乐等暗色应用时一并更新。
+
+小新 Pad Pro 12.7 的具体年份/型号尚未确认，用户回复“2026吧”，因此不假定某个型号或硬编码 2944×1840。使用实际可用窗口的 600/840 CSS px 宽度分档；窄分屏回到紧凑规则。宽窗口桌面扩大图标（76–112 px）、标签、Dock 和组件文字，内容网格最大 960 px；保留原有 4 列×6 行及保存位置，短横屏允许桌面纵向滚动。用户的文字倍率继续叠加，不修改已保存主题和桌面数据，不使用全页面缩放。
+
+应用容器中的文字适度增大；书架、歌单、榜单按实际容器宽度重排，主要操作维持触摸尺寸。阅读悬浮窗按阅读容器及可见屏段限位，测量真实展开尺寸，横竖屏、分屏和键盘变化后重新约束。聊天/阅读的消息菜单复用已有投影几何，按屏段、应用及祖先裁剪区和键盘可见区定位，保留菜单箭头；窗口变化时关闭旧菜单。独立路由使用同一安全区域。
+
+本次只执行静态标记扫描、TS/TSX 与 CSS 语法解析及镜像核对；不运行测试或模拟器。源码修正不等于小新平板真机验收通过，原生系统栏变化需重新打包安装才能生效。
+
+参考：[Android 边到边显示](https://developer.android.com/develop/ui/views/layout/edge-to-edge)、[窗口大小分档](https://developer.android.com/develop/adaptive-apps/guides/use-window-size-classes)、[WindowMetricsCalculator](https://developer.android.com/reference/androidx/window/layout/WindowMetricsCalculator)。
+
 ## 主要代码
 
 - `lib/device-adaptation.ts`：视口、屏段、可见区域、原生桥接与变化事件。

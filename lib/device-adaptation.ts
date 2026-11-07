@@ -5,6 +5,7 @@ export type DevicePosture = "continuous" | "folded";
 export type FoldOrientation = "none" | "vertical" | "horizontal";
 export interface ViewportSegment { left: number; top: number; width: number; height: number }
 export interface HingeBounds extends ViewportSegment {}
+export interface SystemInsets { left: number; top: number; right: number; bottom: number }
 export interface DeviceAdaptationState {
   deviceType: DeviceType;
   orientation: DeviceOrientation;
@@ -18,6 +19,9 @@ export interface DeviceAdaptationState {
   isSeparating: boolean;
   viewportSegments: ViewportSegment[];
   primarySegment: ViewportSegment;
+  primaryDisplaySegment: ViewportSegment;
+  systemInsets: SystemInsets;
+  isNativeWindow: boolean;
   visibleViewport: ViewportSegment;
   hinge: HingeBounds | null;
   isSplitLayout: boolean;
@@ -33,11 +37,18 @@ interface AndroidFoldPayload {
   viewportHeight?: number;
   bounds?: HingeBounds;
 }
+interface AndroidWindowPayload {
+  viewWidthPx?: number;
+  viewHeightPx?: number;
+  insets?: Partial<SystemInsets>;
+  imeVisible?: boolean;
+}
 type SegmentWindow = Window & {
   viewport?: { segments?: DOMRect[] };
   getWindowSegments?: () => DOMRect[];
-  AndroidShell?: { getFoldInfo?: () => string };
+  AndroidShell?: { getFoldInfo?: () => string; getDeviceWindowInfo?: () => string };
   __updateDeviceFoldInfo?: (payload: AndroidFoldPayload) => void;
+  __updateAndroidWindowInfo?: (payload: AndroidWindowPayload) => void;
 };
 export const DEVICE_ADAPTATION_CHANGED_EVENT = "device-adaptation-changed";
 export const DEVICE_ADAPTATION_WILL_CHANGE_EVENT = "device-adaptation-will-change";
@@ -47,12 +58,14 @@ const serverState: DeviceAdaptationState = {
   isMobile: false, isTablet: false, isDesktop: true, isAdaptive: false,
   posture: "continuous", foldOrientation: "none", isSeparating: false,
   viewportSegments: [defaultRect], primarySegment: defaultRect, visibleViewport: defaultRect,
+  primaryDisplaySegment: defaultRect, systemInsets: { left: 0, top: 0, right: 0, bottom: 0 }, isNativeWindow: false,
   hinge: null, isSplitLayout: false, screenWidth: 390, screenHeight: 844,
 };
 let currentState = serverState;
 const listeners = new Set<() => void>();
 let initialized = false;
 let androidFoldOverride: AndroidFoldPayload | null = null;
+let androidWindowOverride: AndroidWindowPayload | null = null;
 let segmentProbe: HTMLDivElement | null = null;
 export function getDeviceAdaptationSnapshot(): DeviceAdaptationState { return currentState; }
 export function getServerDeviceAdaptationSnapshot(): DeviceAdaptationState { return serverState; }
@@ -69,6 +82,11 @@ function clipRect(rect: ViewportSegment, width: number, height: number): Viewpor
   if (![rect.left, rect.top, rect.width, rect.height].every(Number.isFinite)) return null;
   const left = Math.max(0, rect.left), top = Math.max(0, rect.top);
   const right = Math.min(width, rect.left + rect.width), bottom = Math.min(height, rect.top + rect.height);
+  return right > left && bottom > top ? { left, top, width: right - left, height: bottom - top } : null;
+}
+export function intersectViewportRects(a: ViewportSegment, b: ViewportSegment): ViewportSegment | null {
+  const left = Math.max(a.left, b.left), top = Math.max(a.top, b.top);
+  const right = Math.min(a.left + a.width, b.left + b.width), bottom = Math.min(a.top + a.height, b.top + b.height);
   return right > left && bottom > top ? { left, top, width: right - left, height: bottom - top } : null;
 }
 /** CSS env() is the fallback for browsers exposing media features without the JS API. */
@@ -102,15 +120,35 @@ export function evaluateDeviceAdaptation(): DeviceAdaptationState {
   if (typeof window === "undefined") return serverState;
   const width = Math.max(1, window.innerWidth), height = Math.max(1, window.innerHeight);
   const full = { left: 0, top: 0, width, height };
+  const host = window as SegmentWindow;
+  if (!androidWindowOverride?.viewWidthPx && host.AndroidShell?.getDeviceWindowInfo) {
+    try { androidWindowOverride = JSON.parse(host.AndroidShell.getDeviceWindowInfo()); } catch { /* Wait for native layout. */ }
+  }
+  const native = androidWindowOverride;
+  const isNativeWindow = Boolean(native?.viewWidthPx && native?.viewHeightPx && native.insets);
+  // Native values are WebView-local physical pixels, not guessed screen pixels or CSS dp.
+  const inset = (key: keyof SystemInsets, extent: number, pixels: number | undefined) => {
+    const value = native?.insets?.[key];
+    return isNativeWindow && Number.isFinite(value) && pixels && pixels > 0
+      ? Math.max(0, Math.min(extent - 1, Number(value) * extent / pixels)) : 0;
+  };
+  const systemInsets = {
+    left: inset("left", width, native?.viewWidthPx), right: inset("right", width, native?.viewWidthPx),
+    top: inset("top", height, native?.viewHeightPx), bottom: inset("bottom", height, native?.viewHeightPx),
+  };
+  const safe = { left: systemInsets.left, top: systemInsets.top,
+    width: Math.max(1, width - systemInsets.left - systemInsets.right),
+    height: Math.max(1, height - systemInsets.top - systemInsets.bottom) };
   const viewport = window.visualViewport;
-  const visibleViewport = viewport && viewport.scale === 1
+  const visual = viewport && viewport.scale === 1
     ? clipRect({ left: viewport.offsetLeft, top: viewport.offsetTop, width: viewport.width, height: viewport.height }, width, height) || full
     : full;
+  const visibleViewport = intersectViewportRects(safe, visual) || safe;
   const isTouch = isTouchDevice();
   const editable = document.activeElement instanceof HTMLElement
     && document.activeElement.matches("input,textarea,select,[contenteditable='true']");
   // Opening a keyboard must not change a tablet into a landscape phone.
-  const sameWindowWithKeyboard = editable && currentState.isAdaptive
+  const sameWindowWithKeyboard = (editable || native?.imeVisible) && currentState.isAdaptive
     && Math.abs(currentState.screenWidth - width) < 2;
   const orientation = sameWindowWithKeyboard ? currentState.orientation
     : width > height ? "landscape" : "portrait";
@@ -122,7 +160,6 @@ export function evaluateDeviceAdaptation(): DeviceAdaptationState {
   let foldOrientation: FoldOrientation = "none";
   let hinge: HingeBounds | null = null;
   let segments: ViewportSegment[] = [];
-  const host = window as SegmentWindow;
   if (!androidFoldOverride && host.AndroidShell?.getFoldInfo) {
     try { androidFoldOverride = JSON.parse(host.AndroidShell.getFoldInfo()); } catch { /* Wait for the native update. */ }
   }
@@ -167,7 +204,11 @@ export function evaluateDeviceAdaptation(): DeviceAdaptationState {
   }
   const isSeparating = segments.length > 1;
   if (!isSeparating) { segments = [full]; foldOrientation = "none"; hinge = null; }
+  const displaySegments = segments;
+  segments = displaySegments.map(segment => intersectViewportRects(segment, safe)).filter((s): s is ViewportSegment => Boolean(s));
+  if (!segments.length) segments = [safe];
   const primarySegment = [...segments].sort((a, b) => b.width * b.height - a.width * a.height)[0];
+  const primaryDisplaySegment = displaySegments.find(s => intersectViewportRects(s, primarySegment)) || full;
   const foldSplit = foldOrientation === "vertical" && segments.length === 2 && segments.every(s => s.width >= 280);
   const isAdaptive = isTouch || width < 600 || isSeparating;
   const isSplitLayout = foldSplit || (!isSeparating && deviceType === "tablet" && width >= 760);
@@ -175,6 +216,7 @@ export function evaluateDeviceAdaptation(): DeviceAdaptationState {
     deviceType, orientation, isTouch, isMobile: deviceType === "mobile",
     isTablet: deviceType === "tablet", isDesktop: deviceType === "desktop", isAdaptive,
     posture, foldOrientation, isSeparating, viewportSegments: segments, primarySegment,
+    primaryDisplaySegment, systemInsets, isNativeWindow,
     visibleViewport, hinge, isSplitLayout, screenWidth: width, screenHeight: height,
   };
 }
@@ -188,14 +230,23 @@ export function syncRootDeviceAttributes(state: DeviceAdaptationState) {
   root.dataset.foldSeparating = String(state.isSeparating);
   root.dataset.splitLayout = String(state.isSplitLayout);
   root.dataset.adaptiveWindow = String(state.isAdaptive);
+  root.dataset.nativeWindow = String(state.isNativeWindow);
+  // Query the usable pane: a narrow split window on a 12.7-inch tablet remains compact.
+  root.dataset.windowSize = state.primarySegment.width < 600 ? "compact" : state.primarySegment.width < 840 ? "medium" : "expanded";
   const px = (name: string, value: number) => root.style.setProperty(name, value + "px");
   px("--app-window-width", state.screenWidth);
   px("--app-window-height", state.screenHeight);
+  px("--tablet-grid-width", Math.min(960, Math.max(0, state.primarySegment.width - 48)));
+  px("--tablet-grid-gap", Math.max(24, Math.min(48, state.primarySegment.width * .04)));
+  px("--tablet-icon-size", Math.max(76, Math.min(112, state.primarySegment.width * .115)));
+  root.style.setProperty("--tablet-widget-text-scale", String(Math.max(1.15, Math.min(1.85, state.primarySegment.width / 500))));
   for (const key of ["left", "top", "width", "height"] as const) {
     px("--app-pane-" + key, state.primarySegment[key]);
+    px("--display-pane-" + key, state.primaryDisplaySegment[key]);
     px("--app-visible-" + key, state.visibleViewport[key]);
     px("--hinge-" + key, state.hinge?.[key] || 0);
   }
+  for (const key of ["left", "top", "right", "bottom"] as const) px("--native-safe-" + key, state.systemInsets[key]);
   state.viewportSegments.slice(0, 2).forEach((segment, index) => {
     for (const key of ["left", "top", "width", "height"] as const) {
       px("--viewport-segment-" + key + "-" + index, segment[key]);
@@ -226,6 +277,10 @@ export function initDeviceAdaptation() {
     androidFoldOverride = payload;
     schedule();
   };
+  (window as SegmentWindow).__updateAndroidWindowInfo = payload => {
+    androidWindowOverride = payload;
+    schedule();
+  };
   for (const event of ["resize", "orientationchange", "pageshow", "focusin", "focusout"]) window.addEventListener(event, schedule);
   window.visualViewport?.addEventListener("resize", schedule);
   window.visualViewport?.addEventListener("scroll", schedule);
@@ -240,11 +295,13 @@ export function isMobileDevice(): boolean {
 }
 
 /** Physical screen segments expressed in an element's unscaled local coordinates. */
-export function getElementViewportSegments(element: HTMLElement): ViewportSegment[] {
+export function getElementViewportSegments(element: HTMLElement, visibleOnly = false): ViewportSegment[] {
   const rect = element.getBoundingClientRect();
   const scaleX = rect.width / (element.offsetWidth || rect.width) || 1;
   const scaleY = rect.height / (element.offsetHeight || rect.height) || 1;
-  return currentState.viewportSegments.flatMap(segment => {
+  return currentState.viewportSegments.flatMap(raw => {
+    const segment = visibleOnly ? intersectViewportRects(raw, currentState.visibleViewport) : raw;
+    if (!segment) return [];
     const left = Math.max(rect.left, segment.left), top = Math.max(rect.top, segment.top);
     const right = Math.min(rect.right, segment.left + segment.width), bottom = Math.min(rect.bottom, segment.top + segment.height);
     return right > left && bottom > top
