@@ -190,9 +190,6 @@ html[data-device-type="tablet"]:not([data-window-size="compact"]) .icon-grid .wg
   width: clamp(85px, var(--tablet-icon-size), 112px);
   height: clamp(85px, var(--tablet-icon-size), 112px);
 }
-html[data-device-type="tablet"]:not([data-window-size="compact"]) :is(.phone-app-pane, .wb-layout, .vr-root, .ama-root) {
-  --app-text-scale: calc(var(--desktop-user-text-scale) * 1.15);
-}
 /* Only the chat master/detail surface spans both screens. Other apps use a safe segment. */
 html[data-active-app="chat"][data-split-layout="true"][data-adaptive-window="true"] {
   --phone-screen-width: var(--app-window-width) !important;

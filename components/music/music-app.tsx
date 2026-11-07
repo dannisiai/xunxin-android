@@ -9,6 +9,8 @@ import {
 } from "@/lib/music-storage";
 import { useMusicControls, type MusicControlsValue } from "@/lib/music-context";
 import { SessionCustomCSS } from "@/components/ui/session-custom-css";
+import { navigateDestinationKeys } from "@/components/ui/adaptive-workspace";
+import { usePageBack } from "@/components/ui/use-page-back";
 import {
     isNeteaseConfigured, loadMusicApiConfig, saveMusicApiConfig,
     searchNetease, getNeteasePlayInfo, getNeteaseLyrics, getNeteaseSongDetail,
@@ -53,6 +55,24 @@ export default function MusicApp({ onClose }: Props) {
     const musicLoadingFallbackRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [bgCfg, setBgCfg] = useState<MusicBgConfig>(() => loadMusicBg());
     const player = useMusicControls();
+    const rootRef = useRef<HTMLDivElement>(null);
+    usePageBack(rootRef, () => {
+        if (showSettings) setShowSettings(false);
+        else if (showCssEditor) setShowCssEditor(false);
+        else if (dailyView) setDailyView(null);
+        else if (activePlaylist) setActivePlaylist(null);
+        else onClose();
+    });
+    useEffect(() => {
+        const mediaKey = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.isComposing || !rootRef.current?.getClientRects().length
+                || (event.target instanceof HTMLElement && event.target.closest('input,textarea,select,button,a,[role="button"],[contenteditable="true"],[role="dialog"]'))) return;
+            if (event.code === "Space") { event.preventDefault(); player.togglePlay(); }
+            else if (event.altKey && event.key === "ArrowRight") { event.preventDefault(); player.next(); }
+        };
+        document.addEventListener('keydown', mediaKey);
+        return () => document.removeEventListener('keydown', mediaKey);
+    }, [player]);
 
     useEffect(() => {
         const handleBgChange = () => setBgCfg(loadMusicBg());
@@ -278,7 +298,7 @@ export default function MusicApp({ onClose }: Props) {
     };
 
     return (
-        <div className="music-app" style={appBgStyle(bgCfg)} {...(player.currentTrack ? { "data-nowbar": "" } : {})}>
+        <div ref={rootRef} className="music-app" style={appBgStyle(bgCfg)} {...(player.currentTrack ? { "data-nowbar": "" } : {})}>
             {customCss && <SessionCustomCSS css={customCss} scope=".music-app" />}
             {musicToast && (
                 <div data-adaptive-surface="content" className="music-toast-overlay">
@@ -319,6 +339,7 @@ export default function MusicApp({ onClose }: Props) {
             </div>
 
             {/* Tab content */}
+            <main className="music-library">
             {tab === "recommend" && hasNetease && (dailyView ? (
                 <DailySongsPage
                     songs={dailyView}
@@ -390,7 +411,7 @@ export default function MusicApp({ onClose }: Props) {
             {tab === "local" && (
                 <>
                     <button
-                        className="music-fab-add"
+                        className="music-fab-add music-fab-style"
                         onClick={() => setShowCssEditor(true)}
                         title="自定义样式"
                         style={{ bottom: player.currentTrack ? "calc(202px + env(safe-area-inset-bottom, 0px))" : "calc(146px + env(safe-area-inset-bottom, 0px))" }}
@@ -401,7 +422,7 @@ export default function MusicApp({ onClose }: Props) {
                         </svg>
                     </button>
                     <button
-                        className="music-fab-add"
+                        className="music-fab-add music-fab-upload"
                         onClick={() => fileInputRef.current?.click()}
                         title="添加本地音乐"
                         style={{ bottom: player.currentTrack ? "calc(146px + env(safe-area-inset-bottom, 0px))" : "calc(90px + env(safe-area-inset-bottom, 0px))" }}
@@ -414,10 +435,11 @@ export default function MusicApp({ onClose }: Props) {
                 </>
             )}
 
+            </main>
             {/* Bottom dock: mini player + tab bar share one glass slab */}
             <div className="music-bottom-dock">
             {player.currentTrack && (
-                <div className="music-now-bar" onClick={player.openFullPlayer}>
+                <div className="music-now-bar" role="button" tabIndex={0} aria-label={`打开播放器：${player.currentTrack.title}`} onClick={player.openFullPlayer}>
                     <div className="music-birds">
                         <img src="/birds/小鸟1.png" className="music-bird bird-1" alt="bird" />
                         <img src="/birds/小鸟2.png" className="music-bird bird-2" alt="bird" />
@@ -458,7 +480,7 @@ export default function MusicApp({ onClose }: Props) {
             )}
 
             {/* Bottom tab bar */}
-            <div className="music-tabbar">
+            <nav className="music-tabbar" aria-label="音乐导航" onKeyDown={navigateDestinationKeys}>
                 {hasNetease && (
                     <button className="music-tabbar-item" {...(tab === "recommend" ? { "data-active": "" } : {})} onClick={() => { setTab("recommend"); setActivePlaylist(null); setDailyView(null); }}>
                         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"><path d="M3 10.5 12 3l9 7.5V21h-6v-6h-6v6H3z" /></svg>
@@ -481,7 +503,7 @@ export default function MusicApp({ onClose }: Props) {
                     <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
                     <span>本地</span>
                 </button>
-            </div>
+            </nav>
             </div>
 
             {/* Settings Modal */}

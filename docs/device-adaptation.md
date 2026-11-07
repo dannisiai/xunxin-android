@@ -64,9 +64,9 @@
 
 复用已有 AndroidX Activity `enableEdgeToEdge`、Core `WindowInsetsCompat` / `WindowInsetsControllerCompat` 和 Window `WindowMetricsCalculator`；不新增依赖。`WebViewWindowController` 统一维护真实系统栏、刘海、平板任务栏、窗口标题栏及 IME；仅扣除系统尚未执行的键盘缩小量，避免与 `adjustResize` 重复缩小。原生通过缓存快照及事件发送 WebView 局部像素尺寸和安全边距，网页按当前 CSS 视口分别换算横纵坐标。壁纸覆盖完整窗口，应用内容避开系统栏；模拟时间和电池隐藏，保留用户开启的音乐灵动岛。系统图标明暗复用现有背景取色，进入音乐等暗色应用时一并更新。
 
-小新 Pad Pro 12.7 的具体年份/型号尚未确认，用户回复“2026吧”，因此不假定某个型号或硬编码 2944×1840。使用实际可用窗口的 600/840 CSS px 宽度分档；窄分屏回到紧凑规则。宽窗口桌面扩大图标（76–112 px）、标签、Dock 和组件文字，内容网格最大 960 px；保留原有 4 列×6 行及保存位置，短横屏允许桌面纵向滚动。用户的文字倍率继续叠加，不修改已保存主题和桌面数据，不使用全页面缩放。
+小新 Pad Pro 12.7 的具体年份/型号尚未确认，用户回复“2026吧”，因此不假定某个型号或硬编码 2944×1840。使用实际可用窗口的 600/840 CSS px 宽度分档；窄分屏回到紧凑规则。桌面单页保存原有 4 列×6 行及位置，最新页面布局在普通平板可用宽度达到 840 CSS px 时并排展示两页，合计八列，折叠屏段与窄窗口显示一页。图标、间距和组件字体按单页实际宽度计算，短横屏允许桌面纵向滚动。用户的文字倍率继续生效，不修改已保存主题和桌面数据。
 
-应用容器中的文字适度增大；书架、歌单、榜单按实际容器宽度重排，主要操作维持触摸尺寸。阅读悬浮窗按阅读容器及可见屏段限位，测量真实展开尺寸，横竖屏、分屏和键盘变化后重新约束。聊天/阅读的消息菜单复用已有投影几何，按屏段、应用及祖先裁剪区和键盘可见区定位，保留菜单箭头；窗口变化时关闭旧菜单。独立路由使用同一安全区域。
+书架、歌单、榜单按实际容器宽度重排，主要操作维持触摸尺寸。后续布局重排已去掉整片应用内容统一乘以 1.15 的文字放大，改为按组件控制字号、行宽和密度。阅读悬浮窗按阅读容器及可见屏段限位，测量真实展开尺寸，横竖屏、分屏和键盘变化后重新约束。聊天/阅读的消息菜单复用已有投影几何，按屏段、应用及祖先裁剪区和键盘可见区定位，保留菜单箭头；窗口变化时关闭旧菜单。独立路由使用同一安全区域。
 
 本次静态检查包含标记扫描、TS/TSX 与 CSS 语法解析及镜像核对，安装包通过 GitHub 云端构建；不运行测试或模拟器。源码修正不等于小新平板真机验收通过，原生系统栏变化需重新打包安装才能生效。
 
@@ -78,6 +78,31 @@
 
 参考：[Android 边到边显示](https://developer.android.com/develop/ui/views/layout/edge-to-edge)、[窗口大小分档](https://developer.android.com/develop/adaptive-apps/guides/use-window-size-classes)、[WindowMetricsCalculator](https://developer.android.com/reference/androidx/window/layout/WindowMetricsCalculator)。
 
+## 平板页面与交互重排（2026-11-07 后续）
+
+本轮以 Android Adaptive optimized / Tier 2 的页面和交互建议为实现参考；不把源码检查或构建成功写成官方质量认证。
+
+| 页面／能力 | 实现 |
+| --- | --- |
+| 设置、外观、资源库 | 宽窗口常驻分类侧栏和独立滚动内容区；窄窗口保留单页流程。设置内仍在编辑的子页先通过现有返回流程结束编辑，避免直接切换分类丢弃输入。 |
+| 角色 | 角色列表／世界画布侧栏与档案内容并列；编辑中的角色必须先保存或取消再切换。侧栏“桌面”退出复用编辑器当前的未保存检查：继续编辑、Esc 或关闭提示均保留草稿，明确选择“放弃更改”后才退出。画布卡片可用键盘聚焦与激活。 |
+| 日记 | 角色日记分类侧栏；正文区域按容器重排卡片，保留字体和定时生成设置。 |
+| 阅读 | 目录侧栏与正文并列；保留原书架自适应网格。Ctrl/Cmd 加减、0 和 Ctrl 滚轮调整正文/PDF 缩放；TXT 重分页保留段落与字符位置，而不是旧页码。 |
+| 日历 | 宽窗口同时展示月历和日程，窄窗口一次显示一栏；已打开的日程保留挂载。窗口缩放后对齐选中日期，保留时间轴纵向位置。 |
+| 聊天 | 根据实际聊天容器宽度决定单双栏，避免按整机宽度误判窄分屏。宽屏导航放在列表侧边；过窄折叠屏段保留底部导航，不挤压联系人列表。 |
+| 音乐 | 音乐分类改为侧边导航；播放器宽屏同时显示封面／黑胶和歌词，进度、播放控制限制合理宽度。歌词按实际可见性跟随，播放进度支持键盘调整。 |
+| 桌面 | 一／两页自适应展示，翻页指示、滑动范围、跨页拖放与保存坐标使用同一页组规则。布局变更中取消未提交的拖拽，恢复原始图标、组件、Dock 和文件夹事务。方向键移动焦点，PageUp/PageDown 翻页，右键进入整理。 |
+| 表单与弹窗 | 表单行宽及网格按实际内容容器调整；宽窗口抽屉限宽；主要按钮使用 48 CSS px 触摸区域。共用弹窗处理初始焦点、Tab 循环、Esc／系统返回和焦点恢复。声明为自定义弹窗的层复用各自现有关闭动作；普通几何卡片不自动视为模态。 |
+| 原生窗口 | Android Activity 继续拥有系统栏和多窗口处理；WebView 内不再跟随每次点击请求网页全屏。 |
+
+`AdaptiveWorkspace` 始终保持同一内容 DOM，容器查询只改变侧栏与内容的排布。聊天、日历的实际窗口测量复用 `ResizeObserver`；不按型号、物理分辨率或浏览器 UA 固定平板画布。没有增加 npm 或 Android 依赖。
+
+后续只读检查发现的两处遗漏已补齐：角色侧栏退出通过编辑器注册的离开守卫处理，不在父级猜测是否有未保存内容；阅读悬浮窗关闭／收起／发送、日历小按钮及角色画布菜单按钮使用至少 48×48 CSS px 的实际按钮区域。该尺寸规则不依赖 600 px 容器断点，窄分屏和折叠屏段同样生效；SVG 图标保持原尺寸。
+
+本轮仅做静态标记扫描、受影响 TS/TSX 文件的语法／类型分析、CSS 解析及镜像核对，不运行测试、应用或模拟器，也不下载文件。**本轮页面重排尚未重新打包，之前发布的 1.2.1 APK 不包含本节后续修改。** 真机上的 ZUI 任务栏／分屏、不同字体倍率、窗口连续缩放以及第三方自定义 CSS／iframe 仍需实际验收；不能宣称所有设备已达到官方 Tier 2。
+
+参考：[Android Adaptive optimized](https://developer.android.com/docs/quality-guidelines/adaptive-app-quality/tier-2)、[列表与详情布局](https://developer.android.com/develop/ui/compose/layouts/adaptive/list-detail)、[多窗口支持](https://developer.android.com/develop/ui/views/layout/support-multi-window-mode)。
+
 ## 主要代码
 
 - `lib/device-adaptation.ts`：视口、屏段、可见区域、原生桥接与变化事件。
@@ -87,6 +112,9 @@
 - `components/chat/phone-chat-app.tsx`：稳定的聊天单双栏结构。
 - `components/chat/use-adaptive-scroll-anchor.ts`：窗口变化时保留消息阅读锚点。
 - `styles/adaptive.css`：最后加载的统一适配层。
+- `styles/tablet-workspaces.css`：页面导航、内容密度、播放器、日历和输入设备样式。
+- `components/ui/adaptive-workspace.tsx`、`use-pane-size.ts`、`use-page-back.ts`、`use-dialog-focus.ts`：共用布局、实际容器测量、返回及弹窗焦点。
+- `lib/adaptive-input.ts`：显式自定义弹窗的键盘行为及语义按钮激活。
 - `android-shell/.../MainActivity.kt`、`CompanionOverlayService.kt`、`FoldSafeContent.kt`、`OverlayFoldMonitor.kt`、`OverlayFoldGeometry.kt`、`OverlayFoldObservation.kt`：原生窗口几何、订阅边界、空结果确认与布局。
 
 ## 参考

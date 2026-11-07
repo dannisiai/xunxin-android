@@ -110,6 +110,7 @@ export function CalendarDetailPage({
   const [center, setCenter] = useState(initialDate);
   const [selectedIso, setSelectedIso] = useState(initialDate);
   const selectedRef = useRef(initialDate);
+  const layoutRef = useRef<HTMLDivElement>(null);
 
   const stripRef = useRef<HTMLDivElement>(null);
   const tlHRef = useRef<HTMLDivElement>(null);
@@ -264,6 +265,27 @@ export function CalendarDetailPage({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [daysPerPage]);
 
+  // Re-align the selected day after rotation or a split-window resize, keeping vertical reading position.
+  useEffect(() => {
+    const root = layoutRef.current;
+    if (!root) return;
+    let frame = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        if (!root.clientWidth || !root.clientHeight) return;
+        snapStripTo(selectedRef.current, false);
+        snapTimelineTo(selectedRef.current, false);
+        paintSelection(false);
+        updateRangePill(daysRef.current.indexOf(selectedRef.current));
+      });
+    });
+    observer.observe(root);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); };
+    // Helpers read current dates and column geometry from refs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // 时间轴横向滚动：灰胶囊逐帧跟随；索引变化立即联动选中
   const handleTimelineScroll = () => {
     const tl = tlHRef.current;
@@ -316,7 +338,7 @@ export function CalendarDetailPage({
   const backLabel = `${selectedDate.getMonth() + 1}月`;
 
   return (
-    <div className="calendar-page calendar-page-detail">
+    <div ref={layoutRef} className="calendar-page calendar-page-detail">
       <div className="calendar-apple-topbar">
         <button type="button" className="calendar-pill-btn calendar-back-btn" onClick={onBack}>
           <span aria-hidden="true">‹</span> {backLabel}

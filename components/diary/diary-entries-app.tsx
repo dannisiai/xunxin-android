@@ -25,6 +25,8 @@ import {
 } from "@/lib/diary-entry-storage";
 import type { DiaryEntry, DiaryEntryBlock, DiaryEntryTimerSettings, DiaryEntryTrigger } from "@/lib/diary-entry-types";
 import { getThemeAssetDataUrl, saveThemeAssetFromBlob } from "@/lib/theme-storage";
+import { AdaptiveWorkspace } from "@/components/ui/adaptive-workspace";
+import { usePageBack } from "@/components/ui/use-page-back";
 
 const DIARY_USER_FONT_FAMILY = "AIPhoneDiaryEntryUserFont";
 const DIARY_USER_FONT_STYLE_ID = "ai-phone-diary-entry-user-font-face";
@@ -589,9 +591,18 @@ export function DiaryEntriesApp({ onBack, onNotice }: DiaryEntriesAppProps) {
     [activeCharacterId, books],
   );
   const activeBookBusy = Boolean(activeBook && generatingCharacterIds.includes(activeBook.characterId));
+  const rootRef = useRef<HTMLElement>(null);
+  usePageBack(rootRef, () => {
+    if (activeEntry) setActiveEntry(null);
+    else if (activeCharacterId) setActiveCharacterId(null);
+    else onBack();
+  });
 
   return (
-    <section className={`diary-app diary-entry-app ${entryDrag ? "is-entry-dragging" : ""}`} style={diaryEntryStyle}>
+    <AdaptiveWorkspace title="日记" selected={activeCharacterId || "overview"} onClose={onBack}
+      destinations={[{ id: "overview", label: "全部日记" }, ...books.map(book => ({ id: book.characterId, label: book.characterName, description: `${book.entries.length} 篇日记` }))]}
+      onSelect={id => { setActiveCharacterId(id === "overview" ? null : id); setActiveEntry(null); }}>
+    <section ref={rootRef} className={`diary-app diary-entry-app ${entryDrag ? "is-entry-dragging" : ""}`} style={diaryEntryStyle}>
       {generatingCharacterIds.length > 0 && (
         <div className="diary-generating-toast" role="status">
           <span className="diary-generating-toast-spinner" aria-hidden="true" />
@@ -785,6 +796,7 @@ export function DiaryEntriesApp({ onBack, onNotice }: DiaryEntriesAppProps) {
         </div>
       ) : null}
     </section>
+    </AdaptiveWorkspace>
   );
 }
 

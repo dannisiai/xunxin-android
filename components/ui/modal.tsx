@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useId, useRef } from "react";
 import { type LucideIcon, X, Check } from "lucide-react";
+import { useDialogFocus } from "./use-dialog-focus";
 
 /* ── Confirm Dialog (center) ── */
 export type ConfirmDialogProps = {
@@ -30,12 +31,15 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
+  const root = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus(root, onCancel);
   return (
     <div className={`modal-overlay ${overlayClassName ?? ""}`} data-ui="modal" onClick={onCancel}>
-      <div className={`modal-dialog ${dialogClassName ?? ""}`} data-ui="modal-dialog" onClick={(e) => e.stopPropagation()}>
+      <div ref={root} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className={`modal-dialog ${dialogClassName ?? ""}`} data-ui="modal-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header" data-ui="modal-header">
           {Icon && <div className="ui-icon-circle" data-variant={variant === "default" ? undefined : variant}><Icon size={20} /></div>}
-          <h3 className="modal-title">{title}</h3>
+          <h3 id={titleId} className="modal-title">{title}</h3>
         </div>
         {message && <div className="modal-body" data-ui="modal-body"><p>{message}</p></div>}
         <div className="modal-footer" data-ui="modal-footer">
@@ -65,11 +69,14 @@ export function ContentDialog({
   onCancel,
   children,
 }: ContentDialogProps) {
+  const root = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus(root, onCancel);
   return (
     <div className="modal-overlay" data-ui="modal" onClick={onCancel}>
-      <div className="modal-dialog" data-ui="modal-dialog" onClick={(e) => e.stopPropagation()}>
+      <div ref={root} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="modal-dialog" data-ui="modal-dialog" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header" data-ui="modal-header">
-          <h3 className="modal-title">{title}</h3>
+          <h3 id={titleId} className="modal-title">{title}</h3>
         </div>
         <div className="modal-body" data-ui="modal-body" style={{ textAlign: "left", width: "100%" }}>
           {children}
@@ -97,17 +104,20 @@ export function BottomSheet({
   onDone,
   children,
 }: BottomSheetProps) {
+  const root = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus(root, onClose);
   // modal-overlay 默认垂直居中（那是给 modal-dialog 用的）；底部抽屉必须叠加
   // modal-overlay-bottom 贴到底，否则 .modal-sheet 那套「只有上圆角 + 向上滑入」
   // 的样式会浮在屏幕中间、下沿方角悬空，看着就像坏了。
   return (
     <div className="modal-overlay modal-overlay-bottom" data-ui="modal" onClick={onClose}>
-      <div className="modal-sheet" data-ui="modal-sheet" onClick={(e) => e.stopPropagation()}>
+      <div ref={root} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="modal-sheet" data-ui="modal-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header" data-ui="modal-header">
-          <button className="modal-header-btn modal-header-btn-muted" onClick={onClose}><X size={18} /></button>
-          <h3 className="modal-title">{title}</h3>
+          <button aria-label="关闭" className="modal-header-btn modal-header-btn-muted" onClick={onClose}><X size={18} /></button>
+          <h3 id={titleId} className="modal-title">{title}</h3>
           {onDone ? (
-            <button className="modal-header-btn modal-header-btn-action" onClick={onDone}><Check size={18} /></button>
+            <button aria-label="完成" className="modal-header-btn modal-header-btn-action" onClick={onDone}><Check size={18} /></button>
           ) : (
             <span style={{ width: 28 }} />
           )}
@@ -137,16 +147,19 @@ export function TextExpandModal({
   onClose: () => void;
 }) {
   const [draft, setDraft] = useState(value);
+  const root = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useDialogFocus(root, onClose);
 
   useEffect(() => { setDraft(value); }, [value]);
 
   return (
     <div className="modal-overlay" data-ui="modal" onClick={onClose}>
-      <div className="modal-expand" data-ui="modal-expand" onClick={(e) => e.stopPropagation()}>
+      <div ref={root} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="modal-expand" data-ui="modal-expand" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header" data-ui="modal-header">
-          <button className="modal-header-btn modal-header-btn-muted" onClick={onClose}><X size={18} /></button>
-          <span className="modal-header-title">{title}</span>
-          <button className="modal-header-btn modal-header-btn-action" onClick={() => { onChange(draft); onClose(); }}><Check size={18} /></button>
+          <button aria-label="取消" className="modal-header-btn modal-header-btn-muted" onClick={onClose}><X size={18} /></button>
+          <span id={titleId} className="modal-header-title">{title}</span>
+          <button aria-label="保存" className="modal-header-btn modal-header-btn-action" onClick={() => { onChange(draft); onClose(); }}><Check size={18} /></button>
         </div>
         <div className="modal-expand-body" data-ui="modal-body">
           <textarea

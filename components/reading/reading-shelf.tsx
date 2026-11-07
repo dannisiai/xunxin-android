@@ -10,6 +10,7 @@ import type { ReadingAppearance } from "@/lib/reading-appearance";
 import { ReadingAppearanceDialog } from "./reading-appearance-dialog";
 import { ReadingInteractionDialog } from "./reading-interaction-dialog";
 import { kvGet, kvSet, kvRemove } from "@/lib/kv-db";
+import { usePageBack } from "@/components/ui/use-page-back";
 
 type Props = {
     onOpenBook: (book: Book) => void;
@@ -104,6 +105,8 @@ export function ReadingShelf({ onOpenBook, onClose, appearance, backgroundUrl, o
     const [showAppearanceDialog, setShowAppearanceDialog] = useState(false);
     const [showInteractionDialog, setShowInteractionDialog] = useState(false);
     const fileRef = useRef<HTMLInputElement>(null);
+    const rootRef = useRef<HTMLDivElement>(null);
+    usePageBack(rootRef, onClose);
 
     const persistImportDiagnostic = (payload: ImportDiagnostic | null) => {
         if (typeof window === "undefined") return;
@@ -358,7 +361,7 @@ export function ReadingShelf({ onOpenBook, onClose, appearance, backgroundUrl, o
     const coverLayouts = ["layout-1", "layout-2", "layout-3", "layout-4"] as const;
 
     return (
-        <div className="reading-app-surface absolute inset-0 z-[100] flex flex-col">
+        <div ref={rootRef} className="reading-app-surface absolute inset-0 z-[100] flex flex-col">
             <header className="reading-shelf-header">
                 <div className="reading-shelf-appbar">
                     <button className="reading-shelf-back" type="button" onClick={onClose} aria-label="返回">
@@ -371,7 +374,7 @@ export function ReadingShelf({ onOpenBook, onClose, appearance, backgroundUrl, o
                         <button className="reading-shelf-action-btn" type="button" onClick={() => setShowAppearanceDialog(true)} aria-label="阅读外观">
                             <Palette size={16} strokeWidth={1.7} />
                         </button>
-                        <label className="reading-shelf-action-btn reading-shelf-action-primary" style={{ cursor: "pointer" }}>
+                        <label role="button" tabIndex={0} aria-label="导入书籍" className="reading-shelf-action-btn reading-shelf-action-primary" style={{ cursor: "pointer" }}>
                             <svg width={18} height={18} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <path d="M12 5v14M5 12h14" />
                             </svg>
@@ -443,7 +446,7 @@ export function ReadingShelf({ onOpenBook, onClose, appearance, backgroundUrl, o
                             const gradient = coverGradients[book.title.length % coverGradients.length];
                             const layout = coverLayouts[(book.title.length + (book.author?.length || 0)) % coverLayouts.length];
                             return (
-                                <div key={book.id} className="reading-list-item" onClick={() => onOpenBook(book)}>
+                                <div key={book.id} role="button" tabIndex={0} aria-label={`阅读：${book.title}`} className="reading-list-item" onClick={() => onOpenBook(book)}>
                                     <div className={`reading-list-cover reading-list-cover--${gradient} reading-list-cover--${layout}`}>
                                         <span className="reading-list-cover-author">{book.author || ""}</span>
                                         <span className="reading-list-cover-title">{book.title}</span>

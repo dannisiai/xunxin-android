@@ -32,6 +32,8 @@ import type { Character } from "@/lib/character-types";
 import { splitBilingualText } from "@/lib/bilingual-text";
 import { DEVICE_ADAPTATION_CHANGED_EVENT, getElementViewportSegments } from "@/lib/device-adaptation";
 import { positionAnchoredMenu } from "@/lib/anchored-menu";
+import { AdaptiveWorkspace } from "@/components/ui/adaptive-workspace";
+import { usePageBack } from "@/components/ui/use-page-back";
 
 type TxtPageItem =
     | { kind: "line"; text: string; chapterIndex: number; paragraphIndex: number; indent?: boolean; segEnd?: boolean }
@@ -260,6 +262,11 @@ export function ReadingViewer({ book, onBack }: Props) {
     }, [showCharPicker, charPickerClosing]);
     const [showChat, setShowChat] = useState(false);
     const surfaceRef = useRef<HTMLDivElement>(null);
+    usePageBack(surfaceRef, () => {
+        if (showNavigationDialog) setShowNavigationDialog(false);
+        else if (showChat) handleCloseChat();
+        else onBack();
+    });
     const chatFloatRef = useRef<HTMLElement>(null);
     const [chatExpanded, setChatExpanded] = useState(false);
     const [chatOffset, setChatOffset] = useState<{ x: number; y: number }>(() => {
@@ -331,7 +338,38 @@ export function ReadingViewer({ book, onBack }: Props) {
     const chapterIndexRef = useRef(0);
     const chaptersLenRef = useRef(0);
     const [txtLayoutVersion, setTxtLayoutVersion] = useState(0);
+    const readerZoomRef = useRef(1);
+    useEffect(() => {
+        const zoom = (delta: number, reset = false) => {
+            const root = surfaceRef.current;
+            if (!root) return;
+            if (isPdf) {
+                setReadingConfig(previous => ({ ...previous, pdfZoom: reset ? 1 : Math.max(.5, Math.min(3, (previous.pdfZoom || 1) + delta)) }));
+            } else {
+                readerZoomRef.current = reset ? 1 : Math.max(.75, Math.min(2, readerZoomRef.current + delta));
+                const base = Number.parseFloat(getComputedStyle(root.parentElement || root).getPropertyValue('--reading-font-size')) || 18;
+                if (reset) root.style.removeProperty('--reading-font-size');
+                else root.style.setProperty('--reading-font-size', `${base * readerZoomRef.current}px`);
+                setTxtLayoutVersion(value => value + 1);
+            }
+        };
+        const available = () => surfaceRef.current?.getClientRects().length && getComputedStyle(surfaceRef.current).visibility !== 'hidden';
+        const keys = (event: KeyboardEvent) => {
+            if (!available() || event.defaultPrevented || event.isComposing || !(event.ctrlKey || event.metaKey)
+                || (event.target instanceof HTMLElement && event.target.closest('input,textarea,select,[contenteditable="true"]'))) return;
+            if (['+','=','-','0'].includes(event.key)) { event.preventDefault(); zoom(event.key === '-' ? -.1 : .1, event.key === '0'); }
+        };
+        const wheel = (event: WheelEvent) => {
+            if (!available() || !event.ctrlKey || !(event.target instanceof Node) || !surfaceRef.current?.contains(event.target)) return;
+            event.preventDefault(); zoom(event.deltaY > 0 ? -.05 : .05);
+        };
+        document.addEventListener('keydown', keys);
+        document.addEventListener('wheel', wheel, { passive: false });
+        return () => { document.removeEventListener('keydown', keys); document.removeEventListener('wheel', wheel); };
+    }, [isPdf]);
     const [txtPages, setTxtPages] = useState<TxtPageItem[][]>([]);
+    const txtReadingPositionRef = useRef({ pages: txtPages, page: txtPage });
+    txtReadingPositionRef.current = { pages: txtPages, page: txtPage };
     const [scrollFraction, setScrollFraction] = useState(0);
     const [flipAnim, setFlipAnim] = useState<{ direction: 'forward' | 'backward'; items: TxtPageItem[] } | null>(null);
 
@@ -1844,6 +1882,22 @@ export function ReadingViewer({ book, onBack }: Props) {
         if (lastPage.length > 0) pages.push(lastPage);
         if (pages.length === 0) pages.push([{ kind: "line", text: "", chapterIndex, paragraphIndex: 0 }]);
 
+        // Preserve the paragraph and character offset, rather than an obsolete page number after reflow.
+        const previous = txtReadingPositionRef.current;
+        const anchor = previous.pages[previous.page]?.find(item => item.kind === 'line');
+        if (anchor?.kind === 'line' && anchor.chapterIndex === chapterIndex && pendingTxtPageFractionRef.current === null) {
+            const sameParagraph = (item: TxtPageItem): item is Extract<TxtPageItem, { kind: 'line' }> => item.kind === 'line'
+                && item.chapterIndex === anchor.chapterIndex && item.paragraphIndex === anchor.paragraphIndex;
+            const offset = previous.pages.slice(0, previous.page).flat().filter(sameParagraph).reduce((sum, item) => sum + item.text.length, 0);
+            let consumed = 0;
+            let target = pages.findIndex(page => page.some(item => {
+                if (!sameParagraph(item)) return false;
+                consumed += item.text.length;
+                return consumed > offset || item.text.length === 0;
+            }));
+            if (target < 0) target = Math.min(previous.page, pages.length - 1);
+            setTxtPage(target);
+        }
         lastTxtPaginationSignatureRef.current = paginationSignature;
         setTxtPages(pages);
     }, [annotations, bilingualTranslationEnabled, chapterIndex, currentChapter, isAnnotationTranslationExpanded, isPdf, isScrollMode, txtLayoutVersion]);
@@ -2098,6 +2152,9 @@ export function ReadingViewer({ book, onBack }: Props) {
     };
 
     return (
+        <AdaptiveWorkspace className="reading-workspace" title="目录" selected={String(chapterIndex)} onClose={onBack}
+            destinations={chapters.map((chapter, index) => ({ id: String(index), label: chapter.title || `第${index + 1}章`, description: isPdf && chapter.pageStart ? `第 ${chapter.pageStart} 页` : undefined }))}
+            onSelect={id => handleNavChapterClick(Number(id))}>
         <div ref={surfaceRef} className="reading-app-surface absolute inset-0 z-[100] flex flex-col bg-[var(--c-page-body-bg)]" data-immersive={immersive} style={{ paddingTop: "var(--page-header-safe-top, 48px)" }}>
             {/* Page flip overlay */}
             {flipAnim && (
@@ -2802,5 +2859,6 @@ export function ReadingViewer({ book, onBack }: Props) {
                 </>
             )}
         </div>
+        </AdaptiveWorkspace>
     );
 }

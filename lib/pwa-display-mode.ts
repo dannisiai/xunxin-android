@@ -52,6 +52,8 @@ export function writePwaDisplayPreference(preference: PwaDisplayPreference) {
 /** Preserve the upstream default: mobile browsers request fullscreen unless Edge or explicitly disabled. */
 export function shouldRequestPwaFullscreen(): boolean {
   if (typeof document === "undefined" || typeof navigator === "undefined") return false;
+  // Native window insets and multi-window mode are owned by the Android Activity.
+  if (typeof window !== "undefined" && ((window as Window & { AndroidShell?: unknown }).AndroidShell || /FloatShell\//.test(navigator.userAgent))) return false;
   const preference = readPwaDisplayPreference(document.cookie);
   if (preference === "standalone") return false;
   if (preference === "fullscreen") return true;

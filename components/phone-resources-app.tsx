@@ -6,6 +6,7 @@ import { MemoryBankPage } from "./memory/memory-bank-page";
 import { VnAssetPage } from "./vn/vn-asset-page";
 import { loadCharacters } from "@/lib/character-storage";
 import { PageShell } from "./ui/page-shell";
+import { AdaptiveWorkspace } from "./ui/adaptive-workspace";
 import { FeaturedCard, type FeaturedCardItem } from "./ui/card-grid";
 import { BINDING_ACCENTS, CONTENT_APP_ACCENTS } from "@/lib/ui-accent-colors";
 
@@ -82,6 +83,9 @@ export function PhoneResourcesApp({ onClose, onNotice, initialPage }: { onClose:
     const showSettingsIcon = currentPage === "memory" && memoryView !== "settings";
 
     return (
+      <AdaptiveWorkspace title="资源库" selected={currentPage} onClose={onClose}
+        destinations={[{ id: "main", label: "概览" }, ...RESOURCE_MENU.map(item => ({ id: item.id, label: item.label, description: item.desc, icon: <item.icon size={20} /> }))]}
+        onSelect={id => { setCurrentPage(id as ResourceSubPage); }}>
         <PageShell
             title={title}
             onBack={handleBack}
@@ -136,5 +140,6 @@ export function PhoneResourcesApp({ onClose, onNotice, initialPage }: { onClose:
                 )}
             </div>
         </PageShell>
+      </AdaptiveWorkspace>
     );
 }

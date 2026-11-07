@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useSyncExternalStore } from "react";
 import { initAdaptiveOverlays } from "@/lib/adaptive-overlays";
+import { initAdaptiveInput } from "@/lib/adaptive-input";
 import {
   initDeviceAdaptation,
   getDeviceAdaptationSnapshot,
@@ -13,7 +14,9 @@ import {
 export function DeviceAdaptationProvider() {
   useLayoutEffect(() => {
     initDeviceAdaptation();
-    return initAdaptiveOverlays();
+    const disposeOverlays = initAdaptiveOverlays();
+    const disposeInput = initAdaptiveInput();
+    return () => { disposeInput(); disposeOverlays(); };
   }, []);
 
   return null;

@@ -73,6 +73,9 @@ export function subscribeDeviceAdaptation(listener: () => void): () => void {
   listeners.add(listener);
   return () => { listeners.delete(listener); };
 }
+export function desktopPagesPerView(state: DeviceAdaptationState): number {
+  return state.isTablet && !state.isSeparating && state.primarySegment.width >= 840 ? 2 : 1;
+}
 export function isTouchDevice(): boolean {
   if (typeof window === "undefined") return false;
   return navigator.maxTouchPoints > 0 || window.matchMedia("(any-pointer: coarse)").matches
@@ -236,10 +239,11 @@ export function syncRootDeviceAttributes(state: DeviceAdaptationState) {
   const px = (name: string, value: number) => root.style.setProperty(name, value + "px");
   px("--app-window-width", state.screenWidth);
   px("--app-window-height", state.screenHeight);
-  px("--tablet-grid-width", Math.min(960, Math.max(0, state.primarySegment.width - 48)));
-  px("--tablet-grid-gap", Math.max(24, Math.min(48, state.primarySegment.width * .04)));
-  px("--tablet-icon-size", Math.max(76, Math.min(112, state.primarySegment.width * .115)));
-  root.style.setProperty("--tablet-widget-text-scale", String(Math.max(1.15, Math.min(1.85, state.primarySegment.width / 500))));
+  const pageWidth = state.primarySegment.width / desktopPagesPerView(state);
+  px("--tablet-grid-width", Math.min(740, Math.max(0, pageWidth - 32)));
+  px("--tablet-grid-gap", Math.max(12, Math.min(28, pageWidth * .035)));
+  px("--tablet-icon-size", Math.max(60, Math.min(96, pageWidth * .15)));
+  root.style.setProperty("--tablet-widget-text-scale", String(Math.max(1, Math.min(1.5, pageWidth / 420))));
   for (const key of ["left", "top", "width", "height"] as const) {
     px("--app-pane-" + key, state.primarySegment[key]);
     px("--display-pane-" + key, state.primaryDisplaySegment[key]);

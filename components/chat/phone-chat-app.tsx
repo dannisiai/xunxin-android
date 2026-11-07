@@ -19,6 +19,9 @@ import { CHAT_SESSIONS_MERGED_EVENT, type ChatSessionsMergedDetail } from "@/lib
 import { getMascotSettingsSnapshot } from "@/lib/mascot-settings";
 import { isChatOfflineMode, OFFLINE_CHAT_SEND_BLOCKED } from "@/lib/chat-mode";
 import { useDeviceAdaptation } from "@/components/device-adaptation-provider";
+import { usePaneSize } from "@/components/ui/use-pane-size";
+import { navigateDestinationKeys } from "@/components/ui/adaptive-workspace";
+import { usePageBack } from "@/components/ui/use-page-back";
 
 type TabKey = "messages" | "contacts" | "feeds" | "me";
 
@@ -42,7 +45,13 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
     const [visitedSessions, setVisitedSessions] = useState<Map<string, ChatSession>>(new Map());
     const [dbReady, setDbReady] = useState(false);
     const [hideTabBar, setHideTabBar] = useState(false);
-    const { isSplitLayout, isSeparating, foldOrientation } = useDeviceAdaptation();
+    const { isSeparating, foldOrientation, viewportSegments } = useDeviceAdaptation();
+    const pane = usePaneSize();
+    const isSplitLayout = isSeparating ? foldOrientation === "vertical" : pane.width >= 840;
+    usePageBack(pane.ref, () => {
+        if (activeSession || activeMascot) { setActiveSession(null); setActiveMascot(false); }
+        else onClose();
+    });
 
     // Hydrate IndexedDB → in-memory caches on mount
     useEffect(() => {
@@ -259,16 +268,17 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
         return next;
     }, [visitedSessions, activeSession]);
 
-    if (!dbReady) return null;
-
     return (
         <div
+            ref={pane.ref}
             className="chat-app absolute inset-0 overflow-hidden z-10"
             data-split={String(isSplitLayout)}
+            data-rail-navigation={String(isSplitLayout && (!isSeparating || viewportSegments[0].width >= 360))}
             data-dual-screen={String(isSplitLayout && isSeparating && foldOrientation === "vertical")}
             {...(activeSession || activeMascot ? { "data-room-active": "" } : {})}
             {...(hideTabBar ? { "data-tabbar-hidden": "" } : {})}
         >
+          {dbReady && <>
             {chatAppCSS && <SessionCustomCSS css={chatAppCSS} scope=".chat-app" />}
             <div className="chat-split-master">
                 <div className="chat-main-content relative flex-1 flex flex-col overflow-hidden" {...(activeSession || activeMascot ? { "data-covered-by-room": "" } : {})}>
@@ -294,7 +304,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                 {activeTab === "feeds" && <MomentsFeed onCloseApp={onClose} />}
                 {activeTab === "me" && <UserProfilePanel onClose={() => setActiveTab("messages")} />}
             </div>
-                <nav className="chat-tab-bar chat-bottom-glass-bar" data-ui="nav" style={{ display: hideTabBar ? "none" : undefined }}>
+                <nav className="chat-tab-bar chat-bottom-glass-bar" aria-label="聊天导航" onKeyDown={navigateDestinationKeys} data-ui="nav" style={{ display: hideTabBar ? "none" : undefined }}>
                 <button
                     className={`chat-tab ${activeTab === "messages" ? "chat-tab-active" : ""}`}
                     onClick={() => setActiveTab("messages")}
@@ -360,6 +370,7 @@ export const PhoneChatApp = memo(function PhoneChatApp({ onClose, initialSession
                     </div>
                 )}
             </div>
+          </>}
         </div>
     );
 });

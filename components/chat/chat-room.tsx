@@ -810,6 +810,18 @@ export function ChatRoom({ session, onBack, onDeleted }: ChatRoomProps) {
         return () => window.removeEventListener(DEVICE_ADAPTATION_CHANGED_EVENT, dismiss);
     }, []);
 
+    useEffect(() => {
+        if (!activeMessageId && !activeOfflineTarget) return;
+        const dismiss = (event: Event) => {
+            if (event instanceof KeyboardEvent && event.key !== 'Escape') return;
+            if (event.defaultPrevented || !wrapperRef.current?.getClientRects().length) return;
+            event.preventDefault(); event.stopImmediatePropagation(); closeContextMenu();
+        };
+        document.addEventListener('keydown', dismiss, true);
+        window.addEventListener('android-shell-back', dismiss, true);
+        return () => { document.removeEventListener('keydown', dismiss, true); window.removeEventListener('android-shell-back', dismiss, true); };
+    }, [activeMessageId, activeOfflineTarget]);
+
     // --- Music action queue: send music operations as system messages ---
     useEffect(() => {
         const flushCallback = (text: string) => {

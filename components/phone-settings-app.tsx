@@ -23,6 +23,7 @@ import { ModerationCenter } from "./settings/moderation-center";
 import { AgentComputerSettings } from "./settings/agent-computer-settings";
 import { fetchIsAdmin } from "@/lib/moderation-client";
 import { PageShell } from "./ui/page-shell";
+import { AdaptiveWorkspace } from "./ui/adaptive-workspace";
 import { CardGrid, FeaturedCard, type CardItem, type FeaturedCardItem } from "./ui/card-grid";
 import { GlassIcon } from "./ui/glass-icon";
 import { Toggle } from "./ui/form";
@@ -381,6 +382,14 @@ export function PhoneSettingsApp({ onClose, onNotice }: SettingsPageProps) {
 
     return (
         <SettingsContext.Provider value={{ setSubpageTitle, setOverrideBack, setSubpageRightAction }}>
+          <AdaptiveWorkspace title="设置" selected={currentPage} onClose={onClose}
+            destinations={[{ id: "main", label: "概览", icon: <SlidersHorizontal size={20} /> },
+              ...SETTINGS_MENU.map(item => ({ id: item.id, label: item.label, description: item.desc, icon: <item.icon size={20} /> })),
+              ...(isAdmin ? [{ id: "moderation", label: "管理中心", icon: <Activity size={20} /> }] : [])]}
+            onSelect={id => {
+              if (overrideBack && id !== currentPage) { onNotice("请先返回当前分类，完成或取消正在编辑的内容"); return; }
+              setCurrentPage(id as SubPage); setSubpageTitle(null); setOverrideBack(null);
+            }}>
             <PageShell title={title} onBack={handleBack} rightAction={currentPage !== "main" ? subpageRightActions[currentPage] : undefined} bodyRef={pageBodyRef}>
                 {currentPage === "main" && (
                     <div className="page-menu settings-main-menu">
@@ -634,11 +643,12 @@ export function PhoneSettingsApp({ onClose, onNotice }: SettingsPageProps) {
                     // shrink-0：page-body 是 flex 容器，包裹层默认可压缩——内容超一屏时会被压到
                     // 恰好一屏高、卡片从中溢出，底部 padding 落不到内容末尾，最后一张卡贴死滚动边界
                     //（iOS 底部工具栏/安全区一盖就"没放下又滚不动"）。尾部留白 = 原 pb-8 + 安全区。
-                    <div className="block min-h-full shrink-0 p-4 box-border" style={{ paddingBottom: "calc(32px + env(safe-area-inset-bottom, 0px))" }}>
+                    <div className="adaptive-form-content block min-h-full shrink-0 p-4 box-border" style={{ paddingBottom: "calc(32px + env(safe-area-inset-bottom, 0px))" }}>
                         {renderSubPage()}
                     </div>
                 )}
             </PageShell>
+          </AdaptiveWorkspace>
         </SettingsContext.Provider>
     );
 }

@@ -1,0 +1,95 @@
+/* Tablet presentation. All queries use the current content container, including split windows. */
+.adaptive-workspace { display: flex; width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; }
+.adaptive-workspace-nav { display: none; }
+.adaptive-workspace-content { position: relative; flex: 1; min-width: 0; min-height: 0; height: 100%; overflow: hidden; container: app-pane / inline-size; }
+.adaptive-workspace-content > .page-shell { height: 100%; min-height: 0; }
+.music-library { display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: 0; overflow: hidden; }
+.reading-workspace { position: absolute; inset: 0; }
+.calendar-master-pane,.calendar-detail-pane { position: relative; height: 100%; min-width: 0; min-height: 0; overflow: hidden; flex: 1; }
+.calendar-app:not([data-wide="true"])[data-view="month"] > .calendar-detail-pane,
+.calendar-app:not([data-wide="true"])[data-view="detail"] > .calendar-master-pane { display: none; }
+.calendar-app[data-wide="true"] { display: grid; grid-template-columns: minmax(340px, 36%) minmax(0, 1fr); }
+.calendar-app[data-wide="true"] > .calendar-master-pane { border-inline-end: 1px solid var(--c-calendar-glass-edge); }
+.mp-body .mp-artwork { display: flex; width: 100%; height: 100%; min-width: 0; min-height: 0; flex-direction: column; align-items: center; justify-content: center; }
+.mp-body[data-view="cover"] > .mp-lyrics-wrap,
+.mp-body[data-view="lyrics"] > .mp-artwork { display: none; }
+.phone-swipe-layer > .icon-grid { flex-basis: calc(100% / var(--desktop-pages-per-view, 1)); width: calc(100% / var(--desktop-pages-per-view, 1)); }
+.phone-swipe-layer[data-pages-per-view="2"] > .icon-grid { border-inline-end: 1px solid color-mix(in srgb, var(--c-home-label) 12%, transparent); }
+html[data-adaptive-window="true"] .phone-shell { container: shell-screen / inline-size; --desktop-user-text-scale: var(--app-text-scale, 1); }
+.adaptive-character-avatar { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.adaptive-destination-icon { display: grid; place-items: center; width: 32px; min-width: 32px; }
+.adaptive-destination-list { display: flex; flex-direction: column; gap: 4px; min-height: 0; }
+.adaptive-destination { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 10px 12px; border: 0; border-radius: 14px; background: transparent; color: var(--c-text-title); text-align: start; cursor: pointer; }
+.adaptive-destination > span:last-child { min-width: 0; }
+.adaptive-destination strong { display: block; font-size: calc(14px * var(--app-text-scale, 1)); font-weight: 600; overflow-wrap: anywhere; }
+.adaptive-destination small { display: block; margin-top: 4px; font-size: calc(12px * var(--app-text-scale, 1)); color: var(--c-text); overflow-wrap: anywhere; }
+.adaptive-destination[aria-current="page"] { background: var(--c-card); box-shadow: inset 0 0 0 1px var(--c-card-border); }
+.adaptive-workspace-home { display: flex; align-items: center; gap: 6px; min-height: 48px; padding: 8px; border: 0; background: transparent; color: var(--c-text-title); cursor: pointer; }
+.adaptive-workspace-nav h2 { margin: 12px 12px 20px; font-size: calc(24px * var(--app-text-scale, 1)); color: var(--c-text-title); }
+html[data-adaptive-window="true"] :is(button,a,input,textarea,select,[tabindex]):focus-visible { outline: 3px solid var(--c-icon-active, #5375b9); outline-offset: 3px; }
+/* Keep these small controls reachable even in a narrow tablet split or fold segment.
+   Increase the button hit box; the existing SVG/icon dimensions are preserved. */
+html[data-adaptive-window="true"] :is(.reading-chat-float-close,.reading-chat-send-btn,.calendar-mini-btn,.char-polaroid-menu-btn) {
+  min-width: 48px;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+@container app-pane (min-width: 840px) {
+  .adaptive-workspace > .adaptive-workspace-nav { display: block; flex: 0 0 clamp(220px, 25%, 280px); padding: 12px; box-sizing: border-box; overflow-y: auto; overscroll-behavior: contain; border-inline-end: 1px solid var(--c-card-border); background: var(--c-page-body-bg); }
+  .page-body > .adaptive-form-content { width: min(100%, 860px); margin-inline: auto; padding: 24px; }
+  .page-body > :is(.page-menu,.settings-main-menu,.appearance-main-menu) { width: min(100%, 1100px); margin-inline: auto; padding: 24px; }
+  .page-menu .card-grid { grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); }
+  .page-menu .card-card { min-height: 92px; }
+  .page-menu .card-label { font-size: calc(16px * var(--app-text-scale, 1)); }
+  .page-menu :is(.card-desc,.card-featured-desc) { font-size: calc(13px * var(--app-text-scale, 1)); line-height: 1.6; }
+  .page-body > :is(.ui-form,.settings-section,.data-management) { width: min(100%, 860px); margin-inline: auto; }
+  :is(.ui-btn,.page-back-btn,.modal-header-btn,.reading-shelf-back,.reading-shelf-action-btn,.chat-tab,.music-tabbar-item,.music-header-action) { min-width: 48px; min-height: 48px; }
+  .music-app { display: grid; grid-template-columns: 96px minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
+  .music-app > .music-header { grid-area: 1 / 2; margin-top: var(--page-header-safe-top, 0px); }
+  .music-app > .music-library { grid-area: 2 / 2; }
+  .music-library > :is(.music-list,.music-discovery,.music-search-tab) { padding-bottom: 24px; }
+  .music-app > .music-bottom-dock { display: contents; }
+  .music-bottom-dock > .music-tabbar { grid-area: 1 / 1 / 4 / 2; position: static; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 8px; width: 96px; height: 100%; padding: 20px 8px; border-radius: 0; border-inline-end: 1px solid var(--c-music-accent-dim); box-sizing: border-box; }
+  .music-tabbar .music-tabbar-item { flex: 0 0 auto; min-height: 72px; border-radius: 18px; }
+  .music-tabbar .music-tabbar-item[data-active] { background: var(--c-music-accent-dim); }
+  .music-bottom-dock > .music-now-bar { grid-area: 3 / 2; position: relative; inset: auto; width: min(100%, 1100px); margin-inline: auto; box-sizing: border-box; }
+  .music-app { --music-tablet-nowbar-space: 0px; }
+  .music-app[data-nowbar] { --music-tablet-nowbar-space: 72px; }
+  .music-library .music-fab-add { right: 28px; }
+  .music-library .music-fab-upload { bottom: calc(var(--music-tablet-nowbar-space) + 24px) !important; }
+  .music-library .music-fab-style { bottom: calc(var(--music-tablet-nowbar-space) + 84px) !important; }
+}
+/* The chat list and its navigation keep their identity when the room pane appears. */
+.chat-app[data-rail-navigation="true"] > .chat-split-master { flex-basis: clamp(360px, 37%, 460px); padding-inline-start: 76px; box-sizing: border-box; }
+.chat-app[data-rail-navigation="true"] .chat-split-master .chat-main-content { padding-bottom: 0; }
+.chat-app[data-rail-navigation="true"] .chat-tab-bar { inset: 0 auto 0 0; width: 76px; height: 100%; min-height: 0; padding: 12px 4px; flex-direction: column; justify-content: flex-start; gap: 8px; border-top: 0; border-inline-end: 1px solid var(--c-card-border); box-sizing: border-box; }
+.chat-app[data-rail-navigation="true"] .chat-tab { flex: 0 0 auto; min-height: 72px; border-radius: 16px; }
+.chat-app[data-rail-navigation="true"] .chat-tab-active { background: var(--c-card); }
+.chat-app[data-split="true"][data-tabbar-hidden] > .chat-split-master { padding-inline-start: 0; }
+@container shell-screen (min-width: 840px) {
+  .mp-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; padding: 24px 48px; overflow: hidden; }
+  .mp-body > .mp-artwork { display: flex !important; grid-area: 1 / 1; }
+  .mp-body > .mp-lyrics-wrap { display: flex !important; grid-area: 1 / 2; height: 100%; min-height: 0; min-width: 0; }
+  .mp-body :is(.mp-cover,.music-player-vinyl) { width: min(32cqw, 380px, 52dvh); height: auto; aspect-ratio: 1; }
+  .mp-body .mp-cover-area { width: 100%; }
+  .mp-body .mp-lyrics { mask-image: linear-gradient(transparent, black 12%, black 88%, transparent); }
+  .music-player :is(.mp-progress-area,.mp-controls,.mp-social) { width: min(680px, calc(100% - 48px)); margin-inline: auto; box-sizing: border-box; }
+}
+@container app-pane (min-width: 600px) {
+  .page-body > :is(.page-menu,.adaptive-form-content) { box-sizing: border-box; }
+  .page-body :is(.ui-input,.ui-textarea) { max-inline-size: 100%; }
+  .modal-overlay-bottom { align-items: flex-end; padding-bottom: 24px; }
+  .modal-sheet { width: min(720px, calc(100% - 48px)); margin-inline: auto; border-radius: 24px; }
+  .modal-expand { width: min(900px, calc(100% - 48px)); }
+  .diary-entry-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); align-items: start; gap: 24px; }
+  .diary-book-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  :is(.ui-btn,.page-back-btn,.modal-header-btn,.reading-shelf-back,.reading-shelf-action-btn,.music-header-action,.calendar-icon-btn,.diary-icon-btn) { min-width: 48px; min-height: 48px; }
+  :is(.music-song-action-btn,.music-now-bar-btn,.music-player-ctrl-btn,.reading-footer-icon-btn,.reading-nav-close,.ctx-menu-btn), .chat-input-actions > button { min-width: 48px; min-height: 48px; }
+}
+@media (hover: hover) {
+  :is(.adaptive-destination,.adaptive-workspace-home,.chat-tab,.music-tabbar-item):hover { background-color: color-mix(in srgb, var(--c-icon-active) 10%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adaptive-workspace * { scroll-behavior: auto !important; }
+}

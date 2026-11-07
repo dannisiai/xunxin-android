@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Bot, Check, ChevronLeft, HeartPulse, Plus, Trash2, Wand2, X } from "lucide-react";
 import { Avatar } from "./ui/primitives";
 import { SessionCustomCSS } from "@/components/ui/session-custom-css";
+import { usePaneSize } from "@/components/ui/use-pane-size";
+import { usePageBack } from "@/components/ui/use-page-back";
 import CSSSchemeBar from "@/components/ui/css-scheme-picker";
 import { CALENDAR_CSS_EXAMPLE } from "@/lib/css-examples";
 import { kvGet, kvSet, kvRemove } from "@/lib/kv-db";
@@ -137,6 +139,10 @@ export function PhoneCalendarApp({
   const [view, setView] = useState<"month" | "detail">("month");
   const [selectedDate, setSelectedDate] = useState<string>(todayIso);
   const [detailKey, setDetailKey] = useState(0);
+  const [detailVisited, setDetailVisited] = useState(false);
+  const pane = usePaneSize();
+  const wide = pane.width >= 840;
+  usePageBack(pane.ref, () => { if (!wide && view === "detail") setView("month"); else onClose(); });
   const [ownerPlans, setOwnerPlans] = useState<CalendarWeekPlan[]>([]);
   const [config, setConfig] = useState(() => loadCalendarConfig());
   const [menstrualConfig, setMenstrualConfig] = useState(() => loadMenstrualConfig());
@@ -522,10 +528,10 @@ export function PhoneCalendarApp({
   };
 
   return (
-    <div className="calendar-app-shell" data-calendar-theme={config.theme}>
+    <div ref={pane.ref} className="calendar-app-shell" data-calendar-theme={config.theme}>
       {appliedCalendarCss && <SessionCustomCSS css={appliedCalendarCss} scope=".calendar-app-shell" />}
-      <div className="calendar-app">
-        {view === "month" ? (
+      <div className="calendar-app" data-wide={String(wide)} data-view={view}>
+        <div className="calendar-master-pane" aria-hidden={!wide && view !== "month"} inert={!wide && view !== "month" ? true : undefined}>
           <CalendarMonthPage
             todayIso={todayIso}
             itemsByDate={itemsByDate}
@@ -535,7 +541,9 @@ export function PhoneCalendarApp({
             onClose={onClose}
             onOpenTheme={() => setShowThemePanel(true)}
           />
-        ) : (
+        </div>
+        <div className="calendar-detail-pane" aria-hidden={!wide && view !== "detail"} inert={!wide && view !== "detail" ? true : undefined}>
+          {(detailVisited || wide || view === "detail") &&
           <CalendarDetailPage
             key={detailKey}
             initialDate={selectedDate}
@@ -547,10 +555,10 @@ export function PhoneCalendarApp({
             onOpenDaysPicker={() => setShowDaysPanel(true)}
             onOpenCycleSettings={selectedOwner?.ownerType === "user" ? openMenstrualSettings : null}
             onBack={() => setView("month")}
-            onSelectedChange={setSelectedDate}
+            onSelectedChange={date => { setSelectedDate(date); setDetailVisited(true); }}
             onEditItem={openEditItem}
-          />
-        )}
+          />}
+        </div>
 
         {fabMenuOpen ? <div data-adaptive-surface="decoration" className="calendar-fab-backdrop" onClick={() => setFabMenuOpen(false)} /> : null}
         <div className="calendar-fab-stack">

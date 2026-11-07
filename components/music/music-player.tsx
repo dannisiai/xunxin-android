@@ -17,6 +17,8 @@ import {
 import MusicCommentsPage from "./music-comments";
 import MusicArtistPage from "./music-artist";
 import { loadMusicBg, playerBgStyle, MUSIC_BG_EVENT, type MusicBgConfig } from "@/lib/music-bg";
+import { usePageBack } from "@/components/ui/use-page-back";
+import { useDeviceAdaptation } from "@/components/device-adaptation-provider";
 
 const PLAY_MODE_ICONS: Record<PlayMode, { svg: string; label: string }> = {
     sequence: {
@@ -59,6 +61,8 @@ type BodyView = "cover" | "lyrics";
 
 export default function MusicPlayer() {
     const player = useMusicPlayer();
+    const rootRef = useRef<HTMLDivElement>(null);
+    const { screenWidth } = useDeviceAdaptation();
     const progressRef = useRef<HTMLDivElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [dragTime, setDragTime] = useState(0);
@@ -263,10 +267,10 @@ export default function MusicPlayer() {
 
     // Auto-scroll lyrics
     useEffect(() => {
-        if (view !== "lyrics" || activeLyricIdx < 0 || !lyricsContainerRef.current) return;
+        if (activeLyricIdx < 0 || !lyricsContainerRef.current?.getClientRects().length) return;
         const el = lyricsContainerRef.current.children[activeLyricIdx] as HTMLElement;
         if (el) scrollElementWithinContainer(lyricsContainerRef.current, el, { behavior: "smooth", block: "center" });
-    }, [activeLyricIdx, view]);
+    }, [activeLyricIdx, view, screenWidth]);
 
     const handleLyricClick = useCallback((idx: number, e: React.MouseEvent) => {
         e.stopPropagation();
@@ -276,6 +280,22 @@ export default function MusicPlayer() {
 
     const [liked, setLiked] = useState(false);
     const [showPlaylistPicker, setShowPlaylistPicker] = useState(false);
+    usePageBack(rootRef, player.currentTrack ? () => {
+        if (showQueue) setShowQueue(false);
+        else if (showComments) setShowComments(false);
+        else if (artistView) setArtistView(null);
+        else if (showPlaylistPicker) setShowPlaylistPicker(false);
+        else player.closeFullPlayer();
+    } : undefined);
+    useEffect(() => {
+        const mediaKey = (event: KeyboardEvent) => {
+            if (event.defaultPrevented || event.isComposing || !rootRef.current?.getClientRects().length
+                || (event.target instanceof HTMLElement && event.target.closest('input,textarea,select,button,a,[role="button"],[role="slider"],[contenteditable="true"]'))) return;
+            if (event.code === 'Space' || event.key === 'MediaPlayPause') { event.preventDefault(); player.togglePlay(); }
+        };
+        document.addEventListener('keydown', mediaKey);
+        return () => document.removeEventListener('keydown', mediaKey);
+    }, [player]);
     const [playlists, setPlaylists] = useState<NeteasePlaylist[]>([]);
     const [loadingPlaylists, setLoadingPlaylists] = useState(false);
     const [addResult, setAddResult] = useState<{ ok: boolean; message: string } | null>(null);
@@ -418,7 +438,7 @@ export default function MusicPlayer() {
     } as React.CSSProperties;
 
     return (
-        <div className="music-player mp-lumen" style={ambientVars}>
+        <div ref={rootRef} className="music-player mp-lumen" style={ambientVars}>
             {musicToast && (
                 <div data-adaptive-surface="content" className="music-toast-overlay">
                     <div className="music-toast-chip">
@@ -480,8 +500,7 @@ export default function MusicPlayer() {
             </div>
 
             {/* Body — cover / vinyl / glow lyrics */}
-            <div className="mp-body">
-                {view === "lyrics" ? (
+            <div className="mp-body" data-view={view}>
                     <div className="mp-lyrics-wrap" onClick={() => setView("cover")}>
                         {hasLyrics ? (
                             <div className="mp-lyrics" ref={lyricsContainerRef}>
@@ -505,7 +524,8 @@ export default function MusicPlayer() {
                             </div>
                         )}
                     </div>
-                ) : playerStyle === "vinyl" ? (
+                <div className="mp-artwork">
+                {playerStyle === "vinyl" ? (
                     <div className="music-player-vinyl-area" onClick={() => setView("lyrics")}>
                         <div className="music-player-vinyl-glow" />
                         <div className="music-player-vinyl" {...(player.isPlaying ? { "data-spinning": "" } : {})}>
@@ -554,6 +574,7 @@ export default function MusicPlayer() {
                         </div>
                     </div>
                 )}
+                </div>
             </div>
 
             {/* Waveform progress */}
@@ -561,6 +582,18 @@ export default function MusicPlayer() {
                 <div
                     ref={progressRef}
                     className="mp-wave"
+                    role="slider"
+                    tabIndex={0}
+                    aria-label="播放进度"
+                    aria-valuemin={0}
+                    aria-valuemax={Math.max(0, Math.floor(player.duration || 0))}
+                    aria-valuenow={Math.max(0, Math.min(Math.floor(currentTime), Math.floor(player.duration || 0)))}
+                    onKeyDown={event => {
+                        if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+                        event.preventDefault();
+                        const next = event.key === 'Home' ? 0 : event.key === 'End' ? player.duration : currentTime + (event.key === 'ArrowRight' ? 5 : -5);
+                        player.seek(Math.max(0, Math.min(player.duration || 0, next)));
+                    }}
                     onPointerDown={handleProgressDown}
                     onPointerMove={handleProgressMove}
                     onPointerUp={handleProgressUp}

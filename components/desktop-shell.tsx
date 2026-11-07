@@ -39,6 +39,10 @@ import { REALITY_BRIDGE_APP_EVENT_NAME, REALITY_BRIDGE_DATA_EVENT } from "@/lib/
 
 import { launchActiveAndroidCompanion, listenForAndroidCompanion } from "@/lib/android-companion";
 import { isChatOfflineMode } from "@/lib/chat-mode";
+import { useDeviceAdaptation } from "@/components/device-adaptation-provider";
+import { desktopPagesPerView, DEVICE_ADAPTATION_WILL_CHANGE_EVENT } from "@/lib/device-adaptation";
+import { navigateIconGridKeys } from "@/components/ui/adaptive-workspace";
+import { usePageBack } from "@/components/ui/use-page-back";
 
 import { DwellingApp } from "@/components/dwelling/dwelling-app";
 import { MascotFloat } from "@/components/mascot/mascot-float";
@@ -380,6 +384,8 @@ function StatusClock() {
 }
 
 export function DesktopShell({ initialThemeProfile, initialThemeAssets }: DesktopShellProps) {
+  const deviceLayout = useDeviceAdaptation();
+  const pagesPerView = desktopPagesPerView(deviceLayout);
   const musicOverlayControllerRef = useRef<MusicOverlayController | null>(null);
   const handleMusicOverlayControllerChange = useCallback((controller: MusicOverlayController | null) => {
     musicOverlayControllerRef.current = controller;
@@ -1499,7 +1505,8 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
     }
   }, [currentPageIndex, pageCount]);
 
-  const boundedCurrentPageIndex = Math.min(currentPageIndex, Math.max(0, pageCount - 1));
+  const boundedCurrentPageIndex = Math.floor(Math.min(currentPageIndex, Math.max(0, pageCount - 1)) / pagesPerView) * pagesPerView;
+  currentPageIndexRef.current = boundedCurrentPageIndex;
   const currentPageKey = pageKeys[boundedCurrentPageIndex] ?? "page1";
   const currentIcons = layout[currentPageKey] ?? [];
   const currentPage = getDesktopPageNumber(currentPageKey) || 1;
@@ -1789,6 +1796,23 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
   }, []);
 
   const [showExternalMusicModal, setShowExternalMusicModal] = useState(false);
+  usePageBack(shellRef, !activeApp && (showExternalMusicModal || showWidgetPicker || showDesktopCustomizer || openFolderId || editMode) ? () => {
+    if (showExternalMusicModal) setShowExternalMusicModal(false);
+    else if (showWidgetPicker) setShowWidgetPicker(false);
+    else if (showDesktopCustomizer) setShowDesktopCustomizer(false);
+    else if (openFolderId) setOpenFolderId(null);
+    else {
+      const dragging = Boolean(editDragRef.current);
+      cancelDesktopDrag();
+      if (dragging) window.setTimeout(exitEditMode, 0); else exitEditMode();
+    }
+  } : undefined);
+  useEffect(() => {
+    window.addEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancelDesktopDrag);
+    return () => window.removeEventListener(DEVICE_ADAPTATION_WILL_CHANGE_EVENT, cancelDesktopDrag);
+    // Drag cancellation reads its transaction from refs, independent of the current page spread.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const handleLaunchMusicApp = useCallback((scheme: string, webUrl?: string) => {
     setShowExternalMusicModal(false);
     try {
@@ -1982,6 +2006,16 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     saveWidgets(widgetsRef.current);
   }
 
+  function cancelDesktopDrag() {
+    cancelLongPress();
+    const drag = editDragRef.current;
+    if (!drag) return;
+    drag.targetPage = null;
+    drag.mergeArmed = false;
+    if (ghostRef.current) ghostRef.current.style.display = "none";
+    commitDrop();
+  }
+
   /** 文件夹只剩 ≤1 个成员就地解散：剩下的图标顶回 tile 的格子 */
   function dissolveFolderIfTiny(folderId: string) {
     const folder = foldersRef.current[folderId];
@@ -2025,15 +2059,9 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     if (itemType === "widget" && page !== DOCK_PAGE_KEY) {
       const gridEl = gridRefs.current[page];
       if (gridEl) {
-        const cs = getComputedStyle(gridEl);
-        const colW = parseFloat(cs.gridTemplateColumns.split(/\s+/)[0] || "66");
-        const colGap = parseFloat(cs.columnGap) || 20;
-        const rowGap = parseFloat(cs.rowGap) || 0;
-        /* rect 高度是 border-box（含 padding），网格行轨道只占内容盒。 */
-        const padY = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
-        const rowH = (gridEl.getBoundingClientRect().height - padY - (GRID_ROWS - 1) * rowGap) / GRID_ROWS;
-        grabCellCol = Math.floor((clientX - rect.left) / (colW + colGap));
-        grabCellRow = Math.floor((clientY - rect.top) / (rowH + rowGap));
+        const geometry = getGridGeometry(gridEl);
+        grabCellCol = Math.floor((clientX - rect.left) / geometry.colStep);
+        grabCellRow = Math.floor((clientY - rect.top) / geometry.rowStep);
       }
     }
     editDragRef.current = {
@@ -2212,7 +2240,11 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
     const pageIdx = currentPageIndexRef.current;
     const activePageKeys = getDesktopPageKeysForState(layoutRef.current, widgetsRef.current);
-    const pageKey = activePageKeys[Math.min(pageIdx, activePageKeys.length - 1)] ?? "page1";
+    const visiblePages = activePageKeys.slice(pageIdx, pageIdx + pagesPerView);
+    const pageKey = visiblePages.find(key => {
+      const rect = gridRefs.current[key]?.getBoundingClientRect();
+      return rect && x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    }) ?? activePageKeys[Math.min(pageIdx, activePageKeys.length - 1)] ?? "page1";
     const gridEl = gridRefs.current[pageKey];
     if (!gridEl) return;
 
@@ -2227,10 +2259,12 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
       // 相交期间不改判——边对边推进去永远是合并，切着角进去永远是换位；
       // 想改判把图标拉开重新进即可。文件夹 tile 只换位不合并（不嵌套）。
       const geom = getGridGeometry(gridEl);
-      const dragBoxW = Math.min(58, drag.ghostW);
+      const targetGlyph = gridEl.querySelector<HTMLElement>(".icon-glyph-box");
+      const glyphWidth = targetGlyph?.getBoundingClientRect().width || 58;
+      const dragBoxW = Math.min(glyphWidth, drag.ghostW);
       const dragLeft = x - drag.offsetX + (drag.ghostW - dragBoxW) / 2;
       const dragTop = y - drag.offsetY;
-      const targetBoxW = Math.min(58, geom.colWidth);
+      const targetBoxW = Math.min(glyphWidth, geom.colWidth);
       let best: { id: DesktopIconId; row: number; col: number; ox: number; oy: number; area: number } | null = null;
       for (const ic of drag.initialLayout[pageKey] ?? []) {
         if (ic.id === drag.itemId) continue;
@@ -2526,21 +2560,21 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
 
     if (canSwitchLeft && !drag.edgeTimer) {
       drag.edgeTimer = setTimeout(() => {
-        setCurrentPageIndex(Math.max(0, pageIdx - 1));
+        setCurrentPageIndex(Math.max(0, pageIdx - pagesPerView));
         drag.edgeTimer = null;
         drag.lastTargetKey = "";
       }, 350);
     } else if (canSwitchRight && !drag.edgeTimer) {
       drag.edgeTimer = setTimeout(() => {
-        if (pageIdx >= lastPageIndex) {
-          const nextPageKey = getDesktopPageKey(pageIdx + 2);
+        if (pageIdx + pagesPerView > lastPageIndex) {
+          const nextPageKey = getDesktopPageKey(pageIdx + pagesPerView + 1);
           setLayout((prev) => {
             const next = cloneDesktopLayout(prev, widgetsRef.current);
             ensureDesktopPage(next, nextPageKey);
             return next;
           });
         }
-        setCurrentPageIndex(pageIdx + 1);
+        setCurrentPageIndex(pageIdx + pagesPerView);
         drag.edgeTimer = null;
         drag.lastTargetKey = "";
       }, 350);
@@ -3051,8 +3085,8 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
   }, [activeApp, currentPage, currentPageIndex, currentIcons.length, currentPageWidgets.length]);
 
   const getSwipePageWidth = useCallback(() => {
-    return swipeLayerRef.current?.getBoundingClientRect().width || shellRef.current?.getBoundingClientRect().width || 390;
-  }, []);
+    return (swipeLayerRef.current?.getBoundingClientRect().width || shellRef.current?.getBoundingClientRect().width || 390) / pagesPerView;
+  }, [pagesPerView]);
 
   // Live finger offset while dragging — a transient CSS var so moving doesn't
   // re-render. Releasing sets it back to 0 and the CSS transition settles the page.
@@ -3180,13 +3214,13 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     const pageWidth = getSwipePageWidth();
     const page = currentPageIndexRef.current;
     let translateX = -page * pageWidth + dx;
-    const minTranslateX = -Math.max(0, pageCount - 1) * pageWidth;
+    const minTranslateX = -Math.floor(Math.max(0, pageCount - 1) / pagesPerView) * pagesPerView * pageWidth;
     if (translateX > 0) translateX *= 0.25;
     if (translateX < minTranslateX) translateX = minTranslateX + (translateX - minTranslateX) * 0.25;
 
     s.deltaX = dx;
     setSwipeDrag(translateX + page * pageWidth);
-  }, [editMode, getSwipePageWidth, pageCount, setSwipeDrag]);
+  }, [editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
 
   const handleSwipeEnd = useCallback((e: React.PointerEvent) => {
     // Clear long-press
@@ -3228,7 +3262,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     const page = currentPageIndexRef.current;
     let targetPageIndex = page;
     if (Math.abs(dx) > swipeThreshold) {
-      targetPageIndex = Math.min(Math.max(0, pageCount - 1), Math.max(0, page + (dx < 0 ? 1 : -1)));
+      targetPageIndex = Math.min(Math.floor(Math.max(0, pageCount - 1) / pagesPerView) * pagesPerView, Math.max(0, page + (dx < 0 ? pagesPerView : -pagesPerView)));
     }
 
     // Re-enable the transition, clear the finger offset, and commit the page.
@@ -3236,7 +3270,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
     swipeLayerRef.current?.classList.remove("phone-swipe-dragging");
     setSwipeDrag(0);
     if (targetPageIndex !== page) setCurrentPageIndex(targetPageIndex);
-  }, [editMode, getSwipePageWidth, pageCount, setSwipeDrag]);
+  }, [editMode, getSwipePageWidth, pageCount, pagesPerView, setSwipeDrag]);
 
   const handleCloseShopping = useCallback((isBusy?: boolean) => {
     const shouldKeepMounted = isBusy ?? shoppingBusy;
@@ -3785,7 +3819,18 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                     <div
                       ref={swipeLayerRef}
                       className="phone-swipe-layer"
-                      style={{ "--swipe-page": boundedCurrentPageIndex } as CSSProperties}
+                      onKeyDown={event => {
+                        navigateIconGridKeys(event);
+                        if (event.defaultPrevented || !['PageUp','PageDown'].includes(event.key)
+                          || (event.target as HTMLElement).closest('input,textarea,select,[contenteditable="true"]')) return;
+                        event.preventDefault();
+                        const next = Math.max(0, Math.min(Math.floor((pageCount - 1) / pagesPerView) * pagesPerView,
+                          boundedCurrentPageIndex + (event.key === 'PageDown' ? pagesPerView : -pagesPerView)));
+                        setCurrentPageIndex(next);
+                        requestAnimationFrame(() => gridRefs.current[pageKeys[next]]?.querySelector<HTMLButtonElement>('button.icon-item')?.focus());
+                      }}
+                      data-pages-per-view={pagesPerView}
+                      style={{ "--swipe-page": boundedCurrentPageIndex / pagesPerView, "--desktop-pages-per-view": pagesPerView } as CSSProperties}
                     >
                       {pageKeys.map((pageKey, pageIndex) => {
                         const pageNum = getDesktopPageNumber(pageKey) || pageIndex + 1;
@@ -3801,6 +3846,9 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                               if (pageIndex === 0) iconGridRef.current = el;
                             }}
                             className={`icon-grid icon-grid-explicit icon-grid-${pageKey}`}
+                            inert={pageIndex < boundedCurrentPageIndex || pageIndex >= boundedCurrentPageIndex + pagesPerView ? true : undefined}
+                            aria-hidden={pageIndex < boundedCurrentPageIndex || pageIndex >= boundedCurrentPageIndex + pagesPerView}
+                            onFocusCapture={() => { if (pagesPerView > 1) setCurrentPageIndex(pageIndex); }}
                             aria-label={pageIndex === 0 ? TEXT.ariaDesktopIcons : undefined}
                             style={
                               slotIconWidth || slotIconHeight || slotRowStep
@@ -3894,6 +3942,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                                     style={{ gridRow: pos.row, gridColumn: pos.col }}
                                     onClick={() => { if (!editMode) { setFolderPageIndex(0); setOpenFolderId(iconId); } }}
                                     onPointerDown={(e) => handleItemPointerDown(e, "icon", iconId, pageKey)}
+                                    onContextMenu={event => { event.preventDefault(); setEditMode(true); }}
                                   >
                                     <span className="icon-glyph-box folder-glyph-box" aria-hidden>
                                       <span className="folder-mini-grid">
@@ -3929,6 +3978,7 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                                   style={{ gridRow: pos.row, gridColumn: pos.col }}
                                   onClick={() => { if (!editMode) openApp(iconId); }}
                                   onPointerDown={(e) => handleItemPointerDown(e, "icon", iconId, pageKey)}
+                                  onContextMenu={event => { event.preventDefault(); setEditMode(true); }}
                                 >
                                   <span
                                     className={hasImageIcon ? "icon-glyph-box icon-glyph-box-skin" : "icon-glyph-box"}
@@ -3973,13 +4023,14 @@ html,body{margin:0;padding:0;width:100%;height:100%;background:#121110;color:rgb
                     </div>
 
                     <div className="page-controls">
-                      {pageKeys.map((pageKey, pageIndex) => (
+                      {pageKeys.filter((_, index) => index % pagesPerView === 0).map((pageKey, spreadIndex) => (
                         <button
                           key={pageKey}
                           type="button"
-                          className={boundedCurrentPageIndex === pageIndex ? "dot active dot-btn" : "dot dot-btn"}
-                          aria-label={`第${pageIndex + 1}页`}
-                          onClick={() => setCurrentPageIndex(pageIndex)}
+                          className={boundedCurrentPageIndex === spreadIndex * pagesPerView ? "dot active dot-btn" : "dot dot-btn"}
+                          aria-label={`第${spreadIndex * pagesPerView + 1}${pagesPerView > 1 ? `至${Math.min(pageCount, spreadIndex * pagesPerView + pagesPerView)}` : ""}页`}
+                          aria-current={boundedCurrentPageIndex === spreadIndex * pagesPerView ? "page" : undefined}
+                          onClick={() => setCurrentPageIndex(spreadIndex * pagesPerView)}
                         />
                       ))}
                     </div>

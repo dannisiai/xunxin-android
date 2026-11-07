@@ -24,6 +24,7 @@ import type { DesktopFolderMap, DesktopIconLayout } from "@/lib/desktop-layout-s
 import { CUSTOM_APPS_UPDATED_EVENT, loadInstalledCustomApps } from "@/lib/custom-app-storage";
 import { toCustomAppIconId, type InstalledCustomApp } from "@/lib/custom-app-types";
 import { PageShell } from "@/components/ui/page-shell";
+import { AdaptiveWorkspace } from "@/components/ui/adaptive-workspace";
 import { readPwaDisplayPreference, writePwaDisplayPreference } from "@/lib/pwa-display-mode";
 import {
   GRID_COLS,
@@ -280,6 +281,15 @@ export function PhoneThemeApp({
   const title = section === "menu" ? "\u5916\u89C2" : SECTION_TITLES[section];
 
   return (
+    <AdaptiveWorkspace title="外观" selected={section} onClose={onClose}
+      destinations={[{ id: "menu", label: "概览", icon: <LayoutGrid size={20} /> }, ...MENU_ITEMS.map(item => ({ id: item.section, label: item.label, description: item.desc, icon: <item.icon /> }))]}
+      onSelect={id => {
+        if (id === "transfer") setShowThemeTransfer(true);
+        else if (id === "reset") setConfirmThemeReset(true);
+        else if (id === "case") setShowStatusBarAdjust(true);
+        else if (id === "text") setShowTextAdjust(true);
+        else if (isThemeSection(id)) setSection(id);
+      }}>
     <PageShell title={title} onBack={handleBack}>
         {section === "menu" ? (
           <div className="page-menu appearance-main-menu">
@@ -633,6 +643,7 @@ export function PhoneThemeApp({
         document.querySelector(".phone-shell") ?? document.body
       )}
     </PageShell>
+    </AdaptiveWorkspace>
   );
 }
 

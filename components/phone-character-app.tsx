@@ -37,6 +37,7 @@ import { RelationLinkDialog, RelationPairSheet } from "@/components/character/re
 import { loadMomentsConfig, saveMomentsConfig } from "@/lib/moments-storage";
 import type { CanvasBgItem } from "@/lib/character-types";
 import { PageShell } from "@/components/ui/page-shell";
+import { AdaptiveWorkspace } from "@/components/ui/adaptive-workspace";
 import { ConfirmDialog } from "@/components/ui/modal";
 import { AlertCircle, History } from "lucide-react";
 import {
@@ -153,6 +154,8 @@ type PhoneCharacterAppProps = {
   onOpenChat?: (sessionId: string) => void;
 };
 
+type CharacterLeaveGuard = (leave: () => void) => void;
+
 type IntlWithTimeZoneList = typeof Intl & {
   supportedValuesOf?: (key: "timeZone") => string[];
 };
@@ -208,6 +211,7 @@ function getCharacterTimeZoneOptions(currentTimeZone = ""): string[] {
 }
 
 export function PhoneCharacterApp({ onClose, onNotice, onOpenChat }: PhoneCharacterAppProps) {
+  const archiveLeaveGuardRef = useRef<CharacterLeaveGuard | null>(null);
   const [view, setView] = useState<{ type: ViewType; id: string | null; isEditing?: boolean }>({ type: "list", id: null, isEditing: false });
   const [characters, setCharacters] = useState<Character[]>(() => loadCharacters());
   const [bgItems, setBgItems] = useState<CanvasBgItem[]>(() => loadBackgroundItems());
@@ -275,8 +279,25 @@ export function PhoneCharacterApp({ onClose, onNotice, onOpenChat }: PhoneCharac
     setView({ type: "list", id: null, isEditing: false });
   }
 
+  function requestClose() {
+    if (view.type === "detail") {
+      archiveLeaveGuardRef.current?.(onClose);
+    } else {
+      onClose();
+    }
+  }
+
   return (
-    <>
+    <AdaptiveWorkspace title="角色" selected={view.type === "list" ? "overview" : view.id || "new"} onClose={requestClose}
+      destinations={[{ id: "overview", label: "世界画布" }, { id: "new", label: "创建角色" },
+        ...characters.map(character => ({ id: character.id, label: character.name || "未命名角色",
+          icon: character.avatar ? <img src={character.avatar} alt="" className="adaptive-character-avatar" /> : undefined }))]}
+      onSelect={id => {
+        if (view.isEditing) { onNotice("请先保存或取消当前角色编辑"); return; }
+        if (id === "overview") handleBackFromDetail();
+        else if (id === "new") setView({ type: "detail", id: null, isEditing: true });
+        else setView({ type: "detail", id, isEditing: false });
+      }}>
       <div className="char-app">
         {view.type === "list" && (
           <CharListView
@@ -308,6 +329,7 @@ export function PhoneCharacterApp({ onClose, onNotice, onOpenChat }: PhoneCharac
 
         {view.type === "detail" && (
           <CharArchiveView
+            leaveGuardRef={archiveLeaveGuardRef}
             char={view.id ? (characters.find((c) => c.id === view.id) ?? createCharacter({ name: "", persona: "", avatar: null })) : createCharacter({ name: "", persona: "", avatar: null })}
             isEditing={view.isEditing}
             isExisting={Boolean(view.id)}
@@ -414,7 +436,7 @@ export function PhoneCharacterApp({ onClose, onNotice, onOpenChat }: PhoneCharac
       {transition && (
         <FlipTransitionOverlay transit={transition} />
       )}
-    </>
+    </AdaptiveWorkspace>
   );
 }
 
@@ -1250,6 +1272,9 @@ function CharListView({
                   x={char.canvasX} y={char.canvasY || 0} rot={char.canvasRot || 0} zIndex={char.canvasZIndex || 100}
                   onDragEnd={handleDragEndChar}
                   onClick={isEditing ? undefined : (e) => onSelect(char, e)}
+                  role={isEditing ? undefined : "button"}
+                  tabIndex={isEditing ? undefined : 0}
+                  aria-label={char.name || "未命名角色"}
                   className={`char-polaroid char-polaroid-board-item ${ratioClass} ${linkFromId === char.id ? "wt-link-source" : ""}`}
                   w={w}
                   isEditing={isEditing}
@@ -1714,7 +1739,7 @@ function CharListView({
 function DraggableNode({
   id, x, y, rot, zIndex, children, onDragEnd, onClick, className, w, isEditing, onDeleteIntent,
   trashBinRef, onDragActiveChange, onOverTrashChange, zoom = 1, pinchRef,
-  onEditTap, onDragMoveAt, onDropAt, use2dTransform = false
+  onEditTap, onDragMoveAt, onDropAt, use2dTransform = false, role, tabIndex, "aria-label": ariaLabel
 }: {
   id: string; x: number; y: number; rot: number; zIndex: number;
   children: React.ReactNode;
@@ -1735,6 +1760,9 @@ function DraggableNode({
   onDropAt?: (id: string, clientX: number, clientY: number) => boolean;
   /** 使用二维位移，避免 3D 合成导致档案墙图片重采样模糊 */
   use2dTransform?: boolean;
+  role?: React.AriaRole;
+  tabIndex?: number;
+  "aria-label"?: string;
 }) {
   const [pos, setPos] = useState({ x, y });
   const [isDragging, setIsDragging] = useState(false);
@@ -1852,6 +1880,9 @@ function DraggableNode({
   return (
     <div
       className={`${className || ''} absolute left-0 top-0 select-none`}
+      role={role}
+      tabIndex={tabIndex}
+      aria-label={ariaLabel}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -1891,6 +1922,7 @@ function CharArchiveView({
   onNotice = () => { },
   onOpenChat,
   dummy,
+  leaveGuardRef,
 }: {
   char: Character;
   isEditing?: boolean;
@@ -1906,10 +1938,12 @@ function CharArchiveView({
   onNotice?: (text: string) => void;
   onOpenChat?: (sessionId: string) => void;
   dummy?: boolean;
+  leaveGuardRef?: React.RefObject<CharacterLeaveGuard | null>;
 }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleteBusy, setDeleteBusy] = useState(false);
-  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState<"back" | "cancel" | null>(null);
+  const [showUnsavedConfirm, setShowUnsavedConfirm] = useState<"back" | "cancel" | "leave" | null>(null);
+  const pendingLeaveRef = useRef<(() => void) | null>(null);
   const [showSaveVersionConfirm, setShowSaveVersionConfirm] = useState(false);
   const [showVersions, setShowVersions] = useState(false);
   const [versions, setVersions] = useState<CharacterVersion[]>([]);
@@ -2135,6 +2169,23 @@ function CharArchiveView({
       onBack();
     }
   }
+
+  // The sidebar lives outside this editor. Route its exit through this editor's latest dirty check.
+  useLayoutEffect(() => {
+    if (!leaveGuardRef) return;
+    const guard: CharacterLeaveGuard = leave => {
+      if (isDirty()) {
+        pendingLeaveRef.current = leave;
+        setShowUnsavedConfirm("leave");
+      } else {
+        leave();
+      }
+    };
+    leaveGuardRef.current = guard;
+    return () => {
+      if (leaveGuardRef.current === guard) leaveGuardRef.current = null;
+    };
+  });
 
   useEffect(() => {
     if (!isEditing) {
@@ -3086,10 +3137,13 @@ function CharArchiveView({
           onConfirm={() => {
             const action = showUnsavedConfirm;
             setShowUnsavedConfirm(null);
-            if (action === "back") onBack();
+            const leave = pendingLeaveRef.current;
+            pendingLeaveRef.current = null;
+            if (action === "leave") leave?.();
+            else if (action === "back") onBack();
             else onCancelEdit?.();
           }}
-          onCancel={() => setShowUnsavedConfirm(null)}
+          onCancel={() => { pendingLeaveRef.current = null; setShowUnsavedConfirm(null); }}
         />
       )}
     </PageShell>
