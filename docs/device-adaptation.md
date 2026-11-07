@@ -68,7 +68,13 @@
 
 应用容器中的文字适度增大；书架、歌单、榜单按实际容器宽度重排，主要操作维持触摸尺寸。阅读悬浮窗按阅读容器及可见屏段限位，测量真实展开尺寸，横竖屏、分屏和键盘变化后重新约束。聊天/阅读的消息菜单复用已有投影几何，按屏段、应用及祖先裁剪区和键盘可见区定位，保留菜单箭头；窗口变化时关闭旧菜单。独立路由使用同一安全区域。
 
-本次只执行静态标记扫描、TS/TSX 与 CSS 语法解析及镜像核对；不运行测试或模拟器。源码修正不等于小新平板真机验收通过，原生系统栏变化需重新打包安装才能生效。
+本次静态检查包含标记扫描、TS/TSX 与 CSS 语法解析及镜像核对，安装包通过 GitHub 云端构建；不运行测试或模拟器。源码修正不等于小新平板真机验收通过，原生系统栏变化需重新打包安装才能生效。
+
+### 小红书／抖音返回路径
+
+原生系统返回此前只调用 `WebView.goBack()` 或把任务移到后台，无法关闭没有新增网页历史的 React 陪伴设置页。现在先向当前网页发出可取消的 `android-shell-back` 事件；陪伴设置页处理后返回桌面并关闭陪伴，未处理时保留原生网页历史回退。
+
+原生悬浮面板此前没有返回回调，且收起时只把 View 设为 `GONE`，窗口仍可持有焦点。现在收起面板同时释放焦点及返回回调，恢复时再注册；Android 13 及以上复用 `OnBackInvokedDispatcher`，旧系统处理 `KEYCODE_BACK`。面板内系统返回先收起键盘，再停止陪伴并回到寻信桌面；面板提供独立的“返回寻信桌面”按钮，通知点击也进入同一路径。Activity 使用独立 Intent 标记及网页就绪标记恢复 React 桌面，不靠整页重载，也不清除聊天和角色数据。只有头像悬浮在外部 App 时不抢夺外部 App 的系统返回事件。
 
 参考：[Android 边到边显示](https://developer.android.com/develop/ui/views/layout/edge-to-edge)、[窗口大小分档](https://developer.android.com/develop/adaptive-apps/guides/use-window-size-classes)、[WindowMetricsCalculator](https://developer.android.com/reference/androidx/window/layout/WindowMetricsCalculator)。
 

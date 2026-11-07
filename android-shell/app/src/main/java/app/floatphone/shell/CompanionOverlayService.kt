@@ -19,12 +19,15 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Base64
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.WindowManager
 import android.view.WindowInsets
 import android.view.inputmethod.InputMethodManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
 import android.widget.Button
 import android.widget.EditText
 import android.widget.FrameLayout
@@ -65,6 +68,7 @@ class CompanionOverlayService : Service() {
     private var foldSnapshot: OverlayFoldSnapshot? = null
     private var lastFoldObservationNanos = Long.MIN_VALUE
     private var imeBottom = 0
+    private var unregisterPanelBack: (() -> Unit)? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -86,7 +90,7 @@ class CompanionOverlayService : Service() {
         if (capture != null) return START_NOT_STICKY
         val stop = PendingIntent.getService(this, 0, Intent(this, CompanionOverlayService::class.java).setAction(ACTION_CLOSE),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val home = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java),
+        val home = PendingIntent.getActivity(this, 0, desktopIntent(),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val notification = Notification.Builder(this, CHANNEL).setSmallIcon(R.drawable.ic_stat)
             .setContentTitle("AI 伴侣正在陪你浏览")
@@ -173,17 +177,33 @@ class CompanionOverlayService : Service() {
 
     private fun showPanel() {
         if (destroyed) return
-        panel?.let { it.visibility = View.VISIBLE; reflowOverlays(); return }
-        val root = LinearLayout(overlayUiContext).apply {
+        panel?.let {
+            it.visibility = View.VISIBLE
+            setPanelFocusable(true)
+            it.post { if (!destroyed && it.visibility == View.VISIBLE) registerPanelBack(it) }
+            reflowOverlays()
+            return
+        }
+        val root = object : LinearLayout(overlayUiContext) {
+            override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+                if (event.keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (event.action == KeyEvent.ACTION_UP && !event.isCanceled) handlePanelBack()
+                    return true
+                }
+                return super.dispatchKeyEvent(event)
+            }
+        }.apply {
             orientation = LinearLayout.VERTICAL; setPadding(dp(12), dp(8), dp(12), dp(12))
             background = background(Color.rgb(255, 248, 251), 18f)
             elevation = dp(8).toFloat()
+            isFocusableInTouchMode = true
         }
         val header = LinearLayout(overlayUiContext).apply { gravity = Gravity.CENTER_VERTICAL }
         header.addView(TextView(overlayUiContext).apply { text = characterName; textSize = 17f; setTextColor(Color.rgb(77, 43, 62)) }, LinearLayout.LayoutParams(0, -2, 1f))
         header.addView(button("收起") { hidePanel() })
         header.addView(button("×") { stopSelf() })
         root.addView(header)
+        root.addView(button("‹ 返回寻信桌面") { returnToDesktop() }, LinearLayout.LayoutParams(-1, dp(44)))
         transcript = TextView(overlayUiContext).apply { textSize = 15f; setTextColor(Color.rgb(64, 48, 60)); setTextIsSelectable(true); text = "点击头像，和${characterName}一起看看${appName()}。" }
         scroll = ScrollView(overlayUiContext).apply { addView(transcript) }
         root.addView(scroll, LinearLayout.LayoutParams(-1, 0, 1f))
@@ -208,6 +228,8 @@ class CompanionOverlayService : Service() {
         fitPanel(params)
         windows.addView(root, params)
         panel = root
+        root.requestFocus()
+        root.post { if (!destroyed && root.visibility == View.VISIBLE) registerPanelBack(root) }
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val next = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             if (next != imeBottom) {
@@ -329,7 +351,50 @@ class CompanionOverlayService : Service() {
 
     private fun hidePanel() {
         panel?.windowToken?.let { (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(it, 0) }
+        unregisterPanelBack?.invoke(); unregisterPanelBack = null
+        input?.clearFocus()
+        setPanelFocusable(false)
         panel?.visibility = View.GONE
+    }
+
+    private fun setPanelFocusable(focusable: Boolean) {
+        val root = panel ?: return
+        val params = root.layoutParams as? WindowManager.LayoutParams ?: return
+        params.flags = if (focusable) params.flags and WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE.inv()
+            else params.flags or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
+        windows.updateViewLayout(root, params)
+        if (focusable) root.requestFocus()
+    }
+
+    private fun registerPanelBack(root: View) {
+        if (Build.VERSION.SDK_INT < 33) return
+        unregisterPanelBack?.invoke(); unregisterPanelBack = null
+        val dispatcher = root.findOnBackInvokedDispatcher() ?: return
+        val callback = OnBackInvokedCallback { handlePanelBack() }
+        dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, callback)
+        unregisterPanelBack = { dispatcher.unregisterOnBackInvokedCallback(callback) }
+    }
+
+    private fun handlePanelBack() {
+        val root = panel ?: return
+        if (root.visibility != View.VISIBLE) return
+        if (ViewCompat.getRootWindowInsets(root)?.isVisible(WindowInsetsCompat.Type.ime()) == true) {
+            (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(root.windowToken, 0)
+            input?.clearFocus()
+            root.requestFocus()
+            return
+        }
+        returnToDesktop()
+    }
+
+    private fun desktopIntent() = Intent(this, MainActivity::class.java)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .putExtra(MainActivity.EXTRA_RETURN_TO_DESKTOP, true)
+
+    private fun returnToDesktop() {
+        runCatching { startActivity(desktopIntent()) }
+            .onSuccess { hidePanel(); stopSelf() }
+            .onFailure { Toast.makeText(this, "无法返回寻信，请从最近任务打开寻信", Toast.LENGTH_SHORT).show() }
     }
 
     private fun updateBusy() { readButton?.isEnabled = !busy; sendButton?.isEnabled = !busy; input?.isEnabled = !busy }
@@ -385,6 +450,7 @@ class CompanionOverlayService : Service() {
 
     override fun onDestroy() {
         destroyed = true
+        unregisterPanelBack?.invoke(); unregisterPanelBack = null
         if (::foldMonitor.isInitialized) foldMonitor.close()
         handler.removeCallbacksAndMessages(null)
         capture?.close(); capture = null

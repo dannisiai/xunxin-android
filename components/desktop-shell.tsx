@@ -857,6 +857,21 @@ export function DesktopShell({ initialThemeProfile, initialThemeAssets }: Deskto
   useEffect(() => listenForAndroidCompanion(), []);
 
   useEffect(() => {
+    const nativeWindow = window as Window & { __androidShellReturnHome?: boolean };
+    const returnHome = () => {
+      nativeWindow.__androidShellReturnHome = false;
+      setActiveApp(null);
+      setActiveChatSession(null);
+      setChatInitSessionId(null);
+      setOpenFolderId(null);
+      setEditMode(false);
+    };
+    window.addEventListener("android-shell-home", returnHome);
+    if (nativeWindow.__androidShellReturnHome) returnHome();
+    return () => window.removeEventListener("android-shell-home", returnHome);
+  }, []);
+
+  useEffect(() => {
     const refreshCustomApps = () => {
       const installed = loadInstalledCustomApps();
       setCustomApps(installed);

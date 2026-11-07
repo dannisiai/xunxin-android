@@ -11,6 +11,7 @@ export const COMPANION_APP_NAMES: Record<CompanionAppId, string> = { xiaohongshu
 
 type CompanionBridge = {
   supportsCompanionOverlay?: () => boolean;
+  stopCompanionOverlay?: () => void;
   setCompanionAvatar?: (overlayId: string, dataUrl: string) => void;
   completeCompanionRequest?: (overlayId: string, requestId: string, text: string, isError: boolean) => void;
 };
@@ -21,6 +22,10 @@ function bridge(): CompanionBridge | undefined {
 
 export function supportsAndroidCompanion(): boolean {
   try { return bridge()?.supportsCompanionOverlay?.() === true; } catch { return false; }
+}
+
+export function stopAndroidCompanion(): void {
+  try { bridge()?.stopCompanionOverlay?.(); } catch { /* Older shells can still close the launch page. */ }
 }
 
 export function companionLaunchUrl(appId: CompanionAppId, characterId: string, name: string): string {

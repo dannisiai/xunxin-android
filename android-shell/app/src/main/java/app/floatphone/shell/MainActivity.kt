@@ -58,6 +58,7 @@ class MainActivity : AppCompatActivity() {
         @Volatile var currentOverlayFold: OverlayFoldSnapshot? = null
         /** 来电接听等场景的站内深链（必须以 SITE_URL 开头，否则忽略） */
         const val EXTRA_OPEN_URL = "open_url"
+        const val EXTRA_RETURN_TO_DESKTOP = "return_to_desktop"
     }
 
     private var latestWindowLayout: OverlayFoldObservation? = null
@@ -66,6 +67,7 @@ class MainActivity : AppCompatActivity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var pendingCompanion: Bundle? = null
     private var pendingDocumentExport: String? = null
+    private var pendingDesktopReturn = false
 
     private val documentExportLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -155,6 +157,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         companionHost = WeakReference(this)
         pendingCompanion = savedInstanceState?.getBundle("pendingCompanion")
+        pendingDesktopReturn = intent?.getBooleanExtra(EXTRA_RETURN_TO_DESKTOP, false) == true
+        intent?.removeExtra(EXTRA_RETURN_TO_DESKTOP)
         // 音量键默认调媒体流：WebView 里的语音条/TTS 都走媒体流播放，
         // 不设的话短音频没在播时按键调的是铃声，用户感觉"音量键无效、声音巨大"
         volumeControlStream = AudioManager.STREAM_MUSIC
@@ -202,6 +206,7 @@ class MainActivity : AppCompatActivity() {
                 if (current?.scheme == site.scheme && current?.host == site.host && current?.port == site.port) {
                     view.evaluateJavascript("document.documentElement.dataset.androidShell='1'", null)
                     webViewWindow.viewportChanged(force = true)
+                    dispatchDesktopReturn()
                     currentFoldInfo?.let { fold ->
                         view.evaluateJavascript("window.__updateDeviceFoldInfo && window.__updateDeviceFoldInfo($fold)", null)
                     }
@@ -281,7 +286,11 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) webView.goBack() else moveTaskToBack(true)
+                if (!isTrustedPage()) { defaultBack(); return }
+                // React app switches do not create WebView history entries. Give the active page first refusal.
+                webView.evaluateJavascript("!window.dispatchEvent(new Event('android-shell-back',{cancelable:true}))") { handled ->
+                    if (!isFinishing && !isDestroyed && handled != "true") defaultBack()
+                }
             }
         })
 
@@ -367,9 +376,28 @@ class MainActivity : AppCompatActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
+        if (intent.getBooleanExtra(EXTRA_RETURN_TO_DESKTOP, false)) {
+            intent.removeExtra(EXTRA_RETURN_TO_DESKTOP)
+            pendingDesktopReturn = true
+            pendingCompanion = null
+            stopService(Intent(this, CompanionOverlayService::class.java))
+            dispatchDesktopReturn()
+            return
+        }
         val target = consumeOpenUrl(intent) ?: return
         // SPA 已加载：loadUrl 到同页 hash 只触发 hashchange，不会整页重载
         webView.loadUrl(target)
+    }
+
+    private fun defaultBack() {
+        if (webView.canGoBack()) webView.goBack() else moveTaskToBack(true)
+    }
+
+    private fun dispatchDesktopReturn() {
+        if (!pendingDesktopReturn || !isTrustedPage()) return
+        pendingDesktopReturn = false
+        // Retain a flag until React mounts if the Activity was cold-started from the overlay.
+        webView.evaluateJavascript("window.__androidShellReturnHome=true;window.dispatchEvent(new Event('android-shell-home'))", null)
     }
 
     private fun consumeOpenUrl(intent: Intent?): String? {
@@ -461,6 +489,15 @@ class MainActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun supportsCompanionOverlay(): Boolean = true
+
+        @JavascriptInterface
+        fun stopCompanionOverlay() {
+            runOnUiThread {
+                if (!isTrustedPage()) return@runOnUiThread
+                pendingCompanion = null
+                stopService(Intent(this@MainActivity, CompanionOverlayService::class.java))
+            }
+        }
 
         /** Save a user-selected document through Android's system file picker. */
         @JavascriptInterface

@@ -1,15 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { loadCharacters } from "@/lib/character-storage";
 import { getActiveCompanion, summonCharacterCompanion } from "@/lib/mascot-state";
-import { COMPANION_APP_NAMES, companionLaunchUrl, supportsAndroidCompanion, type CompanionAppId } from "@/lib/android-companion";
+import { COMPANION_APP_NAMES, companionLaunchUrl, stopAndroidCompanion, supportsAndroidCompanion, type CompanionAppId } from "@/lib/android-companion";
 import type { Character } from "@/lib/character-types";
 
 export function CompanionSocialApp({ appId, onClose }: { appId: CompanionAppId; onClose: () => void }) {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selected, setSelected] = useState("");
   const [supported, setSupported] = useState(false);
+  const close = useCallback(() => { stopAndroidCompanion(); onClose(); }, [onClose]);
+  useEffect(() => {
+    const back = (event: Event) => { event.preventDefault(); close(); };
+    window.addEventListener("android-shell-back", back);
+    return () => window.removeEventListener("android-shell-back", back);
+  }, [close]);
   useEffect(() => {
     const items = loadCharacters();
     setCharacters(items);
@@ -20,7 +26,7 @@ export function CompanionSocialApp({ appId, onClose }: { appId: CompanionAppId; 
   const name = COMPANION_APP_NAMES[appId];
   return (
     <div style={{ height: "100%", overflowY: "auto", background: "#fff8fa", padding: "calc(var(--cp-appbar-safe-top, 0px) + 20px) 20px 24px", color: "#453440" }}>
-      <button type="button" onClick={onClose} style={{ border: 0, background: "none", padding: "8px 0", color: "inherit" }}>‹ 返回</button>
+      <button type="button" onClick={close} style={{ border: 0, background: "none", minHeight: 44, padding: "8px 0", color: "inherit" }}>‹ 返回</button>
       <h2 style={{ fontSize: 22, margin: "24px 0 12px" }}>一起刷{name}</h2>
       <p style={{ lineHeight: 1.8 }}>带着你的 AI 伴侣打开手机里的{name}。点击悬浮头像，他就会看看当前屏幕，陪你聊聊。</p>
       {supported ? <>
